@@ -1,0 +1,32 @@
+<!--Source: https://www.scaler.com/topics/how-to-make-a-button-link-to-another-page-in-html/ -->
+
+<html>
+<head>
+  <title>Index</title>
+</head>
+<style>
+  .button {
+    border-width: 10;
+    border-color: rgb(0, 0, 0);
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 14px 28px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    position: absolute;
+    top: 10%;
+    right: 10%;
+  }
+</style>
+
+<body>
+  <input type="submit" onClick="myFunction()" value="HOME" class="button" />
+  <script>
+    function myFunction() {
+      window.location.href = "Hotel.html";
+    }
+  </script>
+</body>
+
+</html>
