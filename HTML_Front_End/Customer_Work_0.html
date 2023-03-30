@@ -1,0 +1,60 @@
+<!--https://t.ly/yLeN-->
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Hotel Search</h1>
+
+
+<form action="">
+ 
+  <label for="Check In">Check In:</label>
+  <input type="date" id="date_in" name="date_in" min="2023-04-01"><br><br>
+
+  <label for="Check Out">Check Out:</label>
+  <input type="date" id="date_out" name="date_out"><br><br>
+
+  <label for="capital_City">Choose a Captial City You Wish to Stay In:</label>
+  <select name="captial_city" id="city">
+    <option value="Ottawa">Ottawa, ON</option>
+    <option value="Toronto">Toronto, ON</option>
+    <option value="Quebec">Quebec, QB</option>
+    <option value="Victoria">Victoria, BC</option>
+    <option value="St. Johns">St. Johns, NL</option>
+    <option value="Charlottetown">Charlottetown, PE</option>
+    <option value="Halifax">Halifax, NS</option>
+    <option value="Fredericton">Fredericton, NB</option>
+    <option value="Winnipeg">Winnipeg, MB</option>
+    <option value="Regina">Regina, SK</option>
+    <option value="Edmonton">Edmonton, AB</option>
+    <option value="Iqaluit">Iqaluit, NU</option>
+    <option value="Yellowknife">Yellowknife, NT</option>
+    <option value="Whitehorse">Whitehorse, YT</option>
+  </select>
+  <br><br>
+
+  <label for="Hotel_Brand">Choose a Hotel_Brand:</label>
+  <select name="Hotel_Brand" id="HB">
+    <option value="H1">H1</option>
+    <option value="H2">H2</option>
+    <option value="H3">H3</option>
+    <option value="H4">H4</option>
+    <option value="H5">H5</option>
+  </select>
+  <br><br>
+
+  <label for="Room Capacity">Room Capacity</label>
+  <input type="number" id="Room_Capacity" name="Room_Capacity" min="1" max="4"><br><br>
+
+  <label for="Hotel Category">Hotel Category</label>
+  <input type="number" id="Hotel_Category" name="Hotel_Category" min="0" max="5"><br><br>
+
+  <label for="price">Price (between $20 and $200,000) per night:</label>
+  <input type="text" id="price" name="price-night" value="price-night"><br><br>
+
+  <input type="submit" value="Submit">
+</form>
+
+</body>
+</html>
