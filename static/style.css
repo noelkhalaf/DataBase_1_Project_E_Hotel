@@ -1,0 +1,58 @@
+html,body {
+    height:100%;
+    width:100%;
+    margin:0;
+  }
+
+body {
+    display:flex;
+    flex-direction: column;
+    font-family: 'Lexend Deca', sans-serif;
+}
+
+h2, h4 {
+    text-align: center;
+}
+  
+form {
+    margin:auto;
+    border: 3px solid #04AA6D;
+}
+
+.container {
+    align-items: center;
+}
+
+input, label {
+    display: block;
+}
+
+.textbox{
+    width: auto;
+    padding: 12px 20px;
+    margin: 8px 0;
+}
+
+button {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    font-family: 'Lexend Deca', sans-serif;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    width: auto;
+}
+
+.buttonHolder {
+    text-align: center;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.container {
+    padding: 16px;
+}

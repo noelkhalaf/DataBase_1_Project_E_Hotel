@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Customer</title>
+    
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+
+<body>
+    <form>
+        <div class="container">
+            <h4>Customer</h4>
+
+            <button type="submit" formaction="{{ url_for('customerSignIn') }}">Sign In</button>
+            <button type="submit" formaction="{{ url_for('customerSignUp') }}">Sign Up</button>
+        </div>
+    </form>
+</body>
+
+</html>

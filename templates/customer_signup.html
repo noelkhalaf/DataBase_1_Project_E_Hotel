@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sign Up</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <form action="{{ url_for('customerSignUp') }}" method="POST">
+        <div class="container">
+            <div class="msg">{{ msg }}</div>
+
+            <label for="username"><b>Username</b></label>
+            <input class="textbox" type="text" placeholder="Enter username" id="username" name="username" required>
+
+            <label for="password"><b>Password</b></label>
+            <input class="textbox" type="password" placeholder="Enter password" id="password" name="password" required>
+
+            <label for="sxn"><b>SXN</b></label>
+            <input class="textbox" type="text" placeholder="Enter sxn" id="sxn" name="sxn" required>
+
+            <label for="fname"><b>First Name</b></label>
+            <input class="textbox" type="text" placeholder="Enter first name" id="fname" name="fname" required>
+
+            <label for="lname"><b>Last Name</b></label>
+            <input class="textbox" type="text" placeholder="Enter last name" id="lname" name="lname" required>
+
+            <label for="address"><b>Address</b></label>
+            <input class="textbox" type="text" placeholder="Enter address" id="address" name="address" required>
+
+            <div class="buttonHolder">
+                <button type="submit">Sign Up</button>
+            </div>
+        </div>
+    </form>
+</body>
+
+
+</html>
