@@ -1,21 +1,15 @@
 from flask import *
 import mysql.connector
+from EHotels import eHotels
+from include import *
+import os
 
 app = Flask(__name__)
 
-db = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    passwd='root',
-    database='e_hotels'
-)
-
-cursor = db.cursor()
-
 # cursor.execute("CREATE DATABASE IF NOT EXISTS e_hotels")
 
-with open('schema.sql', 'r') as f:
-    db._execute_query(f.read())
+# with open('schema.sql', 'r') as f:
+#     db._execute_query(f.read())
 
 @app.route('/')
 def index():
@@ -35,28 +29,35 @@ def customerSignIn():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        cursor.execute('SELECT * FROM CUSTOMER WHERE username = % s AND password = % s', (username, password, ))
-        customer = cursor.fetchone()
-        if customer:
-            msg = 'Login success !'
+
+        eHotels.checkConnection()
+
+        if eHotels.getTable(table=customer_t, username=username, password=password):
+            msg = 'Login success! Welcome {username}!'
             return render_template('index.html', msg = msg)
         else:
             msg = 'Incorrect username or password'
+
+        eHotels.closeCursor()
+
     return render_template('customer_signin.html', msg = msg)
 
 @app.route('/employeeSignIn', methods=['GET', 'POST'])
-def emplyeeSignIn():
+def employeeSignIn():
     msg = ''
     if request.method == 'POST':
         employee_id = request.form['employee_id']
         fname = request.form['fname']
-        cursor.execute('SELECT * FROM EMPLOYEE WHERE employee_id = % s AND first_name = % s', (employee_id, fname, ))
-        employee = cursor.fetchone()
-        if employee:
-            msg = 'Login success !'
+
+        eHotels.checkConnection()
+        if eHotels.getTable(table=employee_t, employee_id=employee_id, first_name=fname):
+            msg = 'Login success! Welcome {fname}!'
             return render_template('index.html', msg = msg)
         else:
             msg = 'Incorrect id or first name'
+
+        eHotels.closeCursor()
+
     return render_template('employee_signin.html', msg = msg)
 
 @app.route('/customerSignUp', methods=['GET', 'POST'])
@@ -69,15 +70,17 @@ def customerSignUp():
         lname = request.form['lname']
         address = request.form['address']
         password = request.form['password']
-        cursor.execute('SELECT * FROM CUSTOMER WHERE username = % s', (username, ))
-        customer = cursor.fetchone()
-        if not customer:
-            cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, % s, % s, % s, % s, CURDATE())', (username, password, sxn, fname, lname, address, ))
-            db.commit()
-            msg = 'Customer created successfully !'
+
+        eHotels.checkConnection()
+        if eHotels.getTable(table=customer_t, username=username):
+            msg = f'Customer with username {username} already exists'
         else:
-            msg = 'Customer already exists'
-    return render_template('customer_signup.html', msg = msg)
+            eHotels.insertCustomer(sxn, fname, lname, address, username, password)
+            msg = f'Customer with username {username} created successfully!'
+
+        eHotels.closeCursor()
+
+    return render_template('customer_signup.html', msg=msg)
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)
