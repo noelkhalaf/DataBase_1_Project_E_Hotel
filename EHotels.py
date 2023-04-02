@@ -1,8 +1,8 @@
 import mysql.connector
 
 host = 'localhost'
-user = 'root'
-passwd = 'password'
+user = 'root'           # Modify this field
+passwd = 'password'     # Modify this field
 database = 'e_hotels'
 
 class EHotels:
