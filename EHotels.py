@@ -1,9 +1,8 @@
 import mysql.connector
-import os
 
 host = 'localhost'
 user = 'root'
-passwd = os.environ.get('MYSQL_PASSWD')
+passwd = 'password'
 database = 'e_hotels'
 
 class EHotels:
@@ -12,13 +11,27 @@ class EHotels:
         self.user = user
         self.passwd = passwd
         self.database = database
+        self.connect()
+        self.connectDB()
+
+    def connect(self):
         self.db = mysql.connector.connect(
-                host=host,
-                user=user,
-                passwd=passwd,
-                database=database
-            )
-        self.cursor = self.db.cursor()
+                host=self.host,
+                user=self.user,
+                passwd=self.passwd,
+        )
+        self.resetCursor()
+
+    def connectDB(self):
+        self.execute("CREATE DATABASE IF NOT EXISTS e_hotels")
+        self.execute("USE e_hotels")
+        self.db = mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                passwd=self.passwd,
+                database=self.database
+        )
+        self.resetCursor()
 
     def checkConnection(self):
         if not self.db.is_connected():
@@ -33,6 +46,7 @@ class EHotels:
 
     def execute(self, query):
         self.cursor.execute(query)
+        self.commit()
 
     def commit(self):
         self.db.commit()
@@ -49,7 +63,6 @@ class EHotels:
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
         self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
-        self.commit()
     
     def getConditions(self, dict):
         conditions_pairs = []
