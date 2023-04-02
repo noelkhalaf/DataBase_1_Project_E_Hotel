@@ -30,12 +30,14 @@ CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE ( -- Added
 );
 
 CREATE TABLE IF NOT EXISTS CUSTOMER (
-	customer_id CHAR(5) NOT NULL,
-    sxn CHAR(9),
+    customer_id INT AUTO_INCREMENT NOT NULL,
+    sxn CHAR(9) NOT NULL,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    address VARCHAR(30),
+    address VARCHAR(30) NOT NULL,
     registration_date DATE NOT NULL,
+    username VARCHAR(30) UNIQUE NOT NULL,
+    password VARCHAR(30) NOT NULL,
     PRIMARY KEY (customer_id)
 );
 
@@ -115,7 +117,7 @@ CREATE TABLE IF NOT EXISTS ROOM_AMENITY ( -- Added
 
 CREATE TABLE IF NOT EXISTS RENTAL (
 	rental_id CHAR(5) NOT NULL,
-    customer_id CHAR(5) NOT NULL,
+    customer_id INT NOT NULL,
     chain_name VARCHAR(30) NOT NULL, -- Added
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
@@ -134,7 +136,7 @@ CREATE TABLE IF NOT EXISTS RENTAL (
 
 CREATE TABLE IF NOT EXISTS RENTAL_ARCHIVE (
 	rental_id CHAR(5) NOT NULL,
-    customer_id CHAR(5) NOT NULL,
+    customer_id INT NOT NULL,
     chain_name VARCHAR(30) NOT NULL, -- Added
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
@@ -153,7 +155,7 @@ CREATE TABLE IF NOT EXISTS RENTAL_ARCHIVE (
 
 CREATE TABLE IF NOT EXISTS BOOKING (
 	booking_id CHAR(5) NOT NULL,
-    customer_id CHAR(5) NOT NULL,
+    customer_id INT NOT NULL,
     chain_name VARCHAR(30) NOT NULL, -- Added
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
@@ -167,7 +169,7 @@ CREATE TABLE IF NOT EXISTS BOOKING (
 
 CREATE TABLE IF NOT EXISTS BOOKING_ARCHIVE (
 	booking_id CHAR(5) NOT NULL,
-    customer_id CHAR(5) NOT NULL,
+    customer_id INT NOT NULL,
     chain_name VARCHAR(30) NOT NULL, -- Added
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
