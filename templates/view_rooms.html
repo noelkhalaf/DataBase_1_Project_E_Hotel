@@ -4,66 +4,100 @@
 <head>
     <title>Sign Up</title>
 
+    <!-- Style sheet (CSS) and JavaScript scripts necessary to use Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Your own additional style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-    <form action="{{ url_for('viewRooms') }}" method="POST">
-        <div class="container">
+    <div class="container">
+        <h2>Room Search</h2>
+        <hr>
 
-            <label for="start_date"><b>Start Date</b></label>
-            <input class="calender" type="date" id="start_date" name="start_date" max="<?= date('Y-m-d'); ?>">
-
-            <label for="end_date"><b>End Date</b></label>
-            <input class="calender" type="date" id="end_date" name="end_date" max="<?= date('Y-m-d'); ?>">
-
-            <label for="room_capacity"><b>Room Capacity</b></label>
-            <select id="room_capacity" name="room_capacity">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-
-            <label for="city"><b>City</b></label>
-            <input class="textbox" type="text" id="city" name="city">
-
-            <label for="hotel_chain"><b>Hotel Chain</b></label>
-            <select id="hotel_chain" name="hotel_chain">
-                <option value="Hilton">Hilton</option>
-                <option value="Hyatt">Hyatt</option>
-                <option value="Marriott">Marriott</option>
-                <option value="IHG">IHG</option>
-                <option value="Wyndham">Wyndham</option>
-            </select>
-
-            <label for="category"><b>Category</b></label>
-            <select id="category" name="category">
-                <option value="1-star">1-star</option>
-                <option value="2-star">2-star</option>
-                <option value="3-star">3-star</option>
-                <option value="4-star">4-star</option>
-                <option value="5-star">5-star</option>
-            </select>
-
-            <label for="total_no_rooms"><b>Number of Rooms</b></label>
-            <select id="total_no_rooms" name="total_no_rooms">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" min="100" max="500">
-
-            <div class="buttonHolder">
-                <button type="submit">Search</button>
+        <form action="{{ url_for('viewRooms') }}" method="POST">
+            <div class="table">
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="start_date">Start Date</label>
+                        <input class="form-control" type="date" id="start_date" name="start_date" max="<?= date('Y-m-d'); ?>">
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="end_date">End Date</label>
+                        <input class="form-control" type="date" id="end_date" name="end_date" max="<?= date('Y-m-d'); ?>">
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <label class="form-label" for="city">City</label>
+                    <input class="form-control" type="text" id="city" name="city">
+                </div>
+                <div class="table-cell">
+                    <label class="form-label" for="price">Price:</label>
+                    <input class="form-control" type="number" id="price" name="price" min="100" max="500">
+                </div>
             </div>
-        </div>
-    </form>
+            
+            <div class="table">
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="hotel_chain">Hotel Chain</b></label>
+                        <select class="form-control" id="hotel_chain" name="hotel_chain">
+                            <option value="Hilton">Hilton</option>
+                            <option value="Hyatt">Hyatt</option>
+                            <option value="Marriott">Marriott</option>
+                            <option value="IHG">IHG</option>
+                            <option value="Wyndham">Wyndham</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="category">Category</label>
+                            <select class="form-control" id="category" name="category">
+                                <option value="1-star">1-star</option>
+                                <option value="2-star">2-star</option>
+                                <option value="3-star">3-star</option>
+                                <option value="4-star">4-star</option>
+                                <option value="5-star">5-star</option>
+                            </select>
+                        </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="room_capacity">Room Capacity</label>
+                        <select class="form-control" id="room_capacity" name="room_capacity">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="total_no_rooms">Number of Rooms</label>
+                        <select class="form-control" id="total_no_rooms" name="total_no_rooms">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="buttonHolder">
+                <button type="submit" class="btn btn-primary btn-block">Search</button>
+            </div>
+            <hr>
+        </form>
+    </div>
 </body>
 
 

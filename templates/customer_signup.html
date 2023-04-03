@@ -3,38 +3,60 @@
 
 <head>
     <title>Sign Up</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Style sheet (CSS) and JavaScript scripts necessary to use Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
+    <!-- Your own additional style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-    <form action="{{ url_for('customerSignUp') }}" method="POST">
-        <div class="container">
-            <div class="msg">{{ msg }}</div>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <hr>
 
-            <label for="username"><b>Username</b></label>
-            <input class="textbox" type="text" placeholder="Enter username" id="username" name="username" required>
-
-            <label for="password"><b>Password</b></label>
-            <input class="textbox" type="password" placeholder="Enter password" id="password" name="password" required>
-
-            <label for="sxn"><b>SXN</b></label>
-            <input class="textbox" type="text" placeholder="Enter sxn" id="sxn" name="sxn" required>
-
-            <label for="fname"><b>First Name</b></label>
-            <input class="textbox" type="text" placeholder="Enter first name" id="fname" name="fname" required>
-
-            <label for="lname"><b>Last Name</b></label>
-            <input class="textbox" type="text" placeholder="Enter last name" id="lname" name="lname" required>
-
-            <label for="address"><b>Address</b></label>
-            <input class="textbox" type="text" placeholder="Enter address" id="address" name="address" required>
-
-            <div class="buttonHolder">
-                <button type="submit">Sign Up</button>
+        <form action="{{ url_for('customerSignUp') }}" method="POST">
+            <div class="form-group">
+                <label  for="username">Username</label>
+                <input class="form-control" type="text" placeholder="Username" id="username" name="username" required>
             </div>
-        </div>
-    </form>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input class="form-control" type="password" placeholder="Password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="sxn">SXN</label>
+                <input class="form-control" type="text" placeholder="SXN" id="sxn" name="sxn" required>
+            </div>
+            <div class="table-name">
+                <div class="table-left">
+                    <div class="form-group">
+                        <label class="form-label" for="fname">First Name</label>
+                        <input class="form-control" type="text" placeholder="First name" id="fname" name="fname" required>
+                    </div>
+                </div>
+                <div class="table-right">
+                    <div class="form-group">
+                        <label class="form-label" for="lname">Last Name</label>
+                        <input class="form-control" type="text" placeholder="Last name" id="lname" name="lname" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="address">Address</label>
+                <input class="form-control" type="text" placeholder="Address" id="address" name="address" required>
+            </div>
+            <div class="buttonHolder">
+                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+            </div>
+            <div class="container msg">{{ msg }}</div>
+        </form>
+    </div>
 </body>
 
 

@@ -82,5 +82,20 @@ def customerSignUp():
 
     return render_template('customer_signup.html', msg=msg)
 
+@app.route('/viewRooms', methods=['GET', 'POST'])
+def viewRooms():
+    if request.method == 'POST':
+        # start_date = request.form['start_date']
+        # end_date = request.form['end_date']
+        # room_capacity = request.form['room_capacity']
+        # city = request.form['city']
+        # hotel_chain = request.form['hotel_chain']
+        # category = request.form['category']
+        # total_no_rooms = request.form['total_no_rooms']
+        # price = request.form['price']
+        return redirect(url_for('index)'))
+    
+    return render_template('view_rooms.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

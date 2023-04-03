@@ -1,58 +1,55 @@
-html,body {
-    height:100%;
-    width:100%;
-    margin:0;
-  }
-
 body {
-    display:flex;
-    flex-direction: column;
-    font-family: 'Lexend Deca', sans-serif;
+    font-family: "PT Serif", serif;
 }
 
-h2, h4 {
-    text-align: center;
-}
-  
 form {
-    margin:auto;
-    border: 3px solid #04AA6D;
+    margin-top: 10px;
 }
 
-.container {
-    align-items: center;
+.table {
+    display: table;
+    margin-bottom: 0;
+    border-spacing: 5px;
 }
 
-input, label {
-    display: block;
+.table-name {
+    display: table;
+    margin-bottom: 0;
 }
 
-.textbox{
-    width: auto;
-    padding: 12px 20px;
-    margin: 8px 0;
+.table-cell {
+    display: table-cell;
 }
 
-button {
-    background-color: #04AA6D;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    font-family: 'Lexend Deca', sans-serif;
-    border: none;
-    cursor: pointer;
+.table-left {
+    display: table-cell;
+}
+
+.table-right{
+    display: table-cell;
+}
+
+.buttonHolder{
+    padding-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
     display: inline-block;
-    width: auto;
+    background: #f1f1f1;
 }
 
-.buttonHolder {
+hr {
+    border: 1px solid #f1f1f1;
+}
+
+.msg {
+    background-color: #f1f1f1;
     text-align: center;
 }
 
-button:hover {
-    opacity: 0.8;
-}
-
-.container {
-    padding: 16px;
+.signup {
+    background-color: #f1f1f1;
+    text-align: center;
+    width: auto;
 }
