@@ -15,6 +15,7 @@ form {
 .table-name {
     display: table;
     margin-bottom: 0;
+    width: 100%;
 }
 
 .table-cell {
@@ -23,10 +24,12 @@ form {
 
 .table-left {
     display: table-cell;
+    padding-right: 5px;
 }
 
 .table-right{
     display: table-cell;
+    padding-left: 5px;
 }
 
 .buttonHolder{
