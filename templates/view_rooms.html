@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sign Up</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <form action="{{ url_for('viewRooms') }}" method="POST">
+        <div class="container">
+
+            <label for="start_date"><b>Start Date</b></label>
+            <input class="calender" type="date" id="start_date" name="start_date" max="<?= date('Y-m-d'); ?>">
+
+            <label for="end_date"><b>End Date</b></label>
+            <input class="calender" type="date" id="end_date" name="end_date" max="<?= date('Y-m-d'); ?>">
+
+            <label for="room_capacity"><b>Room Capacity</b></label>
+            <select id="room_capacity" name="room_capacity">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <label for="city"><b>City</b></label>
+            <input class="textbox" type="text" id="city" name="city">
+
+            <label for="hotel_chain"><b>Hotel Chain</b></label>
+            <select id="hotel_chain" name="hotel_chain">
+                <option value="Hilton">Hilton</option>
+                <option value="Hyatt">Hyatt</option>
+                <option value="Marriott">Marriott</option>
+                <option value="IHG">IHG</option>
+                <option value="Wyndham">Wyndham</option>
+            </select>
+
+            <label for="category"><b>Category</b></label>
+            <select id="category" name="category">
+                <option value="1-star">1-star</option>
+                <option value="2-star">2-star</option>
+                <option value="3-star">3-star</option>
+                <option value="4-star">4-star</option>
+                <option value="5-star">5-star</option>
+            </select>
+
+            <label for="total_no_rooms"><b>Number of Rooms</b></label>
+            <select id="total_no_rooms" name="total_no_rooms">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" min="100" max="500">
+
+            <div class="buttonHolder">
+                <button type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</body>
+
+
+</html>
