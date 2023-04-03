@@ -39,7 +39,7 @@ class EHotels:
         self.resetCursor()
 
     def resetCursor(self):
-        self.cursor = self.db.cursor()
+        self.cursor = self.db.cursor(buffered=True, dictionary=True)
 
     def closeCursor(self):
         self.cursor.close()
@@ -54,12 +54,19 @@ class EHotels:
     def fetchone(self):
         return self.cursor.fetchone()
 
+    def fetchall(self):
+        return self.cursor.fetchall()
+
     def getTable(self, *args, **kwargs):
         selected = '*' if not args else ','.join(args)
         conditions = '' if not kwargs else self.getConditions(kwargs)
         query = f'SELECT {selected} FROM {kwargs["table"]} {conditions}'
+        print(query)
         self.execute(query)
-        return self.fetchone()
+        if kwargs.get("fetchall"):
+            return self.fetchall()
+        else:
+            return self.fetchone()
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
         self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
@@ -67,7 +74,7 @@ class EHotels:
     def getConditions(self, dict):
         conditions_pairs = []
         for attribute, value in dict.items():
-            if value is not None and attribute != 'table':
+            if value is not None and attribute != 'table' and attribute != 'fetchall':
                 conditions_pairs.append(f'{attribute} = \"{value}\"')
         conditions = 'WHERE '+ ' AND '.join(conditions_pairs)
         return conditions
