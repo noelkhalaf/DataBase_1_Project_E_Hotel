@@ -12,7 +12,7 @@
 
 1. Ensure your terminal is currently within the `DataBase_1_Project_E_Hotel\` directory by navigating to it.
 
-2. Run `pip install -r requirements.txt` in the terminal. This will install all the necessary dependencies for the project.
+2. Run `pip3 install -r requirements.txt` in the terminal. This will install all the necessary dependencies for the project.
 
 3. Change the `user` and `passwd` fields at the top of the `EHotels.py` file to match your MySQL credentials
 
