@@ -6,11 +6,6 @@ import os
 
 app = Flask(__name__)
 
-# cursor.execute("CREATE DATABASE IF NOT EXISTS e_hotels")
-
-# with open('schema.sql', 'r') as f:
-#     db._execute_query(f.read())
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -31,13 +26,11 @@ def customerSignIn():
         password = request.form['password']
 
         eHotels.checkConnection()
-
         if eHotels.getTable(table=customer_t, username=username, password=password):
-            msg = 'Login success! Welcome {username}!'
+            msg = f'Login success! Welcome {username}!'
             return render_template('index.html', msg = msg)
         else:
             msg = 'Incorrect username or password'
-
         eHotels.closeCursor()
 
     return render_template('customer_signin.html', msg = msg)
@@ -51,11 +44,10 @@ def employeeSignIn():
 
         eHotels.checkConnection()
         if eHotels.getTable(table=employee_t, employee_id=employee_id, first_name=fname):
-            msg = 'Login success! Welcome {fname}!'
+            msg = f'Login success! Welcome {fname}!'
             return render_template('index.html', msg = msg)
         else:
             msg = 'Incorrect id or first name'
-
         eHotels.closeCursor()
 
     return render_template('employee_signin.html', msg = msg)
@@ -77,7 +69,6 @@ def customerSignUp():
         else:
             eHotels.insertCustomer(sxn, fname, lname, address, username, password)
             msg = f'Customer with username {username} created successfully!'
-
         eHotels.closeCursor()
 
     return render_template('customer_signup.html', msg=msg)

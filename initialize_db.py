@@ -3,6 +3,8 @@ from EHotels import eHotels
 msg = input('Are you sure you want to reset the e_hotels database to its initial state? (y/n): ')
 if msg == 'y' or msg == 'yes' or msg == 'yep' or msg == 'yeah' or msg == 'ye':
     pass
+elif msg == 'n' or msg == 'no' or msg == 'nope' or msg == 'nah' or msg == 'negatory':
+    exit('Got it, cancelled database reset')
 else:
     exit('Invalid response, cancelled database reset')
 
