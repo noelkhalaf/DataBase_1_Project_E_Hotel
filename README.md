@@ -23,9 +23,9 @@ passwd = 'password'     # Modify this field
 database = 'e_hotels'
 ```
 
-4. Run `python initialize_db.py` in the terminal. This will reset the e_hotels database to its initial state.
+4. Run `python3 initialize_db.py` in the terminal. This will reset the e_hotels database to its initial state.
 
 ## Running
 
-1. To start the site, simply run `python app.py` in the terminal.
+1. To start the site, simply run `python3 app.py` in the terminal.
 2. Copy the address next to **Running on** shown in the terminal into your browser. Or simply click this link: http://127.0.0.1:7777
