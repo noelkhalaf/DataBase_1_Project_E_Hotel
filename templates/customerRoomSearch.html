@@ -47,9 +47,23 @@
                     <input class="form-control" type="text" id="city" name="city">
                 </div>
                 <div class="table-cell">
-                    <label class="form-label" for="price">Price:</label>
-                    <input class="form-control" type="number" id="price" name="price" min="100" max="500">
+                    <label class="form-label" for="min_price">Min Price</label>
+                    <input class="form-control" type="number" id="min_price" name="min_price" min="0" max="" onclick="this.select();">
                 </div>
+                <div class="table-cell">
+                    <label class="form-label" for="max_price">Max Price</label>
+                    <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="500" oninput="updatePriceBound()" onclick="this.select();">
+                </div>
+                <script>
+                    function updatePriceBound() {
+                        var maxPrice = document.getElementById("max_price").value;
+                        document.getElementById("min_price").setAttribute("max", maxPrice);
+                        var minPrice = document.getElementById("min_price").value;
+                        if (minPrice > maxPrice) {
+                            document.getElementById("min_price").value = maxPrice;
+                        }
+                    }
+                </script>
             </div>
             
             <div class="table">
