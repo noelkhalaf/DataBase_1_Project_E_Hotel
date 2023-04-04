@@ -1,22 +1,14 @@
-from flask import *
-import mysql.connector
+from flask import Flask, request, render_template, redirect, url_for, flash
+import secrets
 from EHotels import eHotels
 from include import *
-import os
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 
 @app.route('/')
 def index():
     return render_template('index.html')
-    
-@app.route('/employee')
-def employee():
-    return render_template('employee.html')
-
-@app.route('/customer')
-def customer():
-    return render_template('customer.html')
 
 @app.route('/customerSignIn', methods=['GET', 'POST'])
 def customerSignIn():
@@ -27,13 +19,12 @@ def customerSignIn():
 
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username, password=password):
-            msg = f'Login success! Welcome {username}!'
-            return render_template('index.html', msg = msg)
+            flash(f'Login success! Welcome {username}!')
+            return redirect(url_for('customerRoomSearch'))
         else:
             msg = 'Incorrect username or password'
-        eHotels.closeCursor()
 
-    return render_template('customer_signin.html', msg = msg)
+    return render_template('index.html', msg = msg)
 
 @app.route('/employeeSignIn', methods=['GET', 'POST'])
 def employeeSignIn():
@@ -45,12 +36,11 @@ def employeeSignIn():
         eHotels.checkConnection()
         if eHotels.getTable(table=employee_t, employee_id=employee_id, first_name=fname):
             msg = f'Login success! Welcome {fname}!'
-            return render_template('index.html', msg = msg)
+            # return redirect(url_for('employeeRoomSearch'))
         else:
             msg = 'Incorrect id or first name'
-        eHotels.closeCursor()
 
-    return render_template('employee_signin.html', msg = msg)
+    return render_template('index.html', msg = msg)
 
 @app.route('/customerSignUp', methods=['GET', 'POST'])
 def customerSignUp():
@@ -68,13 +58,13 @@ def customerSignUp():
             msg = f'Customer with username {username} already exists'
         else:
             eHotels.insertCustomer(sxn, fname, lname, address, username, password)
-            msg = f'Customer with username {username} created successfully!'
-        eHotels.closeCursor()
+            flash(f'Customer with username {username} created successfully!')
+            return redirect(url_for('customerSignIn'))
 
-    return render_template('customer_signup.html', msg=msg)
+    return render_template('customerSignUp.html', msg=msg)
 
-@app.route('/viewRooms', methods=['GET', 'POST'])
-def viewRooms():
+@app.route('/customerRoomSearch', methods=['GET', 'POST'])
+def customerRoomSearch():
     if request.method == 'POST':
         # start_date = request.form['start_date']
         # end_date = request.form['end_date']
@@ -84,9 +74,10 @@ def viewRooms():
         # category = request.form['category']
         # total_no_rooms = request.form['total_no_rooms']
         # price = request.form['price']
-        return redirect(url_for('index)'))
-    
-    return render_template('view_rooms.html')
+        # return redirect(url_for('index)'))
+        pass
+
+    return render_template('customerRoomSearch.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

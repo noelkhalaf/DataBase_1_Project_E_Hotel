@@ -16,6 +16,16 @@
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="container">
         <h2>Sign Up</h2>
         <hr>
@@ -48,7 +58,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label" for="address">Address</label>
+                <label class="form-label" for="eaddress">Address</label>
                 <input class="form-control" type="text" placeholder="example@domain.com" id="address" name="address" pattern="\S+@\S+" maxlength="30" required>
             </div>
             <div class="buttonHolder">

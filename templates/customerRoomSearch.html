@@ -14,11 +14,21 @@
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="container">
         <h2>Room Search</h2>
         <hr>
 
-        <form action="{{ url_for('viewRooms') }}" method="POST">
+        <form action="{{ url_for('customerRoomSearch') }}" method="POST">
             <div class="table">
                 <div class="table-cell">
                     <div class="form-group">
