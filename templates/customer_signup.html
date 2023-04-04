@@ -23,33 +23,33 @@
         <form action="{{ url_for('customerSignUp') }}" method="POST">
             <div class="form-group">
                 <label  for="username">Username</label>
-                <input class="form-control" type="text" placeholder="Username" id="username" name="username" required>
+                <input class="form-control" type="text" placeholder="Username" id="username" name="username" maxlength="30" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="password">Password</label>
-                <input class="form-control" type="password" placeholder="Password" id="password" name="password" required>
+                <input class="form-control" type="password" placeholder="Password" id="password" name="password" maxlength="30" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="sxn">SXN</label>
-                <input class="form-control" type="text" placeholder="SXN" id="sxn" name="sxn" required>
+                <input class="form-control" type="text" placeholder="xxxxxxxxx" id="sxn" name="sxn" pattern="[0-9]{9}" maxlength="9" required>
             </div>
             <div class="table-name">
                 <div class="table-left">
                     <div class="form-group">
                         <label class="form-label" for="fname">First Name</label>
-                        <input class="form-control" type="text" placeholder="First name" id="fname" name="fname" required>
+                        <input class="form-control" type="text" placeholder="First name" id="fname" name="fname" maxlength="30" required>
                     </div>
                 </div>
                 <div class="table-right">
                     <div class="form-group">
                         <label class="form-label" for="lname">Last Name</label>
-                        <input class="form-control" type="text" placeholder="Last name" id="lname" name="lname" required>
+                        <input class="form-control" type="text" placeholder="Last name" id="lname" name="lname" maxlength="30" required>
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="form-label" for="address">Address</label>
-                <input class="form-control" type="text" placeholder="Address" id="address" name="address" required>
+                <input class="form-control" type="text" placeholder="example@domain.com" id="address" name="address" pattern="\S+@\S+" maxlength="30" required>
             </div>
             <div class="buttonHolder">
                 <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
