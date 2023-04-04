@@ -73,12 +73,19 @@ CREATE TABLE IF NOT EXISTS HOTEL (
 );
 CREATE INDEX index_hotel_id ON HOTEL (hotel_id);
 
--- CREATE TRIGGER increment_num_hotels
--- AFTER INSERT ON HOTEL
--- FOR EACH ROW
--- UPDATE HOTEL_CHAIN
--- SET num_hotels = num_hotels + 1
--- WHERE id = NEW.chain_id;
+CREATE TRIGGER increment_num_hotels
+AFTER INSERT ON HOTEL
+FOR EACH ROW
+UPDATE HOTEL_CHAIN
+SET num_hotels = num_hotels + 1
+WHERE chain_id = NEW.chain_id;
+
+CREATE TRIGGER decrement_num_hotels
+AFTER DELETE ON HOTEL
+FOR EACH ROW
+UPDATE HOTEL_CHAIN
+SET num_hotels = num_hotels - 1
+WHERE chain_id = OLD.chain_id;
 
 ALTER TABLE EMPLOYEE
 ADD COLUMN hotel_id CHAR(5);
@@ -112,6 +119,20 @@ CREATE TABLE IF NOT EXISTS ROOM (
 		ON DELETE CASCADE
 		ON UPDATE CASCADE
 );
+
+CREATE TRIGGER increment_num_rooms
+AFTER INSERT ON ROOM
+FOR EACH ROW
+UPDATE HOTEL
+SET num_rooms = num_rooms + 1
+WHERE hotel_id = NEW.hotel_id;
+
+CREATE TRIGGER decrement_num_rooms
+AFTER DELETE ON ROOM
+FOR EACH ROW
+UPDATE HOTEL
+SET num_rooms = num_rooms - 1
+WHERE hotel_id = OLD.hotel_id;
 
 CREATE TABLE IF NOT EXISTS ROOM_AMENITY ( -- Added
 	hotel_id CHAR(5) NOT NULL,
@@ -189,20 +210,26 @@ CREATE TABLE IF NOT EXISTS BOOKING_ARCHIVE (
     FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 );
 
--- CREATE VIEW IF NOT EXISTS view_available_rooms
--- SELECT city, 
+CREATE VIEW view_available_rooms AS
+SELECT h.city, hc.chain_name, h.hotel_name, h.rating, COUNT(r.available) AS Available_Rooms
+FROM HOTEL_CHAIN hc
+JOIN HOTEL h ON hc.chain_id = h.chain_id
+JOIN ROOM r ON h.hotel_id = r.hotel_id
+WHERE r.available = TRUE
+GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.rating;
 
--- CREATE VIEW view_capacity AS
--- SELECT HOTEL.hotel_id, room_num, capacity
--- FROM HOTEL, ROOM;
+CREATE VIEW view_capacity AS
+SELECT h.hotel_name, r.room_num, r.capacity
+FROM HOTEL h
+JOIN ROOM r ON h.hotel_id = r.hotel_id;
 
 INSERT INTO HOTEL_CHAIN (chain_id, chain_name, num_hotels, email, phone_number)
 VALUES
-('0000A', 'Hilton', 8, 'support@hilton.com', '(364) 744-9920'),
-('0000B', 'Hyatt', 8, 'support@hyatt.com', '(654) 440-5155'),
-('0000C', 'Marriott', 8, 'support@marriott.com', '(839) 385-3736'),
-('0000D', 'IHG', 8, 'support@ihg.com', '(211) 732-6435'),
-('0000E', 'Wyndham', 8, 'support@wyndham.com', '(848) 818-8802');
+('0000A', 'Hilton', 0, 'support@hilton.com', '(364) 744-9920'),
+('0000B', 'Hyatt', 0, 'support@hyatt.com', '(654) 440-5155'),
+('0000C', 'Marriott', 0, 'support@marriott.com', '(839) 385-3736'),
+('0000D', 'IHG', 0, 'support@ihg.com', '(211) 732-6435'),
+('0000E', 'Wyndham', 0, 'support@wyndham.com', '(848) 818-8802');
 
 INSERT INTO CENTRAL_OFFICE (chain_id, address)
 VALUES
@@ -346,50 +373,50 @@ VALUES
 
 INSERT INTO HOTEL (hotel_id, chain_id, manager_id, hotel_name, rating, num_rooms, city, address, email, phone_number)
 VALUES
-('A0001', '0000A', 'A1001', 'Canopy', '3-star', 5, 'Lima', '1006 Upland Avenue', 'support@canopy.com', '419-233-9601'),
-('A0002', '0000A', 'A2001', 'Conrad Hotel & Resort', '4-star', 5, 'Louisville', '922 Earnhardt Drive', 'support@conrad.com', '502-634-2737'),
-('A0003', '0000A', 'A3001', 'Curio Collection', '3-star', 5, 'Milwaukee', '4824 Johnny Lane', 'support@curio.com', '414-332-6767'),
-('A0004', '0000A', 'A4001', 'DoubleTree', '3-star', 5, 'San Francisco', '4733 Thompson Drive', 'support@doubletree.com', '747-232-0482'),
-('A0005', '0000A', 'A5001', 'Hampton', '3-star', 5, 'Waterproof', '1241 Emerson Road', 'support@hampton.com', '318-749-7831'),
-('A0006', '0000A', 'A6001', 'LXR Hotel & Resort', '4-star', 5, 'Louisville', '3431 Cerullo Road', 'support@lxr.com', '502-452-7369'),
-('A0007', '0000A', 'A7001', 'Tru', '3-star', 5, 'Tallahassee', '4264 Virgil Street', 'support@tru.com', '850-228-6208'),
-('A0008', '0000A', 'A8001', 'Embassy Suite', '5-star', 5, 'New Orleans', '3209 Big Indian', 'support@embassysuites.com', '504-568-9770'),
+('A0001', '0000A', 'A1001', 'Canopy', '3-star', 0, 'Lima', '1006 Upland Avenue', 'support@canopy.com', '419-233-9601'),
+('A0002', '0000A', 'A2001', 'Conrad Hotel & Resort', '4-star', 0, 'Louisville', '922 Earnhardt Drive', 'support@conrad.com', '502-634-2737'),
+('A0003', '0000A', 'A3001', 'Curio Collection', '3-star', 0, 'Milwaukee', '4824 Johnny Lane', 'support@curio.com', '414-332-6767'),
+('A0004', '0000A', 'A4001', 'DoubleTree', '3-star', 0, 'San Francisco', '4733 Thompson Drive', 'support@doubletree.com', '747-232-0482'),
+('A0005', '0000A', 'A5001', 'Hampton', '3-star', 0, 'Waterproof', '1241 Emerson Road', 'support@hampton.com', '318-749-7831'),
+('A0006', '0000A', 'A6001', 'LXR Hotel & Resort', '4-star', 0, 'Louisville', '3431 Cerullo Road', 'support@lxr.com', '502-452-7369'),
+('A0007', '0000A', 'A7001', 'Tru', '3-star', 0, 'Tallahassee', '4264 Virgil Street', 'support@tru.com', '850-228-6208'),
+('A0008', '0000A', 'A8001', 'Embassy Suite', '5-star', 0, 'New Orleans', '3209 Big Indian', 'support@embassysuites.com', '504-568-9770'),
 
-('B0001', '0000B', 'B1001', 'Hyatt Place', '3-star', 5, 'Fort Lauderdale', '4653 Foley Street', 'support@hyattplace.com', '304-694-1467'),
-('B0002', '0000B', 'B2001', 'Spirit Ridge', '3-star', 5, 'Denver', '3718 Stark Hollow Road', 'support@spiritridge.com', '970-812-9599'),
-('B0003', '0000B', 'B3001', 'Andaz', '3-star', 5, 'South Boston', '3049 Hinkle Lake Road', 'support@andaz.com', '269-499-9079'),
-('B0004', '0000B', 'B4001', 'Park Hyatt', '3-star', 5, 'China Grove', '3812 Kelly Street', 'support@parkhyatt.com', '805-342-8021'),
-('B0005', '0000B', 'B5001', 'The Anndore House', '4-star', 5, 'Denver', '1857 Sampson Street', 'support@anndore.com', '477-546-9498'),
-('B0006', '0000B', 'B6001', 'Tempe Mission Palms', '4-star', 5, 'Defiance', '539 Hill Street', 'support@tempepalms.com', '771-279-2479'),
-('B0007', '0000B', 'B7001', 'The Eliza Jane', '4-star', 5, 'Earlville', '397 Emeral Dreams Drive', 'support@elizajane.com', '334-595-3424'),
-('B0008', '0000B', 'B8001', 'The Walper Hotel', '5-star', 5, 'Somerville', '3040 Gerald L. Bates Drive', 'support@walperhotel.com', '530-702-6218'),
+('B0001', '0000B', 'B1001', 'Hyatt Place', '3-star', 0, 'Fort Lauderdale', '4653 Foley Street', 'support@hyattplace.com', '304-694-1467'),
+('B0002', '0000B', 'B2001', 'Spirit Ridge', '3-star', 0, 'Denver', '3718 Stark Hollow Road', 'support@spiritridge.com', '970-812-9599'),
+('B0003', '0000B', 'B3001', 'Andaz', '3-star', 0, 'South Boston', '3049 Hinkle Lake Road', 'support@andaz.com', '269-499-9079'),
+('B0004', '0000B', 'B4001', 'Park Hyatt', '3-star', 0, 'China Grove', '3812 Kelly Street', 'support@parkhyatt.com', '805-342-8021'),
+('B0005', '0000B', 'B5001', 'The Anndore House', '4-star', 0, 'Denver', '1857 Sampson Street', 'support@anndore.com', '477-546-9498'),
+('B0006', '0000B', 'B6001', 'Tempe Mission Palms', '4-star', 0, 'Defiance', '539 Hill Street', 'support@tempepalms.com', '771-279-2479'),
+('B0007', '0000B', 'B7001', 'The Eliza Jane', '4-star', 0, 'Earlville', '397 Emeral Dreams Drive', 'support@elizajane.com', '334-595-3424'),
+('B0008', '0000B', 'B8001', 'The Walper Hotel', '5-star', 0, 'Somerville', '3040 Gerald L. Bates Drive', 'support@walperhotel.com', '530-702-6218'),
 
-('C0001', '0000C', 'C1001', 'AC Hotel', '3-star', 5, 'Westland', '2941 Bombardier Way', 'support@canopy.com', '586-729-3821'),
-('C0002', '0000C', 'C2001', 'Autograph Collection', '3-star', 5, 'Ashtabula', '1572 Vineyard Drive', 'support@conrad.com', '440-536-1901'),
-('C0003', '0000C', 'C3001', 'City Express', '3-star', 5, 'Tampa', '1197 Collins Street', 'support@curio.com', '813-400-0048'),
-('C0004', '0000C', 'C4001', 'Delta Hotel', '3-star', 5, 'Atlanta', '1509 Stroop Hill Road', 'support@doubletree.com', '678-230-8898'),
-('C0005', '0000C', 'C5001', 'Courtyard', '4-star', 5, 'Dallas', '4981 Deercove Drive', 'support@hampton.com', '214-552-3542'),
-('C0006', '0000C', 'C6001', 'Moxy', '4-star', 5, 'Mira Loma', '4470 Carriage Court', 'support@lxr.com', '951-362-1487'),
-('C0007', '0000C', 'C7001', 'Tribute', '4-star', 5, 'Doral', '1534 Warner Street', 'support@tru.com', '305-994-6699'),
-('C0008', '0000C', 'C8001', 'EDITION', '5-star', 5, 'Tampa', '4696 Saints Alley', 'support@embassysuites.com', '813-694-0955'),
+('C0001', '0000C', 'C1001', 'AC Hotel', '3-star', 0, 'Westland', '2941 Bombardier Way', 'support@canopy.com', '586-729-3821'),
+('C0002', '0000C', 'C2001', 'Autograph Collection', '3-star', 0, 'Ashtabula', '1572 Vineyard Drive', 'support@conrad.com', '440-536-1901'),
+('C0003', '0000C', 'C3001', 'City Express', '3-star', 0, 'Tampa', '1197 Collins Street', 'support@curio.com', '813-400-0048'),
+('C0004', '0000C', 'C4001', 'Delta Hotel', '3-star', 0, 'Atlanta', '1509 Stroop Hill Road', 'support@doubletree.com', '678-230-8898'),
+('C0005', '0000C', 'C5001', 'Courtyard', '4-star', 0, 'Dallas', '4981 Deercove Drive', 'support@hampton.com', '214-552-3542'),
+('C0006', '0000C', 'C6001', 'Moxy', '4-star', 0, 'Mira Loma', '4470 Carriage Court', 'support@lxr.com', '951-362-1487'),
+('C0007', '0000C', 'C7001', 'Tribute', '4-star', 0, 'Doral', '1534 Warner Street', 'support@tru.com', '305-994-6699'),
+('C0008', '0000C', 'C8001', 'EDITION', '5-star', 0, 'Tampa', '4696 Saints Alley', 'support@embassysuites.com', '813-694-0955'),
 
-('D0001', '0000D', 'D1001', 'Ritz-Carlton', '1-star', 5, 'Tempe', '2734 East Avenue', 'support@ritzcarlton.com', '480-355-8447'),
-('D0002', '0000D', 'D2001', 'Aman Resort', '1-star', 5, 'Brooklyn', '1499 Redbud Drive', 'support@amanresort.com', '347-890-8363'),
-('D0003', '0000D', 'D3001', 'Four Seasons', '2-star', 5, 'Dallas', '2430 Ersel Street', 'support@fourseasons.com', '214-408-6999'),
-('D0004', '0000D', 'D4001', 'Candlewood Suite', '2-star', 5, 'Naperville', '4517 Hickman Street', 'support@candlewoodsuite.com', '630-505-2028'),
-('D0005', '0000D', 'D5001', 'Vignette', '2-star', 5, 'Graceville', '2431 Virgil Street', 'support@vignette.com', '850-263-5314'),
-('D0006', '0000D', 'D6001', 'Kimpton', '2-star', 5, 'La Cygne', '4574 Charter Street', 'support@kimpton.com', '913-757-2423'),
-('D0007', '0000D', 'D7001', 'Hotel Indigo', '3-star', 5, 'Princeton', '4568 Sherman Street', 'support@hotelindigo.com', '785-937-3298'),
-('D0008', '0000D', 'D8001', 'InterContinetal', '5-star', 5, 'Brooklyn', '584 Pride Avenue', 'support@intercontinetal.com', '718-332-3923'),
+('D0001', '0000D', 'D1001', 'Ritz-Carlton', '1-star', 0, 'Tempe', '2734 East Avenue', 'support@ritzcarlton.com', '480-355-8447'),
+('D0002', '0000D', 'D2001', 'Aman Resort', '1-star', 0, 'Brooklyn', '1499 Redbud Drive', 'support@amanresort.com', '347-890-8363'),
+('D0003', '0000D', 'D3001', 'Four Seasons', '2-star', 0, 'Dallas', '2430 Ersel Street', 'support@fourseasons.com', '214-408-6999'),
+('D0004', '0000D', 'D4001', 'Candlewood Suite', '2-star', 0, 'Naperville', '4517 Hickman Street', 'support@candlewoodsuite.com', '630-505-2028'),
+('D0005', '0000D', 'D5001', 'Vignette', '2-star', 0, 'Graceville', '2431 Virgil Street', 'support@vignette.com', '850-263-5314'),
+('D0006', '0000D', 'D6001', 'Kimpton', '2-star', 0, 'La Cygne', '4574 Charter Street', 'support@kimpton.com', '913-757-2423'),
+('D0007', '0000D', 'D7001', 'Hotel Indigo', '3-star', 0, 'Princeton', '4568 Sherman Street', 'support@hotelindigo.com', '785-937-3298'),
+('D0008', '0000D', 'D8001', 'InterContinetal', '5-star', 0, 'Brooklyn', '584 Pride Avenue', 'support@intercontinetal.com', '718-332-3923'),
 
-('E0001', '0000E', 'E1001', 'AmericInn', '3-star', 5, 'Marion', '1031 Payne Street', 'support@americinn.com', '276-243-8678'),
-('E0002', '0000E', 'E2001', 'Baymont', '4-star', 5, 'Wrangle Hill', '3710 Columbia Road', 'support@baymont.com', '302-838-4839'),
-('E0003', '0000E', 'E3001', 'Dazzler', '4-star', 5, 'Detroit', '2768 Tuna Street', 'support@dazzler.com', '810-813-9213'),
-('E0004', '0000E', 'E4001', 'Esplendor', '4-star', 5, 'New York', '1563 Redbud Drive', 'support@esplendor.com', '347-923-4460'),
-('E0005', '0000E', 'E5001', 'Howard Johnson', '4-star', 5, 'Kingsport', '2450 Corbin Branch Road', 'support@howardjohnson.com', '423-502-4598'),
-('E0006', '0000E', 'E6001', 'La Quinta', '5-star', 5, 'San Diego', '2575 Willison Street', 'support@laquinta.com', '619-242-8201'),
-('E0007', '0000E', 'E7001', 'Origin', '5-star', 5, 'Marion', '3888 Shady Pines Drive', 'support@origin.com', '276-780-1328'),
-('E0008', '0000E', 'E8001', 'TRYP', '5-star', 5, 'Mayhill', '1736 Cooks Mine Road', 'support@tryp.com', '505-203-6521');
+('E0001', '0000E', 'E1001', 'AmericInn', '3-star', 0, 'Marion', '1031 Payne Street', 'support@americinn.com', '276-243-8678'),
+('E0002', '0000E', 'E2001', 'Baymont', '4-star', 0, 'Wrangle Hill', '3710 Columbia Road', 'support@baymont.com', '302-838-4839'),
+('E0003', '0000E', 'E3001', 'Dazzler', '4-star', 0, 'Detroit', '2768 Tuna Street', 'support@dazzler.com', '810-813-9213'),
+('E0004', '0000E', 'E4001', 'Esplendor', '4-star', 0, 'New York', '1563 Redbud Drive', 'support@esplendor.com', '347-923-4460'),
+('E0005', '0000E', 'E5001', 'Howard Johnson', '4-star', 0, 'Kingsport', '2450 Corbin Branch Road', 'support@howardjohnson.com', '423-502-4598'),
+('E0006', '0000E', 'E6001', 'La Quinta', '5-star', 0, 'San Diego', '2575 Willison Street', 'support@laquinta.com', '619-242-8201'),
+('E0007', '0000E', 'E7001', 'Origin', '5-star', 0, 'Marion', '3888 Shady Pines Drive', 'support@origin.com', '276-780-1328'),
+('E0008', '0000E', 'E8001', 'TRYP', '5-star', 0, 'Mayhill', '1736 Cooks Mine Road', 'support@tryp.com', '505-203-6521');
 
 UPDATE EMPLOYEE SET hotel_id = 'A0001' WHERE employee_id LIKE 'A1%';
 UPDATE EMPLOYEE SET hotel_id = 'A0002' WHERE employee_id LIKE 'A2%';
