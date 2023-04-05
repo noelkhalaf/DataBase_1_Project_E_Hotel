@@ -24,8 +24,8 @@
         {% if messages %}
             {% for category, message in messages %}
             <div class="alert alert-{{ category }}">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong class="mr-auto">{{ message }}</strong>
+                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
             </div>
             {% endfor %}
         {% endif %}
@@ -72,7 +72,6 @@
                     <div class="buttonHolder">
                         <button type="submit" class="btn btn-primary btn-block mb-4">Sign In</button>
                     </div>
-                    <div class="container msg">{{ msg }}</div>
                 </form>
             </div>
             <div class="tab-pane fade" id="customer" role="tabpanel" aria-labelledby="tab-customer">
@@ -91,7 +90,6 @@
                     <div class="container signup">
                         <p>Not registered? <a href="{{ url_for('customerSignUp') }}">Sign Up</a></p>
                     </div>
-                    <div class="container msg">{{ msg }}</div>
                 </form>
             </div>
         </div>
