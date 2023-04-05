@@ -12,7 +12,6 @@ def index():
 
 @app.route('/customerSignIn', methods=['GET', 'POST'])
 def customerSignIn():
-    msg = ''
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -22,29 +21,27 @@ def customerSignIn():
             flash(f'Login success! Welcome {username}!')
             return redirect(url_for('customerRoomSearch'))
         else:
-            msg = 'Incorrect username or password'
+            flash('Incorrect username or password')
 
-    return render_template('index.html', msg = msg)
+    return render_template('index.html')
 
 @app.route('/employeeSignIn', methods=['GET', 'POST'])
 def employeeSignIn():
-    msg = ''
     if request.method == 'POST':
         employee_id = request.form['employee_id']
         fname = request.form['fname']
 
         eHotels.checkConnection()
         if eHotels.getTable(table=employee_t, employee_id=employee_id, first_name=fname):
-            msg = f'Login success! Welcome {fname}!'
+            flash(f'Login success! Welcome {fname}!')
             # return redirect(url_for('employeeRoomSearch'))
         else:
-            msg = 'Incorrect id or first name'
+            flash('Incorrect id or first name')
 
-    return render_template('index.html', msg = msg)
+    return render_template('index.html')
 
 @app.route('/customerSignUp', methods=['GET', 'POST'])
 def customerSignUp():
-    msg = ''
     if request.method == 'POST':
         username = request.form['username']
         sxn = request.form['sxn']
@@ -55,13 +52,13 @@ def customerSignUp():
 
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username):
-            msg = f'Customer with username {username} already exists'
+            flash(f'Customer with username {username} already exists')
         else:
             eHotels.insertCustomer(sxn, fname, lname, address, username, password)
             flash(f'Customer with username {username} created successfully!')
             return redirect(url_for('customerSignIn'))
 
-    return render_template('customerSignUp.html', msg=msg)
+    return render_template('customerSignUp.html')
 
 @app.route('/customerRoomSearch', methods=['GET', 'POST'])
 def customerRoomSearch():
@@ -69,14 +66,16 @@ def customerRoomSearch():
     list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
     if request.method == 'POST':
         start_date = request.form['start_date']
-        # end_date = request.form['end_date']
-        # room_capacity = request.form['room_capacity']
-        # city = request.form['city']
-        # hotel_chain = request.form['hotel_chain']
-        # category = request.form['category']
-        # total_no_rooms = request.form['total_no_rooms']
-        # price = request.form['price']
-        # return redirect(url_for('index)'))
+        end_date = request.form['end_date']
+        room_capacity = request.form['room_capacity']
+        city = request.form['city']
+        hotel_chain = request.form['hotel_chain']
+        category = request.form['category']
+        total_no_rooms = request.form['total_no_rooms']
+        min_price = request.form['min_price']
+        max_price = request.form['max_price']
+        avilable_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price)
+        return render_template('customerRoomSearch.html')
 
     return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']))
 
