@@ -2,7 +2,7 @@ import mysql.connector
 
 host = 'localhost'
 user = 'root'           # Modify this field
-passwd = '>*{R8*;kqj'     # Modify this field
+passwd = 'password'     # Modify this field
 database = 'e_hotels'
 
 class EHotels:
@@ -80,20 +80,7 @@ class EHotels:
         conditions = ' AND '.join(list(filter(None, conditions_lst)))
         return conditions
     
-    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price):
-
-        # if no start_date and no end_date
-        #   no condition
-        # elif start_date and no end_date
-        #   check start_date not between start_date and end_date of any bookings, check start_date not before end_date of any rentings
-        # elif no start_date and end_date
-        #   check end_date not between start_date and end_date of any bookings, check end_date not before end_date of any rentings
-        # elif start_date and end_date
-        #   check start_date not between start_date and end_date of any bookings, check start_date not before end_date of any rentings
-        #   check end_date not between start_date and end_date of any bookings
-        #   check start_date of any bookings not between start_date and end_date
-        #   check end_date of any bookings not between start_date and end_date
-
+    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, individually=False):
         dict_simple = {
             'r.capacity': room_capacity,
             'h.city': city,
@@ -101,31 +88,82 @@ class EHotels:
             'h.category': category,
             'h.num_rooms': total_no_rooms,
         }
-
-        price_condition = self.getRangeCondition('r.price', min_price, max_price)
         simple_conditions = self.getSimpleConditions(dict_simple)
-        complex_conditions = ''
+        price_condition = self.getPriceCondition(min_price, max_price)
+        date_conditions = self.getDateConditions(start_date, end_date)
         
-        conditions = self.joinConditions([price_condition, simple_conditions, complex_conditions])
+        conditions = self.joinConditions([simple_conditions, price_condition, date_conditions])
         if conditions: conditions = f'WHERE {conditions}'
 
-        query = f"""
-            SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.available) AS available_rooms
-            FROM view_available_rooms var
-            JOIN HOTEL h ON var.hotel_name = h.hotel_name
-            JOIN ROOM r ON h.hotel_id = r.hotel_id
-            {conditions}
-            GROUP BY var.city, var.chain_name, var.hotel_name, var.category;
-        """
+        if individually:
+            query = f"""
+                SELECT var.chain_name, var.hotel_name, r.room_num
+                FROM view_available_rooms var
+                JOIN HOTEL h ON var.hotel_name = h.hotel_name
+                JOIN ROOM r ON h.hotel_id = r.hotel_id
+                {conditions}
+            """
+        else:
+            query = f"""
+                SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.available) AS available_rooms
+                FROM view_available_rooms var
+                JOIN HOTEL h ON var.hotel_name = h.hotel_name
+                JOIN ROOM r ON h.hotel_id = r.hotel_id
+                {conditions}
+                GROUP BY var.city, var.chain_name, var.hotel_name, var.category
+            """
 
-    def getRangeCondition(self, attribute, low, high):
+    def getPriceCondition(self, low, high):
         condition = ''
         if low and high:
-            condition = f'{attribute} BETWEEN {low} AND {high}'
+            condition = f'r.price BETWEEN {low} AND {high}'
         elif low and not high:
-            condition = f'{attribute} > {low}'
+            condition = f'r.price >= {low}'
         elif not low and high:
-            condition = f'{attribute} < {high}'
+            condition = f'r.price <= {high}'
+        return condition
+
+    def getDateCondition(self, start_date, end_date):
+        condition = ''
+        if start_date and end_date:
+            condition = f"""
+                (var.hotel_name, r.room_num) NOT IN (
+                    SELECT re.hotel_name, re.room_num
+                    FROM RENTAL re
+                    WHERE {start_date} < re.check_out_date
+                    UNION
+                    SELECT bo.hotel_name, bo.room_num
+                    FROM BOOKING bo
+                    WHERE bo.exp_check_in_date <= {start_date} AND {start_date} < bo.exp_check_out_date
+                    OR bo.exp_check_in_date < {end_date} AND {end_date} <= bo.exp_check_out_date
+                    OR {start_date} <= bo.exp_check_in_date AND bo.exp_check_in_date < {end_date}
+                    OR {start_date} < bo.exp_check_out_date AND bo.exp_check_out_date <= {end_date}
+                )
+            """
+        elif start_date and not end_date:
+            condition = f"""
+                (var.hotel_name, r.room_num) NOT IN (
+                    SELECT re.hotel_name, re.room_num
+                    FROM RENTAL re
+                    WHERE {start_date} < re.check_out_date
+                    UNION
+                    SELECT bo.hotel_name, bo.room_num
+                    FROM BOOKING bo
+                    WHERE bo.exp_check_in_date <= {start_date} AND {start_date} < bo.exp_check_out_date
+                )
+            """
+        elif not start_date and end_date:
+            condition - f"""
+                (var.hotel_name, r.room_num) NOT IN (
+                    SELECT re.hotel_name, re.room_num
+                    FROM RENTAL re
+                    WHERE {end_date} <= re.check_out_date
+                    UNION
+                    SELECT bo.hotel_name, bo.room_num
+                    FROM BOOKING bo
+                    WHERE bo.exp_check_in_date < {end_date} AND {end_date} <= bo.exp_check_out_date
+                )
+            """
         return condition
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
