@@ -215,8 +215,8 @@ SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.available) AS av
 FROM HOTEL_CHAIN hc
 JOIN HOTEL h ON hc.chain_id = h.chain_id
 JOIN ROOM r ON h.hotel_id = r.hotel_id
-GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.category, r.available
-HAVING r.available = TRUE;
+WHERE r.available = TRUE
+GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.category, r.available;
 
 CREATE VIEW view_capacity AS
 SELECT h.hotel_name, r.room_num, r.capacity
