@@ -71,7 +71,7 @@ class EHotels:
         if not dict: return ''
         conditions_pairs = []
         for attribute, value in dict.items():
-            if value is not None:
+            if value:
                 conditions_pairs.append(f'{attribute} = \"{value}\"')
         conditions = self.joinConditions(conditions_pairs)
         return conditions
@@ -91,7 +91,7 @@ class EHotels:
         simple_conditions = self.getSimpleConditions(dict_simple)
         price_condition = self.getPriceCondition(min_price, max_price)
         date_conditions = self.getDateConditions(start_date, end_date)
-        
+
         conditions = self.joinConditions([simple_conditions, price_condition, date_conditions])
         if conditions: conditions = f'WHERE {conditions}'
 
@@ -105,13 +105,15 @@ class EHotels:
             """
         else:
             query = f"""
-                SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.available) AS available_rooms
+                SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.room_num) AS available_rooms
                 FROM view_available_rooms var
                 JOIN HOTEL h ON var.hotel_name = h.hotel_name
                 JOIN ROOM r ON h.hotel_id = r.hotel_id
                 {conditions}
                 GROUP BY var.city, var.chain_name, var.hotel_name, var.category
             """
+        self.execute(query)
+        return self.fetchall()
 
     def getPriceCondition(self, low, high):
         condition = ''
@@ -123,21 +125,21 @@ class EHotels:
             condition = f'r.price <= {high}'
         return condition
 
-    def getDateCondition(self, start_date, end_date):
+    def getDateConditions(self, start_date, end_date):
         condition = ''
         if start_date and end_date:
             condition = f"""
                 (var.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
-                    WHERE {start_date} < re.check_out_date
+                    WHERE "{start_date}" < re.check_out_date
                     UNION
                     SELECT bo.hotel_name, bo.room_num
                     FROM BOOKING bo
-                    WHERE bo.exp_check_in_date <= {start_date} AND {start_date} < bo.exp_check_out_date
-                    OR bo.exp_check_in_date < {end_date} AND {end_date} <= bo.exp_check_out_date
-                    OR {start_date} <= bo.exp_check_in_date AND bo.exp_check_in_date < {end_date}
-                    OR {start_date} < bo.exp_check_out_date AND bo.exp_check_out_date <= {end_date}
+                    WHERE bo.exp_check_in_date <= "{start_date}" AND "{start_date}" < bo.exp_check_out_date
+                    OR bo.exp_check_in_date < "{end_date}" AND "{end_date}" <= bo.exp_check_out_date
+                    OR "{start_date}" <= bo.exp_check_in_date AND bo.exp_check_in_date < "{end_date}"
+                    OR "{start_date}" < bo.exp_check_out_date AND bo.exp_check_out_date <= "{end_date}"
                 )
             """
         elif start_date and not end_date:
@@ -145,23 +147,23 @@ class EHotels:
                 (var.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
-                    WHERE {start_date} < re.check_out_date
+                    WHERE "{start_date}" < re.check_out_date
                     UNION
                     SELECT bo.hotel_name, bo.room_num
                     FROM BOOKING bo
-                    WHERE bo.exp_check_in_date <= {start_date} AND {start_date} < bo.exp_check_out_date
+                    WHERE bo.exp_check_in_date <= "{start_date}" AND "{start_date}" < bo.exp_check_out_date
                 )
             """
         elif not start_date and end_date:
-            condition - f"""
+            condition = f"""
                 (var.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
-                    WHERE {end_date} <= re.check_out_date
+                    WHERE "{end_date}" <= re.check_out_date
                     UNION
                     SELECT bo.hotel_name, bo.room_num
                     FROM BOOKING bo
-                    WHERE bo.exp_check_in_date < {end_date} AND {end_date} <= bo.exp_check_out_date
+                    WHERE bo.exp_check_in_date < "{end_date}" AND "{end_date}" <= bo.exp_check_out_date
                 )
             """
         return condition
