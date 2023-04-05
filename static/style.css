@@ -46,11 +46,6 @@ hr {
     border: 1px solid #f1f1f1;
 }
 
-.msg {
-    background-color: #f1f1f1;
-    text-align: center;
-}
-
 .signup {
     text-align: center;
 }
@@ -64,4 +59,14 @@ hr {
 
 .alert strong {
     padding: 10px;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>th {
+   background-color: #f1f1f1;
+ }
+
+td, th {
+    text-align: center;
+    vertical-align: middle;
 }

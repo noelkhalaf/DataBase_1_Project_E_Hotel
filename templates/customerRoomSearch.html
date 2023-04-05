@@ -160,8 +160,48 @@
             <div class="buttonHolder">
                 <button type="submit" class="btn btn-primary btn-block">Search</button>
             </div>
-            <hr>
         </form>
+        <hr>
+        {% if list_of_rooms %}
+            <table class="table table-striped" id="rooms-table">
+                <thead class="table-dark">
+                    <tr class="table-col">
+                        <th scope="col">Hotel ID</th>
+                        <th scope="col">View Type</th>
+                        <th scope="col">Capacity</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in list_of_rooms %}
+                <tr>
+                    <th scope="row">{{ row['hotel_id'] }}</th>
+                    <td>{{ row['view_type'] }}</td>
+                    <td>{{ row['capacity'] }}</td>
+                    <td><button type="submit" class="btn btn-primary btn-block" onclick="bookRoom(`{{ row['hotel_id'] }}`, `{{ row['room_num'] }}`, `{{ row['view_type'] }}`,`{{ row['capacity'] }}`)">Book</button></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <script>
+                function bookRoom(hotel_id, room_num, view_type, capacity) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/bookRoom", true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) { alert(xhr.responseText) }
+                    }
+
+                    var room = JSON.stringify({
+                        hotel_id: hotel_id,
+                        room_num: room_num,
+                        view_type: view_type,
+                        capacity: capacity
+                    })
+                    console.log(room)
+                }
+            </script>
+        {% endif %}
     </div>
 </body>
 
