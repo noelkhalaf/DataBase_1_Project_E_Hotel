@@ -52,7 +52,16 @@ hr {
 }
 
 .signup {
-    background-color: #f1f1f1;
     text-align: center;
-    width: auto;
+}
+
+.alert {
+    position: fixed;
+    top: 10px;
+    right: 120px;
+    background: #f1f1f1;
+}
+
+.alert strong {
+    padding: 10px;
 }

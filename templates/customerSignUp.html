@@ -20,8 +20,8 @@
         {% if messages %}
             {% for category, message in messages %}
             <div class="alert alert-{{ category }}">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong class="mr-auto">{{ message }}</strong>
+                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
             </div>
             {% endfor %}
         {% endif %}
@@ -58,13 +58,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label" for="eaddress">Address</label>
-                <input class="form-control" type="text" placeholder="example@domain.com" id="address" name="address" pattern="\S+@\S+" maxlength="30" required>
+                <label class="form-label" for="address">Address</label>
+                <input class="form-control" type="text" placeholder="Address" id="address" name="address" maxlength="30" required>
             </div>
             <div class="buttonHolder">
                 <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
             </div>
-            <div class="container msg">{{ msg }}</div>
         </form>
     </div>
 </body>
