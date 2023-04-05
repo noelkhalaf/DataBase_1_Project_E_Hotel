@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     chain_id CHAR(5) NOT NULL,
     manager_id CHAR(5) NOT NULL,
     hotel_name VARCHAR(30) NOT NULL,
-    rating ENUM('1-star', '2-star', '3-star', '4-star', '5-star'),
+    category ENUM('1-star', '2-star', '3-star', '4-star', '5-star'),
     num_rooms INTEGER,
     city VARCHAR(30) NOT NULL, -- Added
     address VARCHAR(30),
@@ -211,12 +211,12 @@ CREATE TABLE IF NOT EXISTS BOOKING_ARCHIVE (
 );
 
 CREATE VIEW view_available_rooms AS
-SELECT h.city, hc.chain_name, h.hotel_name, h.rating, COUNT(r.available) AS Available_Rooms
+SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.available) AS available_rooms
 FROM HOTEL_CHAIN hc
 JOIN HOTEL h ON hc.chain_id = h.chain_id
 JOIN ROOM r ON h.hotel_id = r.hotel_id
-WHERE r.available = TRUE
-GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.rating;
+GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.category, r.available
+HAVING r.available = TRUE;
 
 CREATE VIEW view_capacity AS
 SELECT h.hotel_name, r.room_num, r.capacity
@@ -371,7 +371,7 @@ VALUES
 ('E8002', '0000E', '060784523', 'Bernard', 'Cain'),
 ('E8003', '0000E', '578821525', 'Merle', 'Torres');
 
-INSERT INTO HOTEL (hotel_id, chain_id, manager_id, hotel_name, rating, num_rooms, city, address, email, phone_number)
+INSERT INTO HOTEL (hotel_id, chain_id, manager_id, hotel_name, category, num_rooms, city, address, email, phone_number)
 VALUES
 ('A0001', '0000A', 'A1001', 'Canopy', '3-star', 0, 'Lima', '1006 Upland Avenue', 'support@canopy.com', '419-233-9601'),
 ('A0002', '0000A', 'A2001', 'Conrad Hotel & Resort', '4-star', 0, 'Louisville', '922 Earnhardt Drive', 'support@conrad.com', '502-634-2737'),
