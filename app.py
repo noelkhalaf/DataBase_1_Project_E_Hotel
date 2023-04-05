@@ -65,8 +65,10 @@ def customerSignUp():
 
 @app.route('/customerRoomSearch', methods=['GET', 'POST'])
 def customerRoomSearch():
+    eHotels.checkConnection()
+    list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
     if request.method == 'POST':
-        # start_date = request.form['start_date']
+        start_date = request.form['start_date']
         # end_date = request.form['end_date']
         # room_capacity = request.form['room_capacity']
         # city = request.form['city']
@@ -75,9 +77,8 @@ def customerRoomSearch():
         # total_no_rooms = request.form['total_no_rooms']
         # price = request.form['price']
         # return redirect(url_for('index)'))
-        pass
 
-    return render_template('customerRoomSearch.html')
+    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']))
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

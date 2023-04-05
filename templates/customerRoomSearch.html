@@ -18,8 +18,8 @@
         {% if messages %}
             {% for category, message in messages %}
             <div class="alert alert-{{ category }}">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong class="mr-auto">{{ message }}</strong>
+                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
             </div>
             {% endfor %}
         {% endif %}
@@ -33,26 +33,63 @@
                 <div class="table-cell">
                     <div class="form-group">
                         <label class="form-label" for="start_date">Start Date</label>
-                        <input class="form-control" type="date" id="start_date" name="start_date" max="<?= date('Y-m-d'); ?>">
+                        <input class="form-control" type="date" id="start_date" name="start_date">
                     </div>
                 </div>
                 <div class="table-cell">
                     <div class="form-group">
                         <label class="form-label" for="end_date">End Date</label>
-                        <input class="form-control" type="date" id="end_date" name="end_date" max="<?= date('Y-m-d'); ?>">
+                        <input class="form-control" type="date" id="end_date" name="end_date">
+                    </div>
+                </div>
+                <script>
+                    var today = new Date().toLocaleDateString('en-ca');
+                    var start_date = document.getElementById("start_date");
+                    var end_date = document.getElementById("end_date");
+                    
+                    // set min to today
+                    start_date.setAttribute("min", today)
+                    end_date.setAttribute("min", today)
+
+                    // on input set max to end_date-1
+                    end_date.addEventListener("input", function () {
+                        var date = new Date(end_date.value);
+                        date.setDate(date.getDate() - 1);
+                        console.log(date.toISOString().slice(0, 10))
+                        start_date.setAttribute("max", date.toISOString().slice(0, 10))
+                    })
+                    // on input set min to start_date+1 
+                    start_date.addEventListener("input", function () {
+                        var date = new Date(start_date.value);
+                        date.setDate(date.getDate() + 1);
+                        console.log(date.toISOString().slice(0, 10))
+                        end_date.setAttribute("min", date.toISOString().slice(0, 10))
+                    })
+                </script>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="category">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="-">-</option>
+                            <option value="1-star">1-star</option>
+                            <option value="2-star">2-star</option>
+                            <option value="3-star">3-star</option>
+                            <option value="4-star">4-star</option>
+                            <option value="5-star">5-star</option>
+                        </select>
                     </div>
                 </div>
                 <div class="table-cell">
-                    <label class="form-label" for="city">City</label>
-                    <input class="form-control" type="text" id="city" name="city">
+                    <div class="form-group">
+                        <label class="form-label" for="min_price">Min Price</label>
+                        <input class="form-control" type="number" id="min_price" name="min_price" min="0" max="" onclick="this.select();">
+                    </div>
                 </div>
                 <div class="table-cell">
-                    <label class="form-label" for="min_price">Min Price</label>
-                    <input class="form-control" type="number" id="min_price" name="min_price" min="0" max="" onclick="this.select();">
-                </div>
-                <div class="table-cell">
-                    <label class="form-label" for="max_price">Max Price</label>
-                    <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="500" oninput="updatePriceBound()" onclick="this.select();">
+                    <div class="form-group">
+                        <label class="form-label" for="max_price">Max Price</label>
+                        <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="500" oninput="updatePriceBound()" onclick="this.select();">
+                    </div>
                 </div>
                 <script>
                     function updatePriceBound() {
@@ -71,6 +108,7 @@
                     <div class="form-group">
                         <label class="form-label" for="hotel_chain">Hotel Chain</b></label>
                         <select class="form-control" id="hotel_chain" name="hotel_chain">
+                            <option value="-">-</option>
                             <option value="Hilton">Hilton</option>
                             <option value="Hyatt">Hyatt</option>
                             <option value="Marriott">Marriott</option>
@@ -81,20 +119,22 @@
                 </div>
                 <div class="table-cell">
                     <div class="form-group">
-                        <label class="form-label" for="category">Category</label>
-                            <select class="form-control" id="category" name="category">
-                                <option value="1-star">1-star</option>
-                                <option value="2-star">2-star</option>
-                                <option value="3-star">3-star</option>
-                                <option value="4-star">4-star</option>
-                                <option value="5-star">5-star</option>
-                            </select>
-                        </div>
+                        <label class="form-label" for="city">City</label>
+                        <select class="form-control" id="city" name="city">
+                            {% if list_of_cities %}
+                                <option value="-">-</option>
+                                {% for key in list_of_cities %}
+                                    <option value="{{key['city']}}">{{key['city']}}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
                 </div>
                 <div class="table-cell">
                     <div class="form-group">
                         <label class="form-label" for="room_capacity">Room Capacity</label>
                         <select class="form-control" id="room_capacity" name="room_capacity">
+                            <option value="-">-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -107,6 +147,7 @@
                     <div class="form-group">
                         <label class="form-label" for="total_no_rooms">Number of Rooms</label>
                         <select class="form-control" id="total_no_rooms" name="total_no_rooms">
+                            <option value="-">-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
