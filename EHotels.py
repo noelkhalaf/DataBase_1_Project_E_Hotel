@@ -2,7 +2,7 @@ import mysql.connector
 
 host = 'localhost'
 user = 'root'           # Modify this field
-passwd = 'password'     # Modify this field
+passwd = '>*{R8*;kqj'     # Modify this field
 database = 'e_hotels'
 
 class EHotels:
@@ -55,8 +55,9 @@ class EHotels:
         return self.cursor.fetchall()
 
     def getTable(self, *args, **kwargs):
-        selected = '*' if not args else ','.join(args)
-        conditions = 'WHERE ' + self.getSimpleConditions(kwargs.copy())
+        selected = '*' if not args else ','.join(list(filter(None, args)))
+        conditions = self.getSimpleConditions(kwargs.copy())
+        if conditions: conditions = f'WHERE {conditions}'
         query = f'SELECT {selected} FROM {kwargs.get("table")} {conditions}'
         self.execute(query)
         if kwargs.get('fetchall'):
@@ -76,10 +77,10 @@ class EHotels:
         return conditions
     
     def joinConditions(self, conditions_lst):
-        conditions = ' AND '.join(conditions_lst)
+        conditions = ' AND '.join(list(filter(None, conditions_lst)))
         return conditions
     
-    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price='0', max_price='500'):
+    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price):
 
         # if no start_date and no end_date
         #   no condition
@@ -92,13 +93,6 @@ class EHotels:
         #   check end_date not between start_date and end_date of any bookings
         #   check start_date of any bookings not between start_date and end_date
         #   check end_date of any bookings not between start_date and end_date
-        #
-        # room_capacity = room_capacity
-        # city = city
-        # hotel_chain = hotel_chain
-        # category = category
-        # total_no_rooms = total_no_rooms
-        # price BETWEEN min_price and max_price
 
         dict_simple = {
             'r.capacity': room_capacity,
@@ -113,18 +107,25 @@ class EHotels:
         complex_conditions = ''
         
         conditions = self.joinConditions([price_condition, simple_conditions, complex_conditions])
+        if conditions: conditions = f'WHERE {conditions}'
 
         query = f"""
             SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.available) AS available_rooms
             FROM view_available_rooms var
             JOIN HOTEL h ON var.hotel_name = h.hotel_name
             JOIN ROOM r ON h.hotel_id = r.hotel_id
-            WHERE {conditions}
+            {conditions}
             GROUP BY var.city, var.chain_name, var.hotel_name, var.category;
         """
 
     def getRangeCondition(self, attribute, low, high):
-        condition = f'{attribute} BETWEEN {low} AND {high}'
+        condition = ''
+        if low and high:
+            condition = f'{attribute} BETWEEN {low} AND {high}'
+        elif low and not high:
+            condition = f'{attribute} > {low}'
+        elif not low and high:
+            condition = f'{attribute} < {high}'
         return condition
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
