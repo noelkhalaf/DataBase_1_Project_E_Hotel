@@ -70,7 +70,7 @@
                     <div class="form-group">
                         <label class="form-label" for="category">Category</label>
                         <select class="form-control" id="category" name="category">
-                            <option value="-">-</option>
+                            <option value="">-</option>
                             <option value="1-star">1-star</option>
                             <option value="2-star">2-star</option>
                             <option value="3-star">3-star</option>
@@ -108,7 +108,7 @@
                     <div class="form-group">
                         <label class="form-label" for="hotel_chain">Hotel Chain</b></label>
                         <select class="form-control" id="hotel_chain" name="hotel_chain">
-                            <option value="-">-</option>
+                            <option value="">-</option>
                             <option value="Hilton">Hilton</option>
                             <option value="Hyatt">Hyatt</option>
                             <option value="Marriott">Marriott</option>
@@ -122,7 +122,7 @@
                         <label class="form-label" for="city">City</label>
                         <select class="form-control" id="city" name="city">
                             {% if list_of_cities %}
-                                <option value="-">-</option>
+                                <option value="">-</option>
                                 {% for key in list_of_cities %}
                                     <option value="{{key['city']}}">{{key['city']}}</option>
                                 {% endfor %}
@@ -134,7 +134,7 @@
                     <div class="form-group">
                         <label class="form-label" for="room_capacity">Room Capacity</label>
                         <select class="form-control" id="room_capacity" name="room_capacity">
-                            <option value="-">-</option>
+                            <option value="">-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -147,7 +147,7 @@
                     <div class="form-group">
                         <label class="form-label" for="total_no_rooms">Number of Rooms</label>
                         <select class="form-control" id="total_no_rooms" name="total_no_rooms">
-                            <option value="-">-</option>
+                            <option value="">-</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -166,19 +166,23 @@
             <table class="table table-striped" id="rooms-table">
                 <thead class="table-dark">
                     <tr class="table-col">
-                        <th scope="col">Hotel ID</th>
-                        <th scope="col">View Type</th>
-                        <th scope="col">Capacity</th>
+                        <th scope="col">City</th>
+                        <th scope="col">Chain Name</th>
+                        <th scope="col">Hotel Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Available Rooms</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for row in list_of_rooms %}
                 <tr>
-                    <th scope="row">{{ row['hotel_id'] }}</th>
-                    <td>{{ row['view_type'] }}</td>
-                    <td>{{ row['capacity'] }}</td>
-                    <td><button type="submit" class="btn btn-primary btn-block" onclick="bookRoom(`{{ row['hotel_id'] }}`, `{{ row['room_num'] }}`, `{{ row['view_type'] }}`,`{{ row['capacity'] }}`)">Book</button></td>
+                    <th scope="row">{{ row['city'] }}</th>
+                    <td>{{ row['chain_name'] }}</td>
+                    <td>{{ row['hotel_name'] }}</td>
+                    <td>{{ row['category'] }}</td>
+                    <td>{{ row['available_rooms'] }}</td>
+                    <td><button type="submit" class="btn btn-primary btn-block" onclick="bookRoom(`{{ row['city'] }}`, `{{ row['chain_name'] }}`, `{{ row['hotel_name'] }}`,`{{ row['category'] }}`,`{{ row['available_rooms'] }}`)">Book</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
