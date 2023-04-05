@@ -153,8 +153,8 @@ CREATE TABLE IF NOT EXISTS RENTAL (
     capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
     rental_rate DECIMAL(15,2) NOT NULL,
     additional_charges DECIMAL(15,2),
-    check_in_date DATETIME NOT NULL,
-    check_out_date DATETIME,
+    check_in_date DATE NOT NULL,
+    check_out_date DATE NOT NULL,
     check_in_e_id CHAR(5) NOT NULL,
     check_out_e_id CHAR(5),
     PRIMARY KEY (rental_id),
@@ -172,8 +172,8 @@ CREATE TABLE IF NOT EXISTS RENTAL_ARCHIVE (
     capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
     rental_rate DECIMAL(15,2) NOT NULL,
     additional_charges DECIMAL(15,2) NOT NULL,
-    check_in_date DATETIME NOT NULL,
-    check_out_date DATETIME NOT NULL,
+    check_in_date DATE NOT NULL,
+    check_out_date DATE NOT NULL,
     check_in_e_id CHAR(5) NOT NULL,
     check_out_e_id CHAR(5) NOT NULL,
     PRIMARY KEY (rental_id),
@@ -189,9 +189,9 @@ CREATE TABLE IF NOT EXISTS BOOKING (
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
     capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
-    place_date DATETIME NOT NULL,
-    exp_check_in_date DATETIME NOT NULL,
-    exp_check_out_date DATETIME NOT NULL,
+    place_date DATE NOT NULL,
+    exp_check_in_date DATE NOT NULL,
+    exp_check_out_date DATE NOT NULL,
     PRIMARY KEY (booking_id),
     FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 );
@@ -203,20 +203,19 @@ CREATE TABLE IF NOT EXISTS BOOKING_ARCHIVE (
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
     capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
-    place_date DATETIME NOT NULL,
-    exp_check_in_date DATETIME NOT NULL,
-    exp_check_out_date DATETIME NOT NULL,
+    place_date DATE NOT NULL,
+    exp_check_in_date DATE NOT NULL,
+    exp_check_out_date DATE NOT NULL,
     PRIMARY KEY (booking_id),
     FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 );
 
 CREATE VIEW view_available_rooms AS
-SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.available) AS available_rooms
+SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.room_num) AS available_rooms
 FROM HOTEL_CHAIN hc
 JOIN HOTEL h ON hc.chain_id = h.chain_id
 JOIN ROOM r ON h.hotel_id = r.hotel_id
-WHERE r.available = TRUE
-GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.category, r.available;
+GROUP BY h.city, hc.chain_name, h.hotel_id, h.hotel_name, h.category;
 
 CREATE VIEW view_capacity AS
 SELECT h.hotel_name, r.room_num, r.capacity
