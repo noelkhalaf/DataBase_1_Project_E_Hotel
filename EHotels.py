@@ -1,4 +1,7 @@
 import mysql.connector
+import random
+import string
+from include import *
 
 host = 'localhost'
 user = 'root'           # Modify this field
@@ -80,13 +83,14 @@ class EHotels:
         conditions = ' AND '.join(list(filter(None, conditions_lst)))
         return conditions
     
-    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, individually=False):
+    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=False):
         dict_simple = {
             'r.capacity': room_capacity,
             'h.city': city,
             'var.chain_name': hotel_chain,
             'h.category': category,
             'h.num_rooms': total_no_rooms,
+            'h.hotel_name': hotel_name,
         }
         simple_conditions = self.getSimpleConditions(dict_simple)
         price_condition = self.getPriceCondition(min_price, max_price)
@@ -96,24 +100,48 @@ class EHotels:
         if conditions: conditions = f'WHERE {conditions}'
 
         if individually:
-            query = f"""
-                SELECT var.chain_name, var.hotel_name, r.room_num
-                FROM view_available_rooms var
-                JOIN HOTEL h ON var.hotel_name = h.hotel_name
+            query1 = f"""
+                SELECT r.room_num, r.capacity, r.view_type, r.price
+                FROM HOTEL_CHAIN hc
+                JOIN HOTEL h ON hc.chain_id = h.chain_id
                 JOIN ROOM r ON h.hotel_id = r.hotel_id
                 {conditions}
             """
-        else:
-            query = f"""
-                SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.room_num) AS available_rooms
-                FROM view_available_rooms var
-                JOIN HOTEL h ON var.hotel_name = h.hotel_name
-                JOIN ROOM r ON h.hotel_id = r.hotel_id
-                {conditions}
-                GROUP BY var.city, var.chain_name, var.hotel_name, var.category
-            """
+            self.execute(query1)
+            results_individual = self.fetchall()
+
+            if hotel_name:
+                query2 = f"""
+                    SELECT ra.room_num, ra.amenity
+                    FROM ROOM_AMENITY ra
+                    JOIN HOTEL ho ON ra.hotel_id = ho.hotel_id
+                    WHERE ho.hotel_name = "{hotel_name}"
+                    AND ra.room_num IN (
+                        SELECT r.room_num
+                        FROM HOTEL_CHAIN hc
+                        JOIN HOTEL h ON hc.chain_id = h.chain_id
+                        JOIN ROOM r ON h.hotel_id = r.hotel_id
+                        {conditions}
+                    )
+                """
+                self.execute(query2)
+                results_amenities = self.fetchall()
+                results_appended = self.appendRoomAmenities(results_individual, results_amenities)
+                self.print_fetchall(results_appended, name='Available Rooms')
+                return results_appended
+            return results_individual
+        
+        query = f"""
+            SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.room_num) AS available_rooms
+            FROM view_available_rooms var
+            JOIN HOTEL h ON var.hotel_name = h.hotel_name
+            JOIN ROOM r ON h.hotel_id = r.hotel_id
+            {conditions}
+            GROUP BY var.city, var.chain_name, var.hotel_name, var.category
+        """
         self.execute(query)
-        return self.fetchall()
+        results = self.fetchall()
+        return results
 
     def getPriceCondition(self, low, high):
         condition = ''
@@ -167,8 +195,48 @@ class EHotels:
                 )
             """
         return condition
+    
+    def appendRoomAmenities(self, available_rooms, room_amenities):
+        start=0
+        for room_a in available_rooms:
+            amenities = []
+            for i in range(start, len(room_amenities)):
+                if room_a['room_num'] < room_amenities[i]['room_num']:
+                    break
+                elif room_a['room_num'] == room_amenities[i]['room_num']:
+                    amenities.append(room_amenities[i]['amenity'])
+            start=i
+            room_a['amenities'] = amenities
+        return available_rooms
+
+    def generateCharKey(self, length):
+        characters = string.ascii_uppercase + string.digits
+        random_string = ''.join(random.choices(characters, k=length))
+        return random_string
+
+    def insertHotelChain(self, chain_name, email, phone_number):
+        while True:
+            chain_id = self.generateCharKey(5)
+            self.getTable('chain_id', table=hotel_chain_t)
+            if self.fetchone is None:
+                break
+        self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+
+    def insertCentralOffice(self, chain_name, email, phone_number):
+        self.execute('SELECT * FROM HOTEL_CHAIN WHERE chain_id = %s', (chain_id, ))
+        self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
         self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
+
+    def print_fetchall(self, result, name=None):
+        if name is not None: print(str(name)+' = ', end='')
+        print('[')
+        for i, item in enumerate(result):
+            print(' {['+str(i)+']')
+            for item, amount in item.items():
+                print("     {}: {},".format(item, amount))
+            print(' },')
+        print(']')
 
 eHotels = EHotels(host, user, passwd, database)
