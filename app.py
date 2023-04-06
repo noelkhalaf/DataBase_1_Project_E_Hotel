@@ -64,21 +64,21 @@ def customerSignUp():
 def customerRoomSearch():
     eHotels.checkConnection()
     list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
-    if request.method == 'POST':
-        start_date = request.form['start_date']
-        end_date = request.form['end_date']
-        room_capacity = request.form['room_capacity']
-        city = request.form['city']
-        hotel_chain = request.form['hotel_chain']
-        category = request.form['category']
-        total_no_rooms = request.form['total_no_rooms']
-        min_price = request.form['min_price']
-        max_price = request.form['max_price']
-        hotel_name = ''
-        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+    if request.method == 'GET':
+        available_rooms = eHotels.getAvailableRooms('', '', '', '', '', '', '', '', '', '')
         return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), list_of_rooms=available_rooms)
-
-    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']))
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+    room_capacity = request.form['room_capacity']
+    city = request.form['city']
+    hotel_chain = request.form['hotel_chain']
+    category = request.form['category']
+    total_no_rooms = request.form['total_no_rooms']
+    min_price = request.form['min_price']
+    max_price = request.form['max_price']
+    hotel_name = ''
+    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), list_of_rooms=available_rooms)
 
 # @app.route('/bookRoom', methods=['POST'])
 # def bookRoom():
