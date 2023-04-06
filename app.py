@@ -74,7 +74,8 @@ def customerRoomSearch():
         total_no_rooms = request.form['total_no_rooms']
         min_price = request.form['min_price']
         max_price = request.form['max_price']
-        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price)
+        hotel_name = ''
+        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
         return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), list_of_rooms=available_rooms)
 
     return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']))
