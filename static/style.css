@@ -70,3 +70,20 @@ td, th {
     text-align: center;
     vertical-align: middle;
 }
+
+.modal-header {
+    background: #f1f1f1;
+ 
+}
+
+.modal-title {
+    text-align: left;
+}
+
+.modal-body {
+    text-align: left;
+}
+
+#mybookingsbtn {
+    margin-top: 19px !important;
+}

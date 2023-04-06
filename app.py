@@ -1,5 +1,7 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, Response
+from decimal import Decimal
 import secrets
+import json
 from EHotels import eHotels
 from include import *
 
@@ -66,7 +68,7 @@ def customerRoomSearch():
     list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
     if request.method == 'GET':
         available_rooms = eHotels.getAvailableRooms('', '', '', '', '', '', '', '', '', '')
-        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), list_of_rooms=available_rooms)
+        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
     start_date = request.form['start_date']
     end_date = request.form['end_date']
     room_capacity = request.form['room_capacity']
@@ -78,7 +80,25 @@ def customerRoomSearch():
     max_price = request.form['max_price']
     hotel_name = ''
     available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), list_of_rooms=available_rooms)
+    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
+
+@app.route('/availableRooms', methods=['GET'])
+def availableRooms():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    room_capacity = request.args.get('room_capacity')
+    city = request.args.get('city')
+    hotel_chain = request.args.get('hotel_chain')
+    category = request.args.get('category')
+    total_no_rooms = request.args.get('total_no_rooms')
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
+    hotel_name = request.args.get('hotel_name')
+
+    availableRooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name,individually=True)
+    
+    response = json.dumps(availableRooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+    return Response(response=response, status=200, mimetype='application/json')
 
 # @app.route('/bookRoom', methods=['POST'])
 # def bookRoom():
