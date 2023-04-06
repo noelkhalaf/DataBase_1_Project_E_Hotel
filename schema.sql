@@ -13,7 +13,7 @@
 
 CREATE TABLE IF NOT EXISTS HOTEL_CHAIN (
 	chain_id CHAR(5) NOT NULL,
-    chain_name VARCHAR(30) NOT NULL,
+    chain_name VARCHAR(30) UNIQUE NOT NULL,
     num_hotels INTEGER,
     email VARCHAR(30),
     phone_number VARCHAR(20),
