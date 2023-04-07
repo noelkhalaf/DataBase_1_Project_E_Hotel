@@ -70,7 +70,7 @@ class EHotels:
             return self.fetchall()
         else:
             return self.fetchone()
-    
+
     def getSimpleConditions(self, dict):
         dict.pop('table', None)
         dict.pop('fetchall', None)
@@ -82,11 +82,11 @@ class EHotels:
                 conditions_pairs.append(f'{attribute} = \"{value}\"')
         conditions = self.joinConditions(conditions_pairs)
         return conditions
-    
+
     def joinConditions(self, conditions_lst):
         conditions = ' AND '.join(list(filter(None, conditions_lst)))
         return conditions
-    
+
     def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=False):
         dict_simple = {
             'r.capacity': room_capacity,
@@ -107,8 +107,8 @@ class EHotels:
             query1 = f"""
                 SELECT r.room_num, r.capacity, r.view_type, r.price
                 FROM HOTEL_CHAIN hc
-                JOIN HOTEL h ON hc.chain_id = h.chain_id
-                JOIN ROOM r ON h.hotel_id = r.hotel_id
+                JOIN HOTEL h ON hc.chain_name = h.chain_name
+                JOIN ROOM r ON h.hotel_name = r.hotel_name
                 {conditions}
             """
             self.execute(query1)
@@ -117,13 +117,13 @@ class EHotels:
                 query2 = f"""
                     SELECT ra.room_num, ra.amenity
                     FROM ROOM_AMENITY ra
-                    JOIN HOTEL ho ON ra.hotel_id = ho.hotel_id
+                    JOIN HOTEL ho ON ra.hotel_name = ho.hotel_name
                     WHERE ho.hotel_name = "{hotel_name}"
                     AND ra.room_num IN (
                         SELECT r.room_num
                         FROM HOTEL_CHAIN hc
-                        JOIN HOTEL h ON hc.chain_id = h.chain_id
-                        JOIN ROOM r ON h.hotel_id = r.hotel_id
+                        JOIN HOTEL h ON hc.chain_name = h.chain_name
+                        JOIN ROOM r ON h.hotel_name = r.hotel_name
                         {conditions}
                     )
                 """
@@ -136,8 +136,8 @@ class EHotels:
         query = f"""
             SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.room_num) AS available_rooms
             FROM HOTEL_CHAIN hc
-            JOIN HOTEL h ON hc.chain_id = h.chain_id
-            JOIN ROOM r ON h.hotel_id = r.hotel_id
+            JOIN HOTEL h ON hc.chain_name = h.chain_name
+            JOIN ROOM r ON h.hotel_name = r.hotel_name
             {conditions}
             GROUP BY h.city, hc.chain_name, h.hotel_name, h.category
         """
@@ -210,143 +210,210 @@ class EHotels:
 ### INSERTS ###
 
     def insertHotelChain(self, chain_name, email='', phone_number=''):
-        result = self.getTable(table=hotel_chain_t, chain_name=chain_name)
-        if result is not None:
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is not None:
             print(f'Hotel chain {chain_name} already exists')
             return
-        chain_id = self.genHotelChainKey()
         try:
-            self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+            self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, 0, %s, %s)', (chain_name, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
         else:
-            return chain_id
+            return chain_name
 
     def insertCentralOffice(self, chain_name, address):
-        chain_id = self.getTable('chain_id', table=hotel_chain_t, chain_name=chain_name)
-        if chain_id is None:
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
             return
-        result = self.getTable(table=central_office_t, chain_id=chain_id, address=address)
-        if result is not None:
+        result_co = self.getTable(table=central_office_t, chain_name=chain_name, address=address)
+        if result_co is not None:
             print(f'Central office of hotel chain {chain_name} at {address} already exists')
             return
         try:
-            self.cursor.execute('INSERT INTO CENTRAL_OFFICE VALUES (%s, %s)', (chain_id, address, ))
+            self.cursor.execute('INSERT INTO CENTRAL_OFFICE VALUES (%s, %s)', (chain_name, address, ))
         except Exception as e:
             print('Error:', e)
         else:
-            return chain_id, address
+            return chain_name, address
 
-    def insertCustomer(self, sxn, fname, lname, address, username, password):
-        result = self.getTable(table=customer_t, username=username)
-        if result is not None:
+    def insertCustomer(self, username, password, sxn, fname, lname, address):
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is not None:
             print(f'The username {username} is already taken')
             return
         try:
-            self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
+            self.cursor.execute('INSERT INTO CUSTOMER VALUES (%s, %s, %s, %s, %s, %s, CURDATE())', (username, password, sxn, fname, lname, address, ))
         except Exception as e:
             print('Error:', e)
         else:
             return username
-        
-    def insertEmployee(self, hotel_name, fname, lname, sxn='', address=''):
-        chain_id, hotel_id = self.getTable('chain_id', 'hotel_id', table=hotel_t, hotel_name=hotel_name)
-        if hotel_id is None:
+
+    def insertEmployee(self, hotel_name, fname, lname, sxn, address=''):
+        chain_name, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
-        result = self.getTable(table=employee_t, sxn=sxn)
-        if result is not None:
+        result_e = self.getTable(table=employee_t, sxn=sxn)
+        if result_e is not None:
             print(f'Employee with sxn {sxn} already exists')
             return
         employee_id = self.genEmployeeKey()
         try:
-            self.cursor.execute('INSERT INTO EMPLOYEE VALUES (%s, %s, %s, %s, %s, %s, %s)', (employee_id, chain_id, sxn, fname, lname, address, hotel_id, ))
+            self.cursor.execute('INSERT INTO EMPLOYEE VALUES (%s, %s, %s, %s, %s, %s, %s)', (employee_id, chain_name, fname, lname, sxn, address, hotel_name, ))
         except Exception as e:
             print('Error:', e)
         else:
             return employee_id
 
     def insertHotel(self, hotel_name, chain_name, city, mgr_fname, mgr_lname, category='', hotel_address='', email='', phone_number='', mgr_sxn='', mgr_address=''):
-        chain_id = self.getTable('chain_id', table=hotel_chain_t, chain_name=chain_name)
-        if chain_id is None:
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
-        result = self.getTable(table=hotel_t, chain_id=chain_id, hotel_name=hotel_name)
-        if result is not None:
+            return
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is not None:
             print(f'Hotel {hotel_name} under hotel chain {chain_name} already exists')
+            return
         manager_id = self.insertEmployee(hotel_name, mgr_fname, mgr_lname, mgr_sxn, mgr_address)
-        hotel_id = self.genHotelKey()
         try:
-            self.cursor.execute('INSERT INTO HOTEL VALUES (%s, %s, %s, %s, %s, 0, %s, %s, %s, %s)', (hotel_id, chain_id, manager_id, hotel_name, category, city, hotel_address, email, phone_number, ))
+            self.cursor.execute('INSERT INTO HOTEL VALUES (%s, %s, %s, %s, 0, %s, %s, %s, %s)', (hotel_name, chain_name, manager_id, category, city, hotel_address, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
         else:
-            return hotel_id
+            return hotel_name, manager_id
 
-    def insertEmployeePosition(self, employee_id, position, hotel_name):
-        employee_id = self.getTable(table=employee_t, employee_id=employee_id)
-        if hotel_id is None:
+    def insertEmployeePosition(self, employee_id, position):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
             print(f'Employee {employee_id} does not exist')
             return
-        hotel_id = self.getTable('hotel_id', table=hotel_t, hotel_name=hotel_name)
-        if hotel_id is None:
-            print(f'Hotel name {hotel_name} does not exist')
-            return
-        result = self.getTable(table=central_office_t, employee_id=employee_id, position=position)
-        if result is not None:
+        result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
+        if result_ep is not None:
             print(f'Employee {employee_id} already has position {position}')
             return
         try:
-            self.cursor.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s, %s)', (employee_id, position, hotel_id, ))
+            self.cursor.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s)', (employee_id, position, ))
         except Exception as e:
             print('Error:', e)
         else:
             return employee_id, position
-        
+
     def insertRoom(self, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available):
-        hotel_id = self.getTable('hotel_id', table=hotel_t, hotel_name=hotel_name)
-        if hotel_id is None:
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
-        result = self.getTable(table=room_t, hotel_id=hotel_id, room_num=room_num)
-        if result is not None:
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is not None:
             print(f'Hotel {hotel_name} already has room number {room_num}')
             return
         try:
-            self.cursor.execute('INSERT INTO ROOM VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (hotel_id, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
+            self.cursor.execute('INSERT INTO ROOM VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
         except Exception as e:
             print('Error:', e)
         else:
-            return hotel_id, room_num
+            return hotel_name, room_num
 
     def insertRoomAmenity(self, hotel_name, room_num, amenity):
-        hotel_id = self.getTable('hotel_id', table=hotel_t, hotel_name=hotel_name)
-        if hotel_id is None:
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
-        result1 = self.getTable(table=room_t, hotel_id=hotel_id, room_num=room_num)
-        if result1 is None:
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
             print(f'Hotel {hotel_name} does not have a room number {room_num}')
             return
-        result2 = self.getTable(table=room_amenity_t, hotel_id=hotel_id, room_num=room_num,amenity=amenity)
-        if result2 is not None:
+        result_ra = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
+        if result_ra is not None:
             print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
             return
         try:
-            self.cursor.execute('INSERT INTO ROOM VALUES (%s, %s, %s)', (hotel_id, room_num, amenity, ))
+            self.cursor.execute('INSERT INTO ROOM_AMENITY VALUES (%s, %s, %s)', (hotel_name, room_num, amenity, ))
         except Exception as e:
             print('Error:', e)
         else:
-            return hotel_id, room_num, amenity
+            return hotel_name, room_num, amenity
+
+    def insertBooking(self, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date):
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'The username {username} does not exist')
+            return
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Chain name {chain_name} does not exist')
+            return
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        booking_id = self.genBookingKey()
+        try:
+            self.cursor.execute('INSERT INTO BOOKING VALUES (%s, %s, %s, %s, %s, %s, CURDATE(), %s, %s)', (booking_id, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return booking_id
+        
+    def insertBookingArchive(self, booking_id):
+        result_b = self.getTable(table=booking_t, booking_id=booking_id)
+        if result_b is None:
+            print(f'Booking with id {booking_id} does not exist')
+            return
+        result_ba = self.getTable(table=booking_arch_t, booking_id=booking_id)
+        if result_ba is None:
+            print(f'Booking archive with id {booking_id} already exists')
+            return
+        try:
+            self.cursor.execute('INSERT INTO BOOKING_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (booking_id, result_b[1], result_b[2], result_b[3], result_b[4], result_b[5], result_b[6], result_b[7], ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return booking_id
+
+    def insertRental(self, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_in_date, check_out_date, check_in_e_sxn, additional_charges='0'):
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'The username {username} does not exist')
+            return
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Chain name {chain_name} does not exist')
+            return
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        result_e = self.getTable(table=employee_t, sxn=check_in_e_sxn)
+        if result_e is None:
+            print(f'Employee with sxn {check_in_e_sxn} does not exist')
+            return
+        rental_id = self.genRentalKey()
+        try:
+            self.cursor.execute('INSERT INTO RENTAL VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)', (rental_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return rental_id
+
+    def insertRentalArchive(self, rental_id):
+        result_r = self.getTable(table=rental_t, rental_id=rental_id)
+        if result_r is None:
+            print(f'Rental with id {rental_id} does not exist')
+            return
+        result_ra = self.getTable(table=rental_arch_t, rental_id=rental_id)
+        if result_ra is None:
+            print(f'Rental archive with id {rental_id} already exists')
+            return
+        try:
+            self.cursor.execute('INSERT INTO RENTAL_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (rental_id, result_r[1], result_r[2], result_r[3], result_r[4], result_r[5], result_r[6], result_r[7], result_r[8], result_r[9], result_r[10], ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return rental_id
 
 ### KEYGENS ###
-
-    def genHotelChainKey(self):
-        while True:
-            chain_id = self.generateCharKey(5)
-            if self.getTable('chain_id', table=hotel_chain_t, chain_id=chain_id) is None:
-                break
-        return chain_id
 
     def genEmployeeKey(self):
         while True:
@@ -354,13 +421,20 @@ class EHotels:
             if self.getTable('employee_id', table=employee_t, employee_id=employee_id) is None:
                 break
         return employee_id
-    
-    def genHotelKey(self):
+
+    def genBookingKey(self):
         while True:
-            hotel_id = self.generateCharKey(5)
-            if self.getTable('hotel_id', table=hotel_t, hotel_id=hotel_id) is None:
+            booking_id = self.generateCharKey(5)
+            if (self.getTable('booking_id', table=booking_t, booking_id=booking_id) is None) and (self.getTable('booking_id', table=booking_arch_t, booking_id=booking_id) is None):
                 break
-        return hotel_id
+        return booking_id
+
+    def genRentalKey(self):
+        while True:
+            rental_id = self.generateCharKey(5)
+            if (self.getTable('rental_id', table=rental_t, rental_id=rental_id) is None) and (self.getTable('rental_id', table=rental_arch_t, rental_id=rental_id) is None):
+                break
+        return rental_id
 
     def generateCharKey(self, length):
         characters = string.ascii_uppercase + string.digits
