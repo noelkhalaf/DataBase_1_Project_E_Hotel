@@ -61,7 +61,10 @@ class EHotels:
         selected = '*' if not args else ','.join(list(filter(None, args)))
         conditions = self.getSimpleConditions(kwargs.copy())
         if conditions: conditions = f'WHERE {conditions}'
-        query = f'SELECT {selected} FROM {kwargs.get("table")} {conditions}'
+        if kwargs.get('distinct'):
+            query = f'SELECT DISTINCT {selected} FROM {kwargs.get("table")} {conditions}'
+        else:
+            query = f'SELECT {selected} FROM {kwargs.get("table")} {conditions}'
         self.execute(query)
         if kwargs.get('fetchall'):
             return self.fetchall()
@@ -71,6 +74,7 @@ class EHotels:
     def getSimpleConditions(self, dict):
         dict.pop('table', None)
         dict.pop('fetchall', None)
+        dict.pop('distinct', None)
         if not dict: return ''
         conditions_pairs = []
         for attribute, value in dict.items():
@@ -87,7 +91,7 @@ class EHotels:
         dict_simple = {
             'r.capacity': room_capacity,
             'h.city': city,
-            'var.chain_name': hotel_chain,
+            'hc.chain_name': hotel_chain,
             'h.category': category,
             'h.num_rooms': total_no_rooms,
             'h.hotel_name': hotel_name,
@@ -109,7 +113,6 @@ class EHotels:
             """
             self.execute(query1)
             results_individual = self.fetchall()
-
             if hotel_name:
                 query2 = f"""
                     SELECT ra.room_num, ra.amenity
@@ -127,17 +130,16 @@ class EHotels:
                 self.execute(query2)
                 results_amenities = self.fetchall()
                 results_appended = self.appendRoomAmenities(results_individual, results_amenities)
-                self.print_fetchall(results_appended, name='Available Rooms')
                 return results_appended
             return results_individual
         
         query = f"""
-            SELECT var.city, var.chain_name, var.hotel_name, var.category, COUNT(r.room_num) AS available_rooms
-            FROM view_available_rooms var
-            JOIN HOTEL h ON var.hotel_name = h.hotel_name
+            SELECT h.city, hc.chain_name, h.hotel_name, h.category, COUNT(r.room_num) AS available_rooms
+            FROM HOTEL_CHAIN hc
+            JOIN HOTEL h ON hc.chain_id = h.chain_id
             JOIN ROOM r ON h.hotel_id = r.hotel_id
             {conditions}
-            GROUP BY var.city, var.chain_name, var.hotel_name, var.category
+            GROUP BY h.city, hc.chain_name, h.hotel_name, h.category
         """
         self.execute(query)
         results = self.fetchall()
@@ -197,37 +199,68 @@ class EHotels:
         return condition
     
     def appendRoomAmenities(self, available_rooms, room_amenities):
-        start=0
         for room_a in available_rooms:
             amenities = []
-            for i in range(start, len(room_amenities)):
-                if room_a['room_num'] < room_amenities[i]['room_num']:
-                    break
-                elif room_a['room_num'] == room_amenities[i]['room_num']:
-                    amenities.append(room_amenities[i]['amenity'])
-            start=i
+            for room_b in room_amenities:
+                if room_a['room_num'] == room_b['room_num']:
+                    amenities.append(room_b['amenity'])
             room_a['amenities'] = amenities
         return available_rooms
+
+    def generateUniqueCharKey(self, attribute, table, length):
+        while True:
+            char_key = self.generateCharKey(length)
+            self.getTable(attribute, table=table)
+            if self.fetchone is None:
+                break
+        return char_key
 
     def generateCharKey(self, length):
         characters = string.ascii_uppercase + string.digits
         random_string = ''.join(random.choices(characters, k=length))
         return random_string
+    
+    def checkCharKey(self, chain_id):
+        if self.getTable('chain_id', table=hotel_chain_t, chain_id=chain_id) is None:
+            return True
+        return False
+
+
+# 1. CHAR(5)
+
+# 2. CHAR(5), VARCHAR(30)
+
+# 3. INT -> VARCHAR(30)
+
 
     def insertHotelChain(self, chain_name, email, phone_number):
-        while True:
-            chain_id = self.generateCharKey(5)
-            self.getTable('chain_id', table=hotel_chain_t)
-            if self.fetchone is None:
-                break
-        self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+        chain_id = self.generateUniqueCharKey('chain_id', hotel_chain_t, 5)
+        try:
+            self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+        except Exception as e:
+            print('Error:', e)
+            return False
+        else:
+            return True
 
     def insertCentralOffice(self, chain_name, email, phone_number):
         self.execute('SELECT * FROM HOTEL_CHAIN WHERE chain_id = %s', (chain_id, ))
-        self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+        try:
+            self.cursor.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, %s, 0, %s, %s)', (chain_id, chain_name, email, phone_number, ))
+        except Exception as e:
+            print('Error:', e)
+            return False
+        else:
+            return True
 
     def insertCustomer(self, sxn, fname, lname, address, username, password):
-        self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
+        try:
+            self.cursor.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, CURDATE(), %s, %s)', (sxn, fname, lname, address, username, password, ))
+        except Exception as e:
+            print('Error:', e)
+            return False
+        else:
+            return True
 
     def print_fetchall(self, result, name=None):
         if name is not None: print(str(name)+' = ', end='')
