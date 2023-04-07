@@ -84,9 +84,6 @@
         <div class="tab-content">
 
             <!-- Employee Tab-->
-
-            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
-
             <div class="tab-pane fade in active" id="employee" role="tabpanel" aria-labelledby="tab-employee">
                 <div id="employee_list" class="modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
@@ -123,6 +120,7 @@
                     </div>
                 </div> 
                 {% if employee_list %}
+                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="employee-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -149,9 +147,6 @@
             </div>
             
             <!-- Customer Tab-->
-
-            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
-
             <div class="tab-pane fade in active" id="customer" role="tabpanel" aria-labelledby="tab-customer">
                 <div id="customer_list" class="modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
@@ -188,6 +183,7 @@
                     </div>
                 </div> 
                 {% if customer_list %}
+                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="customer-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -214,9 +210,6 @@
             </div>
 
             <!-- Room Tab-->
-
-            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
-
             <div class="tab-pane fade in active" id="room" role="tabpanel" aria-labelledby="tab-room">
                 <div id="room_list" class="modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
@@ -253,6 +246,7 @@
                     </div>
                 </div> 
                 {% if room_list %}
+                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="rooms-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -279,9 +273,6 @@
             </div>
 
             <!-- Hotel Tab-->
-
-            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
-
             <div class="tab-pane fade in active" id="hotel" role="tabpanel" aria-labelledby="tab-hotel">
                 <div id="hotel_list" class="modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
@@ -318,6 +309,7 @@
                     </div>
                 </div> 
                 {% if hotel_list %}
+                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="hotel-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -344,9 +336,6 @@
             </div>
 
             <!-- Chain Tab-->
-
-            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
-
             <div class="tab-pane fade in active" id="chain" role="tabpanel" aria-labelledby="tab-chain">
                 <div id="chain_list" class="modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
@@ -383,6 +372,7 @@
                     </div>
                 </div> 
                 {% if chain_list %}
+                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="chain-table">
                         <thead class="table-dark">
                             <tr class="table-col">
