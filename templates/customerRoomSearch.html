@@ -277,7 +277,7 @@
                                                 '<td>' + rooms.hotel_name + '</td>' +
                                                 '<td>' + rooms.category + '</td>' +
                                                 '<td>' + rooms.available_rooms + '</td>' +
-                                                '<td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + rooms.hotel_name + '\')">Check Availability</button></td>';
+                                                '<td><button type="submit" data-toggle="modal" data-target="#bookRoomModal" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + rooms.hotel_name + '\')">Check Availability</button></td>';
                                 tableBody.appendChild(row)                
                             }
                         } else {
