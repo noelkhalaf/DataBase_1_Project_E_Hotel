@@ -62,25 +62,45 @@ def customerSignUp():
 
     return render_template('customerSignUp.html')
 
-@app.route('/customerRoomSearch', methods=['GET', 'POST'])
+@app.route('/customerRoomSearch', methods=['GET'])
 def customerRoomSearch():
-    eHotels.checkConnection()
-    list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
-    if request.method == 'GET':
-        available_rooms = eHotels.getAvailableRooms('', '', '', '', '', '', '', '', '', '')
-        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
-    start_date = request.form['start_date']
-    end_date = request.form['end_date']
-    room_capacity = request.form['room_capacity']
-    city = request.form['city']
-    hotel_chain = request.form['hotel_chain']
-    category = request.form['category']
-    total_no_rooms = request.form['total_no_rooms']
-    min_price = request.form['min_price']
-    max_price = request.form['max_price']
+    start_date = request.form.get('start_date', '')
+    end_date = request.form.get('end_date', '')
+    room_capacity = request.form.get('room_capacity', '')
+    city = request.form.get('city', '')
+    hotel_chain = request.form.get('hotel_chain', '')
+    category = request.form.get('category', '')
+    total_no_rooms = request.form.get('total_no_rooms', '')
+    min_price = request.form.get('min_price', '')
+    max_price = request.form.get('max_price', '')
     hotel_name = ''
-    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-    return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
+    
+    eHotels.checkConnection()
+    if request.method == 'GET':     
+        list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
+        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
+
+@app.route('/searchRooms', methods=['POST'])
+def searchRooms():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    room_capacity = request.args.get('room_capacity')
+    city = request.args.get('city')
+    hotel_chain = request.args.get('hotel_chain')
+    category = request.args.get('category')
+    total_no_rooms = request.args.get('total_no_rooms')
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
+    hotel_name = ''
+
+    eHotels.checkConnection()
+    availableRooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+    print(availableRooms)
+    
+    response = json.dumps(availableRooms)
+    return Response(response=response, status=200, mimetype='application/json')
+
 
 @app.route('/availableRooms', methods=['GET'])
 def availableRooms():
@@ -95,6 +115,7 @@ def availableRooms():
     max_price = request.args.get('max_price')
     hotel_name = request.args.get('hotel_name')
 
+    eHotels.checkConnection()
     availableRooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name,individually=True)
     
     response = json.dumps(availableRooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)

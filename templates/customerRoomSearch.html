@@ -40,7 +40,7 @@
         </div>
         <hr>
 
-        <form action="{{ url_for('customerRoomSearch') }}" method="POST">
+        <form id="room-search-form" method="POST">
             <div class="table">
                 <div class="table-cell">
                     <div class="form-group">
@@ -233,6 +233,82 @@
                 </tbody>
             </table>
             <script>
+                var form = document.getElementById("room-search-form");
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
+    
+                    var start_date = document.getElementById("start_date").value
+                    var end_date = document.getElementById("end_date").value
+                    var room_capacity = document.getElementById("room_capacity").value
+                    var city = document.getElementById("city").value
+                    var hotel_chain = document.getElementById("hotel_chain").value
+                    var category = document.getElementById("category").value
+                    var total_no_rooms = document.getElementById("total_no_rooms").value
+                    var min_price = document.getElementById("min_price").value
+                    var max_price = document.getElementById("max_price").value
+
+                    var formDataObject = {
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'room_capacity': room_capacity,
+                        'city': city,
+                        'hotel_chain': hotel_chain,
+                        'category': category,
+                        'total_no_rooms': total_no_rooms,
+                        'min_price': min_price,
+                        'max_price': max_price
+                    };
+                    console.log(formDataObject)
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                            var tableBody = document.querySelector('#rooms-table tbody')
+                            
+                            tableBody.innerHTML = '';
+        
+                            for (var i=0; i < response.length; i++) {
+                                var rooms = response[i];
+                                var row = document.createElement('tr');
+                                row.innerHTML = '<td>' + rooms.city + '</td>' +
+                                                '<td>' + rooms.chain_name + '</td>' +
+                                                '<td>' + rooms.hotel_name + '</td>' +
+                                                '<td>' + rooms.category + '</td>' +
+                                                '<td>' + rooms.available_rooms + '</td>' +
+                                                '<td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + rooms.hotel_name + '\')">Check Availability</button></td>';
+                                tableBody.appendChild(row)                
+                            }
+                        } else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+    
+                    xhr.open("POST", "/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    console.log("/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
+                    xhr.send()
+                })
+            </script>
+            <script>
+                function bookRoom(hotel_id, room_num, view_type, capacity) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/bookRoom", true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) { alert(xhr.responseText) }
+                    }
+        
+                    var room = JSON.stringify({
+                        hotel_id: hotel_id,
+                        room_num: room_num,
+                        view_type: view_type,
+                        capacity: capacity
+                    })
+                    console.log(room)
+                }
+            </script>
+            <script>
                 function getAvailableRoomDetails(hotel_name) {
                     var start_date = document.getElementById("start_date").value
                     var end_date = document.getElementById("end_date").value
@@ -250,7 +326,7 @@
                     //     alert('Please enter a start and end date');
                     //     return;
                     // } 
-
+        
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = () => {
                         if (xhr.readyState === 4 && xhr.status === 200) { 
@@ -259,15 +335,15 @@
                             var tableBody = document.querySelector('#available-rooms-table tbody')
                             
                             tableBody.innerHTML = '';
-
+        
                             for (var i=0; i < response.length; i++) {
                                 var details = response[i];
                                 var row = document.createElement('tr');
                                 row.innerHTML = '<td>' + details.room_num + '</td>' +
                                                 '<td>' + details.capacity + '</td>' +
                                                 '<td>' + details.view_type + '</td>' +
+                                                '<td>' + details.amenities.join(', ') + '</td>' +
                                                 '<td>' + details.price + '</td>' +
-                                                '<td>' + details.amenities + '</td>' +
                                                 '<td><button class="btn btn-primary btn-block">Book</button></td>';
                                 tableBody.appendChild(row)                
                             }
@@ -276,28 +352,11 @@
                         }
                     }
                     xhr.open("GET", "/availableRooms?hotel_name=" + hotel_name + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    console.log("/availableRooms?hotel_name=" + hotel_name + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
                     xhr.send()
-
+        
                     // open modal
                     // $('#bookRoomModal').modal('show');
-                }
-            </script>
-            <script>
-                function bookRoom(hotel_id, room_num, view_type, capacity) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "/bookRoom", true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.onreadystatechange = () => {
-                        if (xhr.readyState === 4 && xhr.status === 200) { alert(xhr.responseText) }
-                    }
-
-                    var room = JSON.stringify({
-                        hotel_id: hotel_id,
-                        room_num: room_num,
-                        view_type: view_type,
-                        capacity: capacity
-                    })
-                    console.log(room)
                 }
             </script>
         {% endif %}
