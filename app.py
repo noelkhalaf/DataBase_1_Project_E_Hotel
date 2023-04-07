@@ -77,7 +77,7 @@ def customerRoomSearch():
     
     eHotels.checkConnection()
     if request.method == 'GET':     
-        list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True)
+        list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True, distinct=True)
         available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
         return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
 
@@ -95,10 +95,9 @@ def searchRooms():
     hotel_name = ''
 
     eHotels.checkConnection()
-    availableRooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-    print(availableRooms)
-    
-    response = json.dumps(availableRooms)
+    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+
+    response = json.dumps(available_rooms)
     return Response(response=response, status=200, mimetype='application/json')
 
 
@@ -116,9 +115,9 @@ def availableRooms():
     hotel_name = request.args.get('hotel_name')
 
     eHotels.checkConnection()
-    availableRooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name,individually=True)
+    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=True)
     
-    response = json.dumps(availableRooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+    response = json.dumps(available_rooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
     return Response(response=response, status=200, mimetype='application/json')
 
 # @app.route('/bookRoom', methods=['POST'])
