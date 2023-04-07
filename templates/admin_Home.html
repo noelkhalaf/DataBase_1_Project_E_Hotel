@@ -20,40 +20,130 @@
 
 <body>
 
-    <!-- Navigation Bar (Stays on Top) -->
-    <div class="">
-    <a href="#Employee" class="">Employee</a>
-    <a href="#Customer" class="">Customer</a>
-    <a href="#Rooms" class="">Rooms</a>
-    <a href="#Hotels" class="">Hotels</a>
-    <a href="#Main" class="">Main</a>
-    </div>
+    <div class="container">
+        <h2>Admin Home Page</h2>
+        <hr>
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a 
+                class="nav-link active" 
+                id="tab-employees"
+                data-toggle="tab"
+                href="#employees"
+                role="tab" 
+                aria-controls="employees" 
+                aria-selected="true"
+                >Employees</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a 
+                class="nav-link" 
+                id="tab-customers" 
+                data-toggle="tab" 
+                href="#customers"
+                role="tab"
+                aria-controls="customers" 
+                aria-selected="false"
+                >Customers</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a 
+                class="nav-link" 
+                id="tab-rooms" 
+                data-toggle="tab" 
+                href="#rooms"
+                role="tab"
+                aria-controls="rooms" 
+                aria-selected="false"
+                >Rooms</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a 
+                class="nav-link" 
+                id="tab-hotels" 
+                data-toggle="tab" 
+                href="#hotels"
+                role="tab"
+                aria-controls="hotels" 
+                aria-selected="false"
+                >Hotles</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a 
+                class="nav-link" 
+                id="tab-chains" 
+                data-toggle="tab" 
+                href="#chains"
+                role="tab"
+                aria-controls="chains" 
+                aria-selected="false"
+                >Chains</a>
+            </li>
+        </ul>
 
-    <!-- employee Content -->
-    <div id="employee" class="">
-        <button class="">+</button>
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="employee" role="tabpanel" aria-labelledby="tab-employee">
+                <div id="employee_list" class="modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <h3 class="modal-title">Employee List</h3>
+                                    </div>
+                                    <div class="col-md-2 text-right">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-striped" id="available-rooms-table">
+                                    <thead>
+                                        <tr class="table-col">
+                                            <th scope="col">Employee ID</th>
+                                            <th scope="col">Employee First Name</th>
+                                            <th scope="col">Employee Position</th>
+                                            <th scope="col">Edit</th>
+                                            <th scope="col">Delete</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                {% if employee_list %}
+                    <table class="table table-striped" id="rooms-table">
+                        <thead class="table-dark">
+                            <tr class="table-col">
+                                <th scope="col">Employee ID</th>
+                                <th scope="col">Employee First Name</th>
+                                <th scope="col">Employee Position</th>
+                                <th scope="col">Edit</th>
+                                <th scope="col">Delete</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in employee_list %}
+                        <tr>
+                            <td>{{ row['employee_id'] }}</td>
+                            <td>{{ row['employee_f_name'] }}</td>
+                            <td>{{ row['employee_position'] }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
+                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+        </div>
     
-    <!-- Customer Content -->
-    <div id="customer" class="">
-        <button class="">+</button>
-
-    <!-- Rooms Content -->
-    <div id="rooms" class="">
-        <button class="">+</button>
-    
-    <!-- Hotels Content -->
-    <div id="hotels" class="">
-        <button class="">+</button>
-
-    <!-- Main Content -->
-    <div id="main" class="">
-        <button class="">+</button>
-
-
-
-
-
-
 </body>
 
 
