@@ -159,7 +159,7 @@ class EHotels:
         condition = ''
         if start_date and end_date:
             condition = f"""
-                (var.hotel_name, r.room_num) NOT IN (
+                (h.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{start_date}" < re.check_out_date
@@ -174,7 +174,7 @@ class EHotels:
             """
         elif start_date and not end_date:
             condition = f"""
-                (var.hotel_name, r.room_num) NOT IN (
+                (h.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{start_date}" < re.check_out_date
@@ -186,7 +186,7 @@ class EHotels:
             """
         elif not start_date and end_date:
             condition = f"""
-                (var.hotel_name, r.room_num) NOT IN (
+                (h.hotel_name, r.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{end_date}" <= re.check_out_date
@@ -286,7 +286,7 @@ class EHotels:
     def insertEmployeePosition(self, employee_id, position):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
-            print(f'Employee {employee_id} does not exist')
+            print(f'Employee with id {employee_id} does not exist')
             return
         result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
         if result_ep is not None:
@@ -348,6 +348,10 @@ class EHotels:
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
         booking_id = self.genBookingKey()
         try:
             self.cursor.execute('INSERT INTO BOOKING VALUES (%s, %s, %s, %s, %s, %s, CURDATE(), %s, %s)', (booking_id, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date, ))
@@ -385,6 +389,10 @@ class EHotels:
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
         result_e = self.getTable(table=employee_t, sxn=check_in_e_sxn)
         if result_e is None:
             print(f'Employee with sxn {check_in_e_sxn} does not exist')
@@ -413,6 +421,62 @@ class EHotels:
         else:
             return rental_id
 
+### DELETES ###
+
+    def deleteHotelChain(self, chain_name):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel name {chain_name} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM HOTEL_CHAIN WHERE chain_name = %s', (chain_name, ))
+        except Exception as e:
+            print('Error:', e)
+
+    def deleteCustomer(self, username):
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'Customer with username {username} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM CUSTOMER WHERE username = %s', (username, ))
+        except Exception as e:
+            print('Error:', e)
+
+    def deleteEmployee(self, employee_id):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM EMPLOYEE WHERE employee_id = %s', (employee_id, ))
+        except Exception as e:
+            print('Error:', e)
+
+    def deleteHotel(self, hotel_name):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM HOTEL WHERE hotel_name = %s', (hotel_name, ))
+        except Exception as e:
+            print('Error:', e)
+
+    def deleteRoom(self, hotel_name, room_num):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+        try:
+            self.cursor.execute('DELETE FROM ROOM WHERE hotel_name = %s AND room_num = %s', (hotel_name, room_num, ))
+        except Exception as e:
+            print('Error:', e)
+
 ### KEYGENS ###
 
     def genEmployeeKey(self):
@@ -440,6 +504,10 @@ class EHotels:
         characters = string.ascii_uppercase + string.digits
         random_string = ''.join(random.choices(characters, k=length))
         return random_string
+
+### UPDATES ###
+
+
 
 ### MISC ###
 
