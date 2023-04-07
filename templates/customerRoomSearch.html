@@ -227,7 +227,7 @@
                     <td>{{ row['hotel_name'] }}</td>
                     <td>{{ row['category'] }}</td>
                     <td>{{ row['available_rooms'] }}</td>
-                    <td><button type="submit" data-toggle="modal" data-target="#bookRoomModal" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(`{{ row['hotel_name'] }}`)">Check Availability</button></td>
+                    <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Check Availability</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -277,7 +277,7 @@
                                                 '<td>' + rooms.hotel_name + '</td>' +
                                                 '<td>' + rooms.category + '</td>' +
                                                 '<td>' + rooms.available_rooms + '</td>' +
-                                                '<td><button type="submit" data-toggle="modal" data-target="#bookRoomModal" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + rooms.hotel_name + '\')">Check Availability</button></td>';
+                                                '<td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + start_date + '\', \'' + end_date + '\', \'' + room_capacity + '\', \'' + city + '\', \'' + hotel_chain + '\', \'' + category + '\', \'' + total_no_rooms + '\', \'' + min_price + '\', \'' + max_price + '\', \'' + rooms.hotel_name + '\')">Check Availability</button></td>';
                                 tableBody.appendChild(row)                
                             }
                         } else {
@@ -309,23 +309,15 @@
                 }
             </script>
             <script>
-                function getAvailableRoomDetails(hotel_name) {
-                    var start_date = document.getElementById("start_date").value
-                    var end_date = document.getElementById("end_date").value
-                    var room_capacity = document.getElementById("room_capacity").value
-                    var city = document.getElementById("city").value
-                    var hotel_chain = document.getElementById("hotel_chain").value
-                    var category = document.getElementById("category").value
-                    var total_no_rooms = document.getElementById("total_no_rooms").value
-                    var min_price = document.getElementById("min_price").value
-                    var max_price = document.getElementById("max_price").value
-                    
-                    // if (start_date === '' || end_date === ''){
-                    //     var date_input = start_date === "" ? document.getElementById("start_date") : document.getElementById("end_date");
-                    //     date_input.focus();
-                    //     alert('Please enter a start and end date');
-                    //     return;
-                    // } 
+                function getAvailableRoomDetails(start_date='', end_date='', room_capacity='', city='', hotel_chain='', category='', total_no_rooms='', min_price='', max_price='', hotel_name) {
+                    var check_start_date = document.getElementById("start_date").value
+                    var check_end_date = document.getElementById("end_date").value
+                    if (check_start_date === '' || check_end_date === ''){
+                        var date_input = check_start_date === "" ? document.getElementById("start_date") : document.getElementById("end_date");
+                        date_input.focus();
+                        alert('Please enter a start and end date and then click Search');
+                        return;
+                    } 
         
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = () => {
@@ -351,12 +343,12 @@
                             console.log('Error: ' + xhr.status);
                         }
                     }
-                    xhr.open("GET", "/availableRooms?hotel_name=" + hotel_name + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
-                    console.log("/availableRooms?hotel_name=" + hotel_name + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
+                    xhr.open("GET", "/availableRooms?hotel_name=" + encodeURIComponent(hotel_name) + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    console.log("/availableRooms?hotel_name=" + encodeURIComponent(hotel_name) + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
                     xhr.send()
         
                     // open modal
-                    // $('#bookRoomModal').modal('show');
+                    $('#bookRoomModal').modal('show');
                 }
             </script>
         {% endif %}
