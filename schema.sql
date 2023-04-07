@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS HOTEL_CHAIN (
 
 CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE (
     chain_id CHAR(5) NOT NULL,
-    address VARCHAR(30),
+    address VARCHAR(30) NOT NULL,
     PRIMARY KEY (chain_id, address),
     FOREIGN KEY (chain_id) REFERENCES HOTEL_CHAIN (chain_id)
 		ON DELETE CASCADE
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS CUSTOMER (
 CREATE TABLE IF NOT EXISTS EMPLOYEE (
 	employee_id CHAR(5) NOT NULL,
     chain_id CHAR(5),
-	sxn CHAR(9),
+	sxn CHAR(9) UNIQUE,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     address VARCHAR(30),
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
 	hotel_id CHAR(5) NOT NULL,
     chain_id CHAR(5) NOT NULL,
     manager_id CHAR(5) NOT NULL,
-    hotel_name VARCHAR(30) NOT NULL,
+    hotel_name VARCHAR(30) UNIQUE NOT NULL,
     category ENUM('1-star', '2-star', '3-star', '4-star', '5-star'),
     num_rooms INTEGER,
     city VARCHAR(30) NOT NULL,
@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     	ON DELETE CASCADE   -- Might need to make ON DELETE SET NULL
 		ON UPDATE CASCADE,
     FOREIGN KEY (manager_id) REFERENCES EMPLOYEE (employee_id)
+        ON UPDATE CASCADE,
 );
 CREATE INDEX index_hotel_id ON HOTEL (hotel_id);
 
