@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS HOTEL_CHAIN (
     PRIMARY KEY (chain_id)
 );
 
-CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE ( -- Added
-    address VARCHAR(30),
+CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE (
     chain_id CHAR(5) NOT NULL,
+    address VARCHAR(30),
     PRIMARY KEY (chain_id, address),
     FOREIGN KEY (chain_id) REFERENCES HOTEL_CHAIN (chain_id)
 		ON DELETE CASCADE
@@ -61,13 +61,13 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     hotel_name VARCHAR(30) NOT NULL,
     category ENUM('1-star', '2-star', '3-star', '4-star', '5-star'),
     num_rooms INTEGER,
-    city VARCHAR(30) NOT NULL, -- Added
+    city VARCHAR(30) NOT NULL,
     address VARCHAR(30),
     email VARCHAR(30),
     phone_number VARCHAR(20) NOT NULL,
-    PRIMARY KEY (hotel_id),	-- Modified for chain_id
+    PRIMARY KEY (hotel_id),
     FOREIGN KEY (chain_id) REFERENCES HOTEL_CHAIN (chain_id)
-    	ON DELETE CASCADE
+    	ON DELETE CASCADE   -- Might need to make ON DELETE SET NULL
 		ON UPDATE CASCADE,
     FOREIGN KEY (manager_id) REFERENCES EMPLOYEE (employee_id)
 );
@@ -94,7 +94,7 @@ ADD FOREIGN KEY (hotel_id) REFERENCES HOTEL (hotel_id)
 	ON DELETE SET NULL
 	ON UPDATE CASCADE;
 
-CREATE TABLE IF NOT EXISTS EMPLOYEE_POSITION ( -- Added
+CREATE TABLE IF NOT EXISTS EMPLOYEE_POSITION (
 	employee_id CHAR(5) NOT NULL,
     position VARCHAR(20) NOT NULL,
     hotel_id CHAR(5) NOT NULL,
@@ -109,12 +109,12 @@ CREATE TABLE IF NOT EXISTS ROOM (
 	hotel_id CHAR(5) NOT NULL,
     room_num INTEGER NOT NULL,
     price DECIMAL(15,2) NOT NULL,
-    capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
+    capacity INTEGER NOT NULL CHECK (1<=capacity<=6),
     view_type ENUM('sea view', 'mountain view') NOT NULL,
     can_extend BOOL NOT NULL,
     has_problems BOOL NOT NULL,
     available BOOL NOT NULL,
-    PRIMARY KEY (hotel_id, room_num), -- Modified
+    PRIMARY KEY (hotel_id, room_num),
     FOREIGN KEY (hotel_id) REFERENCES HOTEL (hotel_id)
 		ON DELETE CASCADE
 		ON UPDATE CASCADE
@@ -134,12 +134,12 @@ UPDATE HOTEL
 SET num_rooms = num_rooms - 1
 WHERE hotel_id = OLD.hotel_id;
 
-CREATE TABLE IF NOT EXISTS ROOM_AMENITY ( -- Added
+CREATE TABLE IF NOT EXISTS ROOM_AMENITY (
 	hotel_id CHAR(5) NOT NULL,
     room_num INTEGER NOT NULL,
     amenity VARCHAR(30) NOT NULL,
-    PRIMARY KEY (hotel_id, room_num, amenity), -- Modified
-    FOREIGN KEY (hotel_id, room_num) REFERENCES ROOM (hotel_id, room_num) -- Modified
+    PRIMARY KEY (hotel_id, room_num, amenity),
+    FOREIGN KEY (hotel_id, room_num) REFERENCES ROOM (hotel_id, room_num)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -147,10 +147,10 @@ CREATE TABLE IF NOT EXISTS ROOM_AMENITY ( -- Added
 CREATE TABLE IF NOT EXISTS RENTAL (
 	rental_id CHAR(5) NOT NULL,
     customer_id INT NOT NULL,
-    chain_name VARCHAR(30) NOT NULL, -- Added
+    chain_name VARCHAR(30) NOT NULL,
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
-    capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
+    capacity INTEGER NOT NULL CHECK (1<=capacity<=6),
     rental_rate DECIMAL(15,2) NOT NULL,
     additional_charges DECIMAL(15,2),
     check_in_date DATE NOT NULL,
@@ -166,10 +166,10 @@ CREATE TABLE IF NOT EXISTS RENTAL (
 CREATE TABLE IF NOT EXISTS RENTAL_ARCHIVE (
 	rental_id CHAR(5) NOT NULL,
     customer_id INT NOT NULL,
-    chain_name VARCHAR(30) NOT NULL, -- Added
+    chain_name VARCHAR(30) NOT NULL,
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
-    capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
+    capacity INTEGER NOT NULL CHECK (1<=capacity<=6),
     rental_rate DECIMAL(15,2) NOT NULL,
     additional_charges DECIMAL(15,2) NOT NULL,
     check_in_date DATE NOT NULL,
@@ -185,10 +185,10 @@ CREATE TABLE IF NOT EXISTS RENTAL_ARCHIVE (
 CREATE TABLE IF NOT EXISTS BOOKING (
 	booking_id CHAR(5) NOT NULL,
     customer_id INT NOT NULL,
-    chain_name VARCHAR(30) NOT NULL, -- Added
+    chain_name VARCHAR(30) NOT NULL,
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
-    capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
+    capacity INTEGER NOT NULL CHECK (1<=capacity<=6),
     place_date DATE NOT NULL,
     exp_check_in_date DATE NOT NULL,
     exp_check_out_date DATE NOT NULL,
@@ -199,10 +199,10 @@ CREATE TABLE IF NOT EXISTS BOOKING (
 CREATE TABLE IF NOT EXISTS BOOKING_ARCHIVE (
 	booking_id CHAR(5) NOT NULL,
     customer_id INT NOT NULL,
-    chain_name VARCHAR(30) NOT NULL, -- Added
+    chain_name VARCHAR(30) NOT NULL,
     hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
-    capacity INTEGER NOT NULL CHECK (1<=capacity<=6), -- Modified
+    capacity INTEGER NOT NULL CHECK (1<=capacity<=6),
     place_date DATE NOT NULL,
     exp_check_in_date DATE NOT NULL,
     exp_check_out_date DATE NOT NULL,
