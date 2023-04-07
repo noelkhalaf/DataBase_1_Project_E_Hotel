@@ -56,7 +56,7 @@ def customerSignUp():
         if eHotels.getTable(table=customer_t, username=username):
             flash(f'Customer with username {username} already exists')
         else:
-            eHotels.insertCustomer(sxn, fname, lname, address, username, password)
+            eHotels.insertCustomer(username, password, sxn, fname, lname, address)
             flash(f'Customer with username {username} created successfully!')
             return redirect(url_for('customerSignIn'))
 
