@@ -12,11 +12,12 @@
 -- DROP TABLE IF EXISTS BOOKING_ARCHIVE;
 
 CREATE TABLE IF NOT EXISTS HOTEL_CHAIN (
-    chain_name VARCHAR(30) NOT NULL,
+    chain_id INT AUTO_INCREMENT,
+    chain_name VARCHAR(30) UNIQUE NOT NULL,
     num_hotels INTEGER,
     email VARCHAR(30),
     phone_number VARCHAR(20),
-    PRIMARY KEY (chain_name)
+    PRIMARY KEY (chain_id)
 );
 
 CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE (
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE (
 );
 
 CREATE TABLE IF NOT EXISTS CUSTOMER (
+    customer_id INT AUTO_INCREMENT,
     username VARCHAR(30) UNIQUE NOT NULL,
     password VARCHAR(30) NOT NULL,
     sxn CHAR(9) UNIQUE NOT NULL,
@@ -36,7 +38,7 @@ CREATE TABLE IF NOT EXISTS CUSTOMER (
     last_name VARCHAR(30) NOT NULL,
     address VARCHAR(30) NOT NULL,
     registration_date DATE NOT NULL,
-    PRIMARY KEY (username)
+    PRIMARY KEY (customer_id)
 );
 
 CREATE TABLE IF NOT EXISTS EMPLOYEE (
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS EMPLOYEE (
 );
 
 CREATE TABLE IF NOT EXISTS HOTEL (
+    hotel_id INT AUTO_INCREMENT,
     hotel_name VARCHAR(30) UNIQUE NOT NULL,
     chain_name VARCHAR(30) NOT NULL,
     manager_id CHAR(5) NOT NULL,
@@ -62,7 +65,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     address VARCHAR(30),
     email VARCHAR(30),
     phone_number VARCHAR(20) NOT NULL,
-    PRIMARY KEY (hotel_name),
+    PRIMARY KEY (hotel_id),
     FOREIGN KEY (chain_name) REFERENCES HOTEL_CHAIN (chain_name)
     	ON DELETE CASCADE
 		ON UPDATE CASCADE,
@@ -102,6 +105,7 @@ CREATE TABLE IF NOT EXISTS EMPLOYEE_POSITION (
 );
 
 CREATE TABLE IF NOT EXISTS ROOM (
+    room_id INT AUTO_INCREMENT,
 	hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
     price DECIMAL(15,2) NOT NULL,
@@ -110,7 +114,7 @@ CREATE TABLE IF NOT EXISTS ROOM (
     can_extend BOOL NOT NULL,
     has_problems BOOL NOT NULL,
     available BOOL NOT NULL,
-    PRIMARY KEY (hotel_name, room_num),
+    PRIMARY KEY (room_id),
     FOREIGN KEY (hotel_name) REFERENCES HOTEL (hotel_name)
 		ON DELETE CASCADE
 		ON UPDATE CASCADE
