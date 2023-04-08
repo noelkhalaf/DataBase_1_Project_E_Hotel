@@ -237,22 +237,29 @@ class EHotels:
         else:
             return chain_name, address
 
-    def insertCustomer(self, username, password, sxn, fname, lname, address):
+    def insertCustomer(self, username, password, fname, lname, sxn, address):
         result_c = self.getTable(table=customer_t, username=username)
         if result_c is not None:
             print(f'The username {username} is already taken')
             return
         try:
-            self.cursor.execute('INSERT INTO CUSTOMER VALUES (%s, %s, %s, %s, %s, %s, CURDATE())', (username, password, sxn, fname, lname, address, ))
+            self.cursor.execute('INSERT INTO CUSTOMER VALUES (%s, %s, %s, %s, %s, %s, CURDATE())', (username, password, fname, lname, sxn, address, ))
         except Exception as e:
             print('Error:', e)
         else:
             return username
 
-    def insertEmployee(self, hotel_name, fname, lname, sxn, address=''):
-        chain_name, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+    def insertEmployee(self, chain_name, hotel_name, fname, lname, sxn, address=''):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel chain {chain_name} does not exist')
+            return
+        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
+            return
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
         result_e = self.getTable(table=employee_t, sxn=sxn)
         if result_e is not None:
@@ -366,7 +373,7 @@ class EHotels:
             print(f'Booking with id {booking_id} does not exist')
             return
         result_ba = self.getTable(table=booking_arch_t, booking_id=booking_id)
-        if result_ba is None:
+        if result_ba is not None:
             print(f'Booking archive with id {booking_id} already exists')
             return
         try:
@@ -385,9 +392,12 @@ class EHotels:
         if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
             return
-        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
+            return
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
@@ -411,7 +421,7 @@ class EHotels:
             print(f'Rental with id {rental_id} does not exist')
             return
         result_ra = self.getTable(table=rental_arch_t, rental_id=rental_id)
-        if result_ra is None:
+        if result_ra is not None:
             print(f'Rental archive with id {rental_id} already exists')
             return
         try:
@@ -426,12 +436,30 @@ class EHotels:
     def deleteHotelChain(self, chain_name):
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
-            print(f'Hotel name {chain_name} does not exist')
+            print(f'Hotel chain {chain_name} does not exist')
             return
         try:
             self.cursor.execute('DELETE FROM HOTEL_CHAIN WHERE chain_name = %s', (chain_name, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
+
+    def deleteCentralOffice(self, chain_name, address):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel chain {chain_name} does not exist')
+            return
+        result_co = self.getTable(table=central_office_t, chain_name=chain_name, address=address)
+        if result_co is None:
+            print(f'Central office for chain {chain_name} at {address} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM CENTRAL_OFFICE WHERE chain_name = %s AND address = %s', (chain_name, address, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
 
     def deleteCustomer(self, username):
         result_c = self.getTable(table=customer_t, username=username)
@@ -442,6 +470,8 @@ class EHotels:
             self.cursor.execute('DELETE FROM CUSTOMER WHERE username = %s', (username, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
 
     def deleteEmployee(self, employee_id):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
@@ -452,6 +482,8 @@ class EHotels:
             self.cursor.execute('DELETE FROM EMPLOYEE WHERE employee_id = %s', (employee_id, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
 
     def deleteHotel(self, hotel_name):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
@@ -462,6 +494,24 @@ class EHotels:
             self.cursor.execute('DELETE FROM HOTEL WHERE hotel_name = %s', (hotel_name, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
+
+    def deleteEmployeePosition(self, employee_id, position):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
+        if result_ep is None:
+            print(f'Employee with id {employee_id} does not work as {position}')
+            return
+        try:
+            self.cursor.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s AND position = %s', (employee_id, position, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
 
     def deleteRoom(self, hotel_name, room_num):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
@@ -476,6 +526,28 @@ class EHotels:
             self.cursor.execute('DELETE FROM ROOM WHERE hotel_name = %s AND room_num = %s', (hotel_name, room_num, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
+
+    def deleteRoomAmenity(self, hotel_name, room_num, amenity):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+        result_ra = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
+        if result_ra is None:
+            print(f'Room {room_num} at {hotel_name} does not have {amenity}')
+            return
+        try:
+            self.cursor.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s AND amenity = %s', (hotel_name, room_num, amenity, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
 
     def deleteBooking(self, booking_id):
         result_b = self.getTable(table=booking_t, booking_id=booking_id)
@@ -486,6 +558,8 @@ class EHotels:
             self.cursor.execute('DELETE FROM BOOKING WHERE booking_id = %s', (booking_id, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
     
     def deleteRental(self, rental_id):
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
@@ -496,59 +570,288 @@ class EHotels:
             self.cursor.execute('DELETE FROM RENTAL WHERE result_r = %s', (rental_id, ))
         except Exception as e:
             print('Error:', e)
+        else:
+            return True
 
 ### UPDATES ###
-#
-    def updateHotelChain(self, chain_name, email, phone_number):
-        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
-        if result_hc is None:
-            print(f'Hotel name {chain_name} does not exist')
+
+    def updateHotelChain(self, chain_id, chain_name, email, phone_number):
+        result_hc_id = self.getTable(table=hotel_chain_t, chain_id=chain_id)
+        if result_hc_id is None:
+            print(f'Hotel chain with id {chain_id} does not exist')
+            return
+        result_hc_n = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc_n is not None:
+            print(f'Hotel chain {chain_name} already exists')
             return
         try:
-            self.cursor.execute('DELETE FROM RENTAL WHERE result_r = %s', (rental_id, ))
+            self.cursor.execute("""
+                UPDATE HOTEL_CHAIN
+                SET chain_name = %s, email = %s, phone_number = %s
+                WHERE chain_id = %s
+                """, (chain_name, email, phone_number, chain_id, ))
         except Exception as e:
             print('Error:', e)
-        
-#
-    def updateCustomer(self, username):
-        result_c = self.getTable(table=customer_t, username=username)
-        if result_c is None:
-            print(f'Customer with username {username} does not exist')
+        else:
+            return True
+
+    def updateCentralOffice(self, central_office_id, chain_name, address):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel chain {chain_name} does not exist')
             return
-#
-    def updateEmployee(self, employee_id):
+        result_co_id = self.getTable(table=central_office_t, central_office_id=central_office_id)
+        if result_co_id is None:
+            print(f'Central office with id {central_office_id} does not exist')
+            return
+        result_co_a = self.getTable(table=central_office_t, chain_name=chain_name, address=address)
+        if result_co_a is not None:
+            print(f'Central office for chain {chain_name} at {address} already exists')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE CENTRAL_OFFICE
+                SET chain_name = %s, address = %s,
+                WHERE central_office_id = %s
+                """, (chain_name, address, central_office_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateCustomer(self, customer_id, username, password, fname, lname, sxn, address):
+        result_c_id,  = self.getTable(table=customer_t, customer_id=customer_id)
+        if result_c_id is None:
+            print(f'Customer with id {customer_id} does not exist')
+            return
+        result_c_u = self.getTable(table=customer_t, username=username)
+        if result_c_u is not None:
+            print(f'The username {username} is already taken')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE CUSTOMER
+                SET username = %s, password = %s, first_name = %s, last_name = %s, sxn = %s, address = %s
+                WHERE customer_id = %s
+                """, (username, password, fname, lname, sxn, address, customer_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
             return
-#
-    def updateHotel(self, hotel_name):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel chain {chain_name} does not exist')
+            return
+        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
+            return
+        result_e = self.getTable(table=employee_t, sxn=sxn)
+        if result_e is not None:
+            print(f'Employee with sxn {sxn} already exists')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE EMPLOYEE
+                SET chain_name = %s, hotel_name = %s, first_name = %s, last_name = %s, sxn = %s, address = %s
+                WHERE employee_id = %s
+                """, (chain_name, hotel_name, fname, lname, sxn, address, employee_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateHotel(self, hotel_id, hotel_name, chain_name, manager_id, category, city, address, email, phone_number):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Chain name {chain_name} does not exist')
+            return
+        result_e = self.getTable(table=employee_t, employee_id=manager_id)
+        if result_e is None:
+            print(f'Employee with id {manager_id} does not exist')
+            return
+        result_h_id = self.getTable(table=hotel_t, hotel_id=hotel_id)
+        if result_h_id is None:
+            print(f'Hotel with id {hotel_name} does not exist')
+            return
+        result_h_n = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h_n is not None:
+            print(f'Hotel {hotel_name} under hotel chain {chain_name} already exists')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE HOTEL
+                SET hotel_name = %s, chain_name = %s, manager_id = %s, category = %s, city = %s, address = %s, email = %s, phone_number = %s
+                WHERE hotel_id = %s
+                """, (hotel_name, chain_name, manager_id, category, city, address, email, phone_number, hotel_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateEmployeePosition(self, employee_position_id, employee_id, position):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        result_ep_id = self.getTable(table=employee_pos_t, employee_position_id=employee_position_id)
+        if result_ep_id is None:
+            print(f'Employee position with id {employee_position_id} does not exist')
+            return
+        result_ep_p = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
+        if result_ep_p is not None:
+            print(f'Employee {employee_id} already has position {position}')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE EMPLOYEE_POSITION
+                SET employee_id = %s, position = %s
+                WHERE employee_position_id = %s
+                """, (employee_id, position, employee_position_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateRoom(self, room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
-#
-    def updateRoom(self, hotel_name, room_num):
+        result_r_id = self.getTable(table=room_t, room_id=room_id)
+        if result_r_id is None:
+            print(f'Room with id {room_id} does not exist')
+            return
+        result_r_n = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r_n is not None:
+            print(f'Hotel {hotel_name} already has room number {room_num}')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE ROOM
+                SET hotel_name = %s, room_num = %s, price = %s, capacity = %s, view_type = %s, can_extend = %s, has_problems = %s, available = %s
+                WHERE room_id = %s
+                """, (hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, room_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateRoomAmenity(self, room_amenity_id, hotel_name, room_num, amenity):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
-            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            print(f'Hotel {hotel_name} does not have a room number {room_num}')
             return
-#
-    def updateBooking(self, booking_id):
-        result_b = self.getTable(table=booking_t, booking_id=booking_id)
+        result_ra_id = self.getTable(table=room_amenity_t, room_amenity_id=room_amenity_id)
+        if result_ra_id is None:
+            print(f'Room amenity id {room_amenity_id} does not exist')
+            return
+        result_ra_a = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
+        if result_ra_a is not None:
+            print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE ROOM_AMENITY
+                SET hotel_name = %s, room_num = %s, amenity = %s
+                WHERE room_amenity_id = %s
+                """, (hotel_name, room_num, amenity, room_amenity_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateBooking(self, booking_id, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date):
+        result_b = self.getTable(table=booking_t, hotel_name=hotel_name, room_num=room_num)
         if result_b is None:
             print(f'Booking with id {booking_id} does not exist')
             return
-#
-    def updateRental(self, rental_id):
-        result_r = self.getTable(table=rental_t, rental_id=rental_id)
-        if result_r is None:
-            print(f'Rental with id {result_r} does not exist')
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'The username {username} does not exist')
             return
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel chain {chain_name} does not exist')
+            return
+        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE BOOKING
+                SET username = %s, chain_name = %s, hotel_name = %s, room_num = %s, capacity = %s, exp_check_in_date = %s, exp_check_out_date = %s
+                WHERE booking_id = %s
+                """, (username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date, booking_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
+    def updateRental(self, rental_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, check_out_e_sxn):
+        result_re = self.getTable(table=rental_t, rental_id=rental_id)
+        if result_re is None:
+            print(f'Rental with id {rental_id} does not exist')
+            return
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'The username {username} does not exist')
+            return
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Chain name {chain_name} does not exist')
+            return
+        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+        result_e_in = self.getTable(table=employee_t, sxn=check_in_e_sxn)
+        if result_e_in is None:
+            print(f'Employee with sxn {check_in_e_sxn} does not exist')
+            return
+        result_e_out = self.getTable(table=employee_t, sxn=check_out_e_sxn)
+        if result_e_out is None:
+            print(f'Employee with sxn {check_out_e_sxn} does not exist')
+            return
+        try:
+            self.cursor.execute("""
+                UPDATE RENTAL
+                SET username = %s, chain_name = %s, hotel_name = %s, room_num = %s, capacity = %s, rental_rate = %s, additional_charges = %s,
+                check_in_date = %s, check_out_date = %s, check_in_e_sxn = %s, check_out_e_sxn = %s
+                WHERE rental_id = %s
+                """, (username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, check_out_e_sxn, rental_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
 
 ### KEYGENS ###
 
