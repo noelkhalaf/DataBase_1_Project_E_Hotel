@@ -21,7 +21,7 @@
 <body>
 
     <div class="container">
-        <h2>Admin Home Page</h2>
+        <h2>Admin Home</h2>
         <hr>
         <ul class="nav nav-tabs">
             <li class="active">
@@ -83,44 +83,32 @@
 
         <div class="tab-content">
 
-            <!-- Employee Tab-->
-            <div class="tab-pane fade in active" id="employee" role="tabpanel" aria-labelledby="tab-employee">
-                <div id="employee_list" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <h3 class="modal-title">Employee List</h3>
-                                    </div>
-                                    <div class="col-md-2 text-right">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+            <!-- Employee -->
+            <div id="employee_list" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h3 class="modal-title">Employee List</h3>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="modal-body">
-                                <table class="table table-striped" id="employee-table">
-                                    <thead>
-                                        <tr class="table-col">
-                                            <th scope="col">Employee ID</th>
-                                            <th scope="col">Employee First Name</th>
-                                            <th scope="col">Employee Position</th>
-                                            <th scope="col">Edit</th>
-                                            <th scope="col">Delete</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="modal-body">
                         </div>
                     </div>
-                </div> 
+                </div>
+            </div> 
+            <div class="tab-pane fade in active" id="employee" role="tabpanel" aria-labelledby="tab-employee">
+                <div class="buttonHolder">
+                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                </div>
                 {% if employee_list %}
-                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="employee-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -138,52 +126,41 @@
                             <td>{{ row['employee_id'] }}</td>
                             <td>{{ row['employee_f_name'] }}</td>
                             <td>{{ row['employee_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td><button class="btn btn-primary btn-block">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% endif %}
             </div>
             
             <!-- Customer Tab-->
-            <div class="tab-pane fade in active" id="customer" role="tabpanel" aria-labelledby="tab-customer">
-                <div id="customer_list" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <h3 class="modal-title">Customer List</h3>
-                                    </div>
-                                    <div class="col-md-2 text-right">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+            <div id="customer_list" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h3 class="modal-title">Customer List</h3>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="modal-body">
-                                <table class="table table-striped" id="customer-table">
-                                    <thead>
-                                        <tr class="table-col">
-                                            <th scope="col">Customer ID</th>
-                                            <th scope="col">Customer First Name</th>
-                                            <th scope="col">Customer Position</th>
-                                            <th scope="col">Edit</th>
-                                            <th scope="col">Delete</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="modal-body">
                         </div>
                     </div>
-                </div> 
+                </div>
+            </div> 
+            <div class="tab-pane fade" id="customer" role="tabpanel" aria-labelledby="tab-customer">
+                <div class="buttonHolder">
+                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                </div>
                 {% if customer_list %}
-                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="customer-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -201,52 +178,41 @@
                             <td>{{ row['customer_id'] }}</td>
                             <td>{{ row['customer_f_name'] }}</td>
                             <td>{{ row['customer_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% endif %}
             </div>
 
             <!-- Room Tab-->
-            <div class="tab-pane fade in active" id="room" role="tabpanel" aria-labelledby="tab-room">
-                <div id="room_list" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <h3 class="modal-title">Rooms List</h3>
-                                    </div>
-                                    <div class="col-md-2 text-right">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+            <div id="room_list" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h3 class="modal-title">Rooms List</h3>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="modal-body">
-                                <table class="table table-striped" id="room-table">
-                                    <thead>
-                                        <tr class="table-col">
-                                            <th scope="col">Room ID</th>
-                                            <th scope="col">Room First Name</th>
-                                            <th scope="col">Room Position</th>
-                                            <th scope="col">Edit</th>
-                                            <th scope="col">Delete</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="modal-body">
                         </div>
                     </div>
-                </div> 
+                </div>
+            </div> 
+            <div class="tab-pane fade" id="room" role="tabpanel" aria-labelledby="tab-room">
+                <div class="buttonHolder">
+                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                </div>
                 {% if room_list %}
-                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="rooms-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -264,52 +230,41 @@
                             <td>{{ row['room_id'] }}</td>
                             <td>{{ row['room_f_name'] }}</td>
                             <td>{{ row['room_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% endif %}
             </div>
 
             <!-- Hotel Tab-->
-            <div class="tab-pane fade in active" id="hotel" role="tabpanel" aria-labelledby="tab-hotel">
-                <div id="hotel_list" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <h3 class="modal-title">Hotel List</h3>
-                                    </div>
-                                    <div class="col-md-2 text-right">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+            <div id="hotel_list" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h3 class="modal-title">Hotel List</h3>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="modal-body">
-                                <table class="table table-striped" id="hotel-table">
-                                    <thead>
-                                        <tr class="table-col">
-                                            <th scope="col">Hotel ID</th>
-                                            <th scope="col">Hotel First Name</th>
-                                            <th scope="col">Hotel Position</th>
-                                            <th scope="col">Edit</th>
-                                            <th scope="col">Delete</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="modal-body">
                         </div>
                     </div>
-                </div> 
+                </div>
+            </div> 
+            <div class="tab-pane fade" id="hotel" role="tabpanel" aria-labelledby="tab-hotel">
+                <div class="buttonHolder">
+                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                </div>
                 {% if hotel_list %}
-                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="hotel-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -327,52 +282,41 @@
                             <td>{{ row['hotel_id'] }}</td>
                             <td>{{ row['hotel_f_name'] }}</td>
                             <td>{{ row['hotel_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% endif %}
             </div>
 
             <!-- Chain Tab-->
-            <div class="tab-pane fade in active" id="chain" role="tabpanel" aria-labelledby="tab-chain">
-                <div id="chain_list" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <h3 class="modal-title">Chain List</h3>
-                                    </div>
-                                    <div class="col-md-2 text-right">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+            <div id="chain_list" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h3 class="modal-title">Chain List</h3>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="modal-body">
-                                <table class="table table-striped" id="chain-table">
-                                    <thead>
-                                        <tr class="table-col">
-                                            <th scope="col">Chain ID</th>
-                                            <th scope="col">Chain First Name</th>
-                                            <th scope="col">Chain Position</th>
-                                            <th scope="col">Edit</th>
-                                            <th scope="col">Delete</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="modal-body">
                         </div>
                     </div>
-                </div> 
+                </div>
+            </div> 
+            <div class="tab-pane fade" id="chain" role="tabpanel" aria-labelledby="tab-chain">
+                <div class="buttonHolder">
+                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                </div>
                 {% if chain_list %}
-                <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Insert</button></td>
                     <table class="table table-striped" id="chain-table">
                         <thead class="table-dark">
                             <tr class="table-col">
@@ -390,18 +334,16 @@
                             <td>{{ row['chain_id'] }}</td>
                             <td>{{ row['chain_f_name'] }}</td>
                             <td>{{ row['chain_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                {% endif %}
             </div>
-
-
-
-        </div>
-    
+        </div> 
+    </div>
 </body>
 
 
