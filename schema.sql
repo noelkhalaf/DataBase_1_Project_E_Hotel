@@ -21,9 +21,10 @@ CREATE TABLE IF NOT EXISTS HOTEL_CHAIN (
 );
 
 CREATE TABLE IF NOT EXISTS CENTRAL_OFFICE (
+    central_office_id INT AUTO_INCREMENT,
     chain_name VARCHAR(30) NOT NULL,
     address VARCHAR(30) NOT NULL,
-    PRIMARY KEY (chain_name, address),
+    PRIMARY KEY (central_office_id),
     FOREIGN KEY (chain_name) REFERENCES HOTEL_CHAIN (chain_name)
 		ON DELETE CASCADE
 		ON UPDATE CASCADE
@@ -33,9 +34,9 @@ CREATE TABLE IF NOT EXISTS CUSTOMER (
     customer_id INT AUTO_INCREMENT,
     username VARCHAR(30) UNIQUE NOT NULL,
     password VARCHAR(30) NOT NULL,
-    sxn CHAR(9) UNIQUE NOT NULL,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
+    sxn CHAR(9) NOT NULL,
     address VARCHAR(30) NOT NULL,
     registration_date DATE NOT NULL,
     PRIMARY KEY (customer_id)
@@ -97,9 +98,10 @@ ADD FOREIGN KEY (hotel_name) REFERENCES HOTEL (hotel_name)
 	ON UPDATE CASCADE;
 
 CREATE TABLE IF NOT EXISTS EMPLOYEE_POSITION (
+    employee_position_id INT AUTO_INCREMENT,
 	employee_id CHAR(5) NOT NULL,
     position VARCHAR(20) NOT NULL,
-    PRIMARY KEY (employee_id, position),
+    PRIMARY KEY (employee_position_id),
     FOREIGN KEY (employee_id) REFERENCES EMPLOYEE (employee_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -137,10 +139,11 @@ SET num_rooms = num_rooms - 1
 WHERE hotel_name = OLD.hotel_name;
 
 CREATE TABLE IF NOT EXISTS ROOM_AMENITY (
+    room_amenity_id INT AUTO_INCREMENT,
 	hotel_name VARCHAR(30) NOT NULL,
     room_num INTEGER NOT NULL,
     amenity VARCHAR(30) NOT NULL,
-    PRIMARY KEY (hotel_name, room_num, amenity),
+    PRIMARY KEY (room_amenity_id),
     FOREIGN KEY (hotel_name, room_num) REFERENCES ROOM (hotel_name, room_num)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
