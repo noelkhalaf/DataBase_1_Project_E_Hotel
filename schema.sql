@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     hotel_id INT AUTO_INCREMENT,
     hotel_name VARCHAR(30) UNIQUE NOT NULL,
     chain_name VARCHAR(30) NOT NULL,
-    manager_id CHAR(5) NOT NULL,
+    manager_id CHAR(5),
     category ENUM('1-star', '2-star', '3-star', '4-star', '5-star'),
     num_rooms INTEGER,
     city VARCHAR(30) NOT NULL,
@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS HOTEL (
     	ON DELETE CASCADE
 		ON UPDATE CASCADE,
     FOREIGN KEY (manager_id) REFERENCES EMPLOYEE (employee_id)
+        ON DELETE SET NULL
         ON UPDATE CASCADE
 );
 -- CREATE INDEX index_hotel_id ON HOTEL (hotel_id);
@@ -117,7 +118,8 @@ CREATE TABLE IF NOT EXISTS ROOM (
     PRIMARY KEY (room_id),
     FOREIGN KEY (hotel_name) REFERENCES HOTEL (hotel_name)
 		ON DELETE CASCADE
-		ON UPDATE CASCADE
+		ON UPDATE CASCADE,
+    INDEX idx_hotel_room (hotel_name, room_num)
 );
 
 CREATE TRIGGER increment_num_rooms
