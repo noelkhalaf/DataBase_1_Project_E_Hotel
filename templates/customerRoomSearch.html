@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Sign Up</title>
+    <title>Room Search</title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -19,16 +19,6 @@
 </head>
 
 <body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-                <strong class="mr-auto">{{ message }}</strong>
-                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
     <div class="container">
         <div class="row">
             <div class="col-xs-8">
@@ -168,8 +158,9 @@
                     </div>
                 </div>
             </div>
+            <input type="hidden" id="search_clicked" value="false">
             <div class="buttonHolder">
-                <button type="submit" class="btn btn-primary btn-block">Search</button>
+                <button type="submit" onclick="document.getElementById('search_clicked').value = 'true'" class="btn btn-primary btn-block">Search</button>
             </div>
         </form>
         <hr>
@@ -321,7 +312,9 @@
                 function getAvailableRoomDetails(start_date='', end_date='', room_capacity='', city='', hotel_chain='', category='', total_no_rooms='', min_price='', max_price='', hotel_name) {
                     var check_start_date = document.getElementById("start_date").value
                     var check_end_date = document.getElementById("end_date").value
-                    if (check_start_date === '' || check_end_date === ''){
+                    var searchClicked = document.getElementById('search_clicked').value;
+
+                    if (check_start_date === '' || check_end_date === '' || searchClicked === 'false'){
                         var date_input = check_start_date === "" ? document.getElementById("start_date") : document.getElementById("end_date");
                         date_input.focus();
                         alert('Please enter a start and end date and then click Search');
