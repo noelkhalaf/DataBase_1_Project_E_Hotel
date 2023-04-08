@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, Response
+from flask import Flask, request, render_template, redirect, url_for, flash, Response, session, jsonify, make_response
 from decimal import Decimal
 import secrets
 import json
@@ -8,9 +8,18 @@ from include import *
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
+@app.before_request
+def clearSession():
+    if request.endpoint == 'index':
+        session.pop('username', None)
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/adminHome')
+def adminHome():
+    return render_template('admin_Home.html')
 
 @app.route('/customerSignIn', methods=['GET', 'POST'])
 def customerSignIn():
@@ -20,7 +29,7 @@ def customerSignIn():
 
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username, password=password):
-            flash(f'Login success! Welcome {username}!')
+            session['username'] = username
             return redirect(url_for('customerRoomSearch'))
         else:
             flash('Incorrect username or password')
@@ -81,7 +90,7 @@ def customerRoomSearch():
         available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
         return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
 
-@app.route('/searchRooms', methods=['POST'])
+@app.route('/searchRooms', methods=['GET'])
 def searchRooms():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
@@ -120,10 +129,40 @@ def availableRooms():
     response = json.dumps(available_rooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
     return Response(response=response, status=200, mimetype='application/json')
 
-# @app.route('/bookRoom', methods=['POST'])
-# def bookRoom():
-#     if request.method == 'POST':
+@app.route('/bookRoom', methods=['POST'])
+def bookRoom():
+    username = session.get('username')
+    chain_name = request.args.get('chain_name')
+    hotel_name = request.args.get('hotel_name')
+    room_num = request.args.get('room_num')
+    capacity = request.args.get('capacity')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
+    eHotels.checkConnection()
+    if eHotels.insertBooking(username, chain_name, hotel_name, room_num, capacity, start_date, end_date):
+        response = make_response(jsonify({'message': 'Booking successful'}), 200)
+        return response
+
+@app.route('/myBookings', methods=['GET'])
+def myBookings():
+    username = session.get('username')
+    if username:
+        eHotels.checkConnection()
+        bookings = eHotels.getTable(table=booking_t, fetchall=True)
+        print(bookings)
+        return render_template('myBookings.html', bookings=bookings)
+
+@app.route('/myBookingDetails', methods=['GET'])
+def myBookingDetails():
+    hotel_name = request.args.get('hotel_name')
+    room_num = request.args.get('room_num')
+    
+    eHotels.checkConnection()
+    details = eHotels.getTable(table=room_t, room_num=room_num, hotel_name=hotel_name)
+    response = json.dumps(details, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+    print(response)
+    return Response(response=response, status=200, mimetype='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

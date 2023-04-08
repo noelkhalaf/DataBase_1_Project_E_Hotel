@@ -35,7 +35,7 @@
                 <h2>Room Search</h2>
             </div>
             <div class="col-xs-4 text-right">
-                <button id="mybookingsbtn" class="btn btn-lg">My Bookings</button>
+                <button id="mybookingsbtn" class="btn btn-lg"><a href="{{ url_for('myBookings') }}">My Bookings</a></button>
             </div>
         </div>
         <hr>
@@ -227,7 +227,7 @@
                     <td>{{ row['hotel_name'] }}</td>
                     <td>{{ row['category'] }}</td>
                     <td>{{ row['available_rooms'] }}</td>
-                    <td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Check Availability</button></td>
+                    <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Check Availability</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -246,7 +246,7 @@
                     var total_no_rooms = document.getElementById("total_no_rooms").value
                     var min_price = document.getElementById("min_price").value
                     var max_price = document.getElementById("max_price").value
-
+                    
                     var formDataObject = {
                         'start_date': start_date,
                         'end_date': end_date,
@@ -277,7 +277,7 @@
                                                 '<td>' + rooms.hotel_name + '</td>' +
                                                 '<td>' + rooms.category + '</td>' +
                                                 '<td>' + rooms.available_rooms + '</td>' +
-                                                '<td><button type="submit" class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + start_date + '\', \'' + end_date + '\', \'' + room_capacity + '\', \'' + city + '\', \'' + hotel_chain + '\', \'' + category + '\', \'' + total_no_rooms + '\', \'' + min_price + '\', \'' + max_price + '\', \'' + rooms.hotel_name + '\')">Check Availability</button></td>';
+                                                '<td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails(\'' + start_date + '\', \'' + end_date + '\', \'' + room_capacity + '\', \'' + city + '\', \'' + rooms.chain_name + '\', \'' + category + '\', \'' + total_no_rooms + '\', \'' + min_price + '\', \'' + max_price + '\', \'' + rooms.hotel_name + '\')">Check Availability</button></td>';
                                 tableBody.appendChild(row)                
                             }
                         } else {
@@ -285,27 +285,36 @@
                         }
                     }
     
-                    xhr.open("POST", "/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
-                    console.log("/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + hotel_chain + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
+                    xhr.open("GET", "/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    console.log("/searchRooms?start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
                     xhr.send()
                 })
             </script>
             <script>
-                function bookRoom(hotel_id, room_num, view_type, capacity) {
+                function bookRoom(chain_name, hotel_name, room_num, capacity, start_date, end_date) {
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "/bookRoom", true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
                     xhr.onreadystatechange = () => {
-                        if (xhr.readyState === 4 && xhr.status === 200) { alert(xhr.responseText) }
+                        if (xhr.readyState === 4 && xhr.status === 200) { 
+                            var response = JSON.parse(xhr.responseText);
+                            alert(response.message);
+                        } else {
+                            console.log('Error ' + xhr.status);
+                        }
                     }
         
                     var room = JSON.stringify({
-                        hotel_id: hotel_id,
+                        chain_name: chain_name,
+                        hotel_name: hotel_name,
                         room_num: room_num,
-                        view_type: view_type,
-                        capacity: capacity
+                        capacity: capacity, 
+                        start_date: start_date,
+                        end_date: end_date
                     })
                     console.log(room)
+
+                    xhr.open("POST", "/bookRoom?chain_name=" + encodeURIComponent(chain_name) + "&hotel_name=" + encodeURIComponent(hotel_name)  + "&room_num=" + encodeURIComponent(room_num) + "&capacity=" + encodeURIComponent(capacity) + "&start_date=" + encodeURIComponent(start_date) + "&end_date=" + encodeURIComponent(end_date), true)
+                    console.log("/bookRoom?chain_name=" + encodeURIComponent(chain_name) + "&hotel_name=" + encodeURIComponent(hotel_name)  + "&room_num=" + room_num + "&capacity=" + capacity + "&start_date=" + start_date + "&end_date=" + end_date)
+                    xhr.send()
                 }
             </script>
             <script>
@@ -336,14 +345,14 @@
                                                 '<td>' + details.view_type + '</td>' +
                                                 '<td>' + details.amenities.join(', ') + '</td>' +
                                                 '<td>' + details.price + '</td>' +
-                                                '<td><button class="btn btn-primary btn-block">Book</button></td>';
+                                                '<td><button class="btn btn-primary btn-block" onclick="bookRoom(\'' + hotel_chain + '\', \'' + hotel_name + '\', \'' + details.room_num + '\', \'' + details.capacity + '\', \'' + start_date + '\', \'' + end_date + '\')">Book</button></td>';
                                 tableBody.appendChild(row)                
                             }
                         } else {
                             console.log('Error: ' + xhr.status);
                         }
                     }
-                    xhr.open("GET", "/availableRooms?hotel_name=" + encodeURIComponent(hotel_name) + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    xhr.open("GET", "/availableRooms?hotel_name=" + encodeURIComponent(hotel_name) + "&start_date=" + encodeURIComponent(start_date) + "&end_date=" + encodeURIComponent(end_date)  + "&room_capacity=" + encodeURIComponent(room_capacity) + "&city=" + encodeURIComponent(city) + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + encodeURIComponent(category) + "&total_no_rooms=" + encodeURIComponent(total_no_rooms) + "&min_price=" + encodeURIComponent(min_price) + "&max_price=" + encodeURIComponent(max_price), true)
                     console.log("/availableRooms?hotel_name=" + encodeURIComponent(hotel_name) + "&start_date=" + start_date + "&end_date=" + end_date  + "&room_capacity=" + room_capacity + "&city=" + city + "&hotel_chain=" + encodeURIComponent(hotel_chain) + "&category=" + category + "&total_no_rooms=" + total_no_rooms + "&min_price=" + min_price + "&max_price=" + max_price)
                     xhr.send()
         

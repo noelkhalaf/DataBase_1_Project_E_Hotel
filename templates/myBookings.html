@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sign Up</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
+    <!-- Style sheet (CSS) and JavaScript scripts necessary to use Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Your own additional style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h2>My Bookings</h2>
+        <hr>
+        <div id="myBookingModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h3 class="modal-title">Room Details</h3>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped" id="mybooking-detail-table">
+                            <thead>
+                                <tr class="table-col">
+                                    <th scope="col">Room Number</th>
+                                    <th scope="col">Capacity</th>
+                                    <th scope="col">View Type</th>
+                                    <th scope="col">Amenities</th>
+                                    <th scope="col">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        {% if bookings %}
+            <table class="table table-striped" id="mybookings-table">
+                <thead>
+                    <tr class="table-col">
+                        <th scope="col">Hotel Name</th>
+                        <th scope="col">Room Number</th>
+                        <th scope="col">Check-in Date</th>
+                        <th scope="col">Check-out Date</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in bookings %}
+                    <tr id="{{ row['booking_id'] }}">
+                        <td>{{ row['hotel_name'] }}</td>
+                        <td>{{ row['room_num'] }}</td>
+                        <td>{{ row['exp_check_in_date'].strftime('%B %d, %Y') }}</td>
+                        <td>{{ row['exp_check_out_date'].strftime('%B %d, %Y') }}</td>
+                        <td>
+                            <button data-toggle="modal" data-target="#myBookingModal" onclick="getRoomDetails(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">
+                                <i class="fa fa-circle-info"></i>
+                            </button>
+                        </td>
+                        <td><button class="btn btn-primary btn-block" onclick="cancelBooking(`{{ row['booking_id'] }}`)">Cancel</button></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <script>
+                function getRoomDetails(hotel_name, room_num) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                            var tableBody = document.querySelector('#mybooking-detail-table tbody')
+                            
+                            tableBody.innerHTML = '';
+
+                            var row = document.createElement('tr');
+                            row.innerHTML = '<td>' + response.room_num + '</td>' +
+                                            '<td>' + response.capacity + '</td>' +
+                                            '<td>' + response.view_type + '</td>' +
+                                            '<td>Amenity</td>' +
+                                            '<td>' + response.price + '</td>';
+                            tableBody.appendChild(row)                
+                        } else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("GET", "/myBookingDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
+                    console.log("GET", "/myBookingDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
+                    xhr.send()
+                }
+            </script>
+            <script>
+                function cancelBooking(booking_id) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var row = document.getElementById(booking_id);
+                            if (row) {
+                                row.parentNode.removeChild(row);
+                            }
+                        }else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("GET", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id), true)
+                    console.log("GET", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id))
+                    xhr.send()
+                }
+            </script>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>
