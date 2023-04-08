@@ -11,7 +11,7 @@ app.secret_key = secrets.token_hex(16)
 @app.before_request
 def clearSession():
     if request.endpoint == 'index':
-        session.pop('username', None)
+        session.clear()
 
 @app.route('/')
 def index():
@@ -44,8 +44,8 @@ def employeeSignIn():
 
         eHotels.checkConnection()
         if eHotels.getTable(table=employee_t, employee_id=employee_id, first_name=fname):
-            flash(f'Login success! Welcome {fname}!')
-            # return redirect(url_for('employeeRoomSearch'))
+            session['employee_id'] = employee_id
+            return redirect(url_for('employeeRoomSearch'))
         else:
             flash('Incorrect id or first name')
 
@@ -103,12 +103,14 @@ def searchRooms():
     max_price = request.args.get('max_price')
     hotel_name = ''
 
-    eHotels.checkConnection()
-    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-
-    response = json.dumps(available_rooms)
-    return Response(response=response, status=200, mimetype='application/json')
-
+    try: 
+        eHotels.checkConnection()
+        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+        response = json.dumps(available_rooms)
+        return Response(response=response, status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
 
 @app.route('/availableRooms', methods=['GET'])
 def availableRooms():
@@ -122,12 +124,16 @@ def availableRooms():
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
     hotel_name = request.args.get('hotel_name')
-
-    eHotels.checkConnection()
-    available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=True)
     
-    response = json.dumps(available_rooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
-    return Response(response=response, status=200, mimetype='application/json')
+    try:
+        eHotels.checkConnection()
+        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=True)
+        response = json.dumps(available_rooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+        return Response(response=response, status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
 
 @app.route('/bookRoom', methods=['POST'])
 def bookRoom():
@@ -139,10 +145,16 @@ def bookRoom():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
-    eHotels.checkConnection()
-    if eHotels.insertBooking(username, chain_name, hotel_name, room_num, capacity, start_date, end_date):
-        response = make_response(jsonify({'message': 'Booking successful'}), 200)
-        return response
+    if not username or not chain_name or not hotel_name or not room_num or not capacity or not start_date or not end_date:
+        return Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.insertBooking(username, chain_name, hotel_name, room_num, capacity, start_date, end_date):
+            return Response(response=json.dumps({'message': 'Booking successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
 
 @app.route('/myBookings', methods=['GET'])
 def myBookings():
@@ -158,11 +170,25 @@ def myBookingDetails():
     hotel_name = request.args.get('hotel_name')
     room_num = request.args.get('room_num')
     
-    eHotels.checkConnection()
-    details = eHotels.getTable(table=room_t, room_num=room_num, hotel_name=hotel_name)
-    response = json.dumps(details, default=lambda x: str(x) if isinstance(x, Decimal) else x)
-    print(response)
-    return Response(response=response, status=200, mimetype='application/json')
+    if not hotel_name or not room_num:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        details = eHotels.getTable(table=room_t, room_num=room_num, hotel_name=hotel_name)
+        response = json.dumps(details, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+        return Response(response=response, status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
+@app.route('/employeeCustomerSearch', methods=['GET'])
+def employeeCustomerSearch():
+    return render_template('employeeCustomerSearch.html')
+
+@app.route('/employeeRoomSearch', methods=['GET'])
+def employeeRoomSearch():
+    return render_template('employeeRoomSearch.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

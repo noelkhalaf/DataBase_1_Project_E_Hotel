@@ -85,6 +85,6 @@ td, th {
     text-align: left;
 }
 
-#mybookingsbtn {
+.btn.btn-lg {
     margin-top: 19px !important;
 }

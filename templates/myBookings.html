@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Sign Up</title>
+    <title>My Bookings</title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -20,7 +20,14 @@
 
 <body>
     <div class="container">
-        <h2>My Bookings</h2>
+        <div class="row">
+            <div class="col-xs-8">
+                <h2>My Bookings</h2>
+            </div>
+            <div class="col-xs-4 text-right">
+                <button id="roomsearchbtn" class="btn btn-lg"><a href="{{ url_for('customerRoomSearch') }}">Room Search</a></button>
+            </div>
+        </div>
         <hr>
         <div id="myBookingModal" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
