@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Room Search</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
+    <!-- Style sheet (CSS) and JavaScript scripts necessary to use Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Your own additional style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-8">
+                <h2>Room Search</h2>
+            </div>
+            <div class="col-xs-4 text-right">
+                <button id="customersearchbtn" class="btn btn-lg"><a href="{{ url_for('employeeCustomerSearch') }}">Customer Search</a></button>
+            </div>
+        </div>
+        <hr>
+
+        <form id="employee-room-search-form" method="POST">
+            <div class="table">
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="check_out_date">Check Out</label>
+                        <input class="form-control" type="date" id="check_out_date" name="check_out_date">
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price</label>
+                        <input class="form-control" type="number" id="price" name="price">
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="view_type">View Type</label>
+                        <select class="form-control" id="view_type" name="view_type">
+                            <option value="">-</option>
+                            <option value="sea view">Sea View</option>
+                            <option value="mountain view">2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="room_capacity">Room Capacity</label>
+                        <select class="form-control" id="room_capacity" name="room_capacity">
+                            <option value="">-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="buttonHolder">
+                <button type="submit" class="btn btn-primary btn-block">Search</button>
+            </div>
+        </form>
+        <hr>
+        <div id="rentRoomModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h3 class="modal-title">Room Details</h3>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped" id="rent-rooms-table">
+                            <thead>
+                                <tr class="table-col">
+                                    <th scope="col">Room Number</th>
+                                    <th scope="col">View Type</th>
+                                    <th scope="col">Amenities</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        {% if available_rooms %}
+            <table class="table table-striped" id="rooms-table">
+                <thead class="table-dark">
+                    <tr class="table-col">
+                        <th scope="col">Room Number</th>
+                        <th scope="col">Capacity</th>
+                        <th scope="col">Latest Check Out</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in available_rooms %}
+                <tr>
+                    <td>{{ row['room_num'] }}</td>
+                    <td>{{ row['capacity'] }}</td>
+                    <td>{{ row['checkout_date'] }}</td>
+                    <td>{{ row['city'] }}</td>
+                    <td>
+                        <button data-toggle="modal" data-target="#rentRoomModal" onclick="getRoomDetails(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">
+                            <i class="fa fa-circle-info"></i>
+                        </button>
+                    </td>
+                    <td><button class="btn btn-primary btn-block" onclick="rentRoom(`{{ row['booking_id'] }}`)">CAD {{ row['price'] }}/night</button></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <script>
+                function getRoomDetails() {
+
+                }
+            </script>
+            <script>
+                function rentRoom() {
+                    
+                }
+            </script>
+        {% endif %}
+    </div>
+</body>
+
+</html>
