@@ -477,6 +477,79 @@ class EHotels:
         except Exception as e:
             print('Error:', e)
 
+    def deleteBooking(self, booking_id):
+        result_b = self.getTable(table=booking_t, booking_id=booking_id)
+        if result_b is None:
+            print(f'Booking with id {booking_id} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM BOOKING WHERE booking_id = %s', (booking_id, ))
+        except Exception as e:
+            print('Error:', e)
+    
+    def deleteRental(self, rental_id):
+        result_r = self.getTable(table=rental_t, rental_id=rental_id)
+        if result_r is None:
+            print(f'Rental with id {result_r} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM RENTAL WHERE result_r = %s', (rental_id, ))
+        except Exception as e:
+            print('Error:', e)
+
+### UPDATES ###
+#
+    def updateHotelChain(self, chain_name, email, phone_number):
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            print(f'Hotel name {chain_name} does not exist')
+            return
+        try:
+            self.cursor.execute('DELETE FROM RENTAL WHERE result_r = %s', (rental_id, ))
+        except Exception as e:
+            print('Error:', e)
+        
+#
+    def updateCustomer(self, username):
+        result_c = self.getTable(table=customer_t, username=username)
+        if result_c is None:
+            print(f'Customer with username {username} does not exist')
+            return
+#
+    def updateEmployee(self, employee_id):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+#
+    def updateHotel(self, hotel_name):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+#
+    def updateRoom(self, hotel_name, room_num):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+#
+    def updateBooking(self, booking_id):
+        result_b = self.getTable(table=booking_t, booking_id=booking_id)
+        if result_b is None:
+            print(f'Booking with id {booking_id} does not exist')
+            return
+#
+    def updateRental(self, rental_id):
+        result_r = self.getTable(table=rental_t, rental_id=rental_id)
+        if result_r is None:
+            print(f'Rental with id {result_r} does not exist')
+            return
+
 ### KEYGENS ###
 
     def genEmployeeKey(self):
@@ -504,10 +577,6 @@ class EHotels:
         characters = string.ascii_uppercase + string.digits
         random_string = ''.join(random.choices(characters, k=length))
         return random_string
-
-### UPDATES ###
-
-
 
 ### MISC ###
 
