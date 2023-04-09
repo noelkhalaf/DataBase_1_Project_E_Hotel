@@ -289,14 +289,40 @@ class EHotels:
             """
         return condition
 
-    def getEmployees(self):
-        query_bookings = f"""
-            SELECT *
-            FROM BOOKING b
+    def getRoomDetails(self, hotel_name, room_num):
+        query_rooms = f"""
+            SELECT r.hotel_name, r.room_num, r.price, r.capacity, r.view_type, r.can_extend, r.has_problems, r.available
+            FROM ROOM r
+            WHERE r.hotel_name = "{hotel_name}"
+            AND r.room_num = "{room_num}"
         """
-        self.execute(query_bookings)
+        self.execute(query_rooms)
+        results_rooms = self.fetchall()
+        query_amenities = f"""
+            SELECT ra.room_num, ra.amenity
+            FROM ROOM_AMENITIES ra
+            WHERE ra.hotel_name = "{hotel_name}"
+            AND ra.room_num = "{room_num}"
+        """
+        self.execute(query_amenities)
+        results_amenities = self.fetchall()
+        results = self.appendRoomAmenities(results_rooms, results_amenities)
+        return results
 
-        results = self.fetchall()
+    def getEmployees(self):
+        query_employees = f"""
+            SELECT e.chain_name, e.hotel_name, e.first_name, e.last_name, e.sxn, e.address
+            FROM EMPLOYEE e
+        """
+        self.execute(query_employees)
+        results_employees = self.fetchall()
+        query_positions = f"""
+            SELECT ep.employee_id, ep.position
+            FROM EMPLOYEE_POSITION ep
+        """
+        self.execute(query_positions)
+        results_positions = self.fetchall()
+        results = self.appendEmployeePositions(results_employees, results_positions)
         return results
 
     def appendRoomAmenities(self, rooms, room_amenities):
