@@ -83,13 +83,6 @@ def customerSignUp():
         address = request.form['address']
         password = request.form['password']
 
-        print(username)
-        print(sxn)
-        print(fname)
-        print(lname)
-        print(address)
-        print(password)
-
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username):
             flash(f'Customer with username {username} already exists')
@@ -192,7 +185,6 @@ def myBookings():
     if username:
         eHotels.checkConnection()
         bookings = eHotels.getTable(table=booking_t, fetchall=True)
-        print(bookings)
         return render_template('myBookings.html', bookings=bookings)
 
 @app.route('/myBookingDetails', methods=['GET'])
