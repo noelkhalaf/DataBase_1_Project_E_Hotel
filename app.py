@@ -17,9 +17,19 @@ def clearSession():
 def index():
     return render_template('index.html')
 
-@app.route('/adminHome')
-def adminHome():
-    return render_template('admin_Home.html')
+@app.route('/adminSignIn', methods=['GET', 'POST'])
+def adminSignIn():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        eHotels.checkConnection()
+        if username == 'admin' and password == 'admin':
+            return render_template('admin_Home.html')
+        else:
+            flash('Incorrect username or password')
+    
+    return render_template('index.html')
 
 @app.route('/customerSignIn', methods=['GET', 'POST'])
 def customerSignIn():
@@ -87,8 +97,10 @@ def customerRoomSearch():
     eHotels.checkConnection()
     if request.method == 'GET':     
         list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True, distinct=True)
+        max_room_price = eHotels.getTable('MAX(price)', table=room_t)
+        print(max_room_price)
         available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms)
+        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms, max_room_price=max_room_price )
 
 @app.route('/searchRooms', methods=['GET'])
 def searchRooms():

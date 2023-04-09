@@ -56,6 +56,17 @@
                 aria-selected="false"
                 >Customer</a>
             </li>
+            <li class="nav-item" role="presentation">
+                <a 
+                class="nav-link" 
+                id="tab-admin" 
+                data-toggle="tab" 
+                href="#admin"
+                role="tab"
+                aria-controls="admin" 
+                aria-selected="false"
+                >Admin</a>
+            </li>
         </ul>
 
         <div class="tab-content">
@@ -89,6 +100,21 @@
                     </div>
                     <div class="container signup">
                         <p>Not registered? <a href="{{ url_for('customerSignUp') }}">Sign Up</a></p>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="admin" role="tabpanel" aria-labelledby="tab-admin">
+                <form action="{{ url_for('adminSignIn') }}" method="POST">                  
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <input class="form-control" type="text" placeholder="Username" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <input class="form-control" type="password" placeholder="Password" id="password" name="password" required>
+                    </div>
+                    <div class="buttonHolder">
+                        <button type="submit" class="btn btn-primary btn-block mb-4">Sign In</button>
                     </div>
                 </form>
             </div>
