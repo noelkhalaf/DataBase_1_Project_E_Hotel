@@ -295,7 +295,7 @@ class EHotels:
             print(f'The username {username} is already taken')
             return
         try:
-            self.cursor.execute('INSERT INTO CUSTOMER VALUES (%s, %s, %s, %s, %s, %s, CURDATE())', (username, password, fname, lname, sxn, address, ))
+            self.cursor.execute('INSERT INTO CUSTOMER VALUES (0, %s, %s, %s, %s, %s, %s, CURDATE())', (username, password, fname, lname, sxn, address, ))
         except Exception as e:
             print('Error:', e)
         else:
