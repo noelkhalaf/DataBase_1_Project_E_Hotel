@@ -108,17 +108,17 @@ class EHotels:
         if conditions: conditions = f'WHERE {conditions}'
 
         if individually:
-            query1 = f"""
+            query_individual = f"""
                 SELECT r.room_num, r.capacity, r.view_type, r.price
                 FROM HOTEL_CHAIN hc
                 JOIN HOTEL h ON hc.chain_name = h.chain_name
                 JOIN ROOM r ON h.hotel_name = r.hotel_name
                 {conditions}
             """
-            self.execute(query1)
+            self.execute(query_individual)
             results_individual = self.fetchall()
             if hotel_name:
-                query2 = f"""
+                query_amenities = f"""
                     SELECT ra.room_num, ra.amenity
                     FROM ROOM_AMENITY ra
                     JOIN HOTEL ho ON ra.hotel_name = ho.hotel_name
@@ -131,7 +131,7 @@ class EHotels:
                         {conditions}
                     )
                 """
-                self.execute(query2)
+                self.execute(query_amenities)
                 results_amenities = self.fetchall()
                 results_appended = self.appendRoomAmenities(results_individual, results_amenities)
                 return results_appended
@@ -176,6 +176,42 @@ class EHotels:
             {conditions}
         """
         self.execute(query)
+        results = self.fetchall()
+        return results
+
+    def getEmployeeCustomers(self, employee_id, username, date_placed, start_date, end_date, rentals=False):
+        hotel_name = self.getTable('hotel_name', table=employee_t, employee_id=employee_id)
+        dict_simple = {
+            'hotel_name': hotel_name,
+            'username': username,
+            'place_date': date_placed,
+        }
+
+        if rentals:
+            simple_conditions = self.getSimpleConditions(dict_simple, var='r')
+            date_conditions = self.getDateConditions(start_date, end_date, 'r', 'r')
+            conditions = self.joinConditions([simple_conditions, date_conditions])
+            if conditions: conditions = f'WHERE {conditions}'
+
+            query_rentals = f"""
+                SELECT r.username, r.room_num, r.check_in_date, r.check_out_date, r.additional_charges
+                FROM RENTAL r
+                {conditions}
+            """
+            self.execute(query_rentals)
+        else:
+            simple_conditions = self.getSimpleConditions(dict_simple, var='b')
+            date_conditions = self.getDateConditions(start_date, end_date, 'b', 'b')
+            conditions = self.joinConditions([simple_conditions, date_conditions])
+            if conditions: conditions = f'WHERE {conditions}'
+
+            query_bookings = f"""
+                SELECT b.username, b.room_num, b.placed_date, b.exp_check_in_date, b.exp_check_out_date
+                FROM BOOKING b
+                {conditions}
+            """
+            self.execute(query_bookings)
+
         results = self.fetchall()
         return results
 
