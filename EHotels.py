@@ -289,14 +289,33 @@ class EHotels:
             """
         return condition
 
-    def appendRoomAmenities(self, available_rooms, room_amenities):
-        for room_a in available_rooms:
+    def getEmployees(self):
+        query_bookings = f"""
+            SELECT *
+            FROM BOOKING b
+        """
+        self.execute(query_bookings)
+
+        results = self.fetchall()
+        return results
+
+    def appendRoomAmenities(self, rooms, room_amenities):
+        for room_a in rooms:
             amenities = []
             for room_b in room_amenities:
                 if room_a['room_num'] == room_b['room_num']:
                     amenities.append(room_b['amenity'])
             room_a['amenities'] = amenities
-        return available_rooms
+        return rooms
+    
+    def appendEmployeePositions(self, employees, employee_positions):
+        for employee_a in employees:
+            positions = []
+            for employee_b in employee_positions:
+                if employee_a['employee_id'] == employee_b['employee_id']:
+                    positions.append(employee_b['position'])
+            employee_a['positions'] = positions
+        return employees
 
 ### INSERTS ###
 
@@ -340,7 +359,7 @@ class EHotels:
         else:
             return username
 
-    def insertEmployee(self, chain_name, hotel_name, fname, lname, sxn, address=''):
+    def insertEmployee(self, chain_name, hotel_name, fname, lname, sxn, address='', positions=None):
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             print(f'Hotel chain {chain_name} does not exist')
@@ -361,8 +380,19 @@ class EHotels:
             self.execute('INSERT INTO EMPLOYEE VALUES (%s, %s, %s, %s, %s, %s, %s)', params=(employee_id, chain_name, fname, lname, sxn, address, hotel_name, ))
         except Exception as e:
             print('Error:', e)
-        else:
-            return employee_id
+
+        if positions:
+            for position in positions.split(','):
+                result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
+                if result_ep is not None:
+                    print(f'Employee {employee_id} already has position {position}')
+                    pass
+                try:
+                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s)', params=(employee_id, position.strip(), ))
+                except Exception as e:
+                    print('Error:', e)
+                
+        return employee_id
 
     def insertHotel(self, hotel_name, chain_name, city, mgr_fname, mgr_lname, category='', hotel_address='', email='', phone_number='', mgr_sxn='', mgr_address=''):
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
@@ -397,7 +427,7 @@ class EHotels:
         else:
             return employee_id, position
 
-    def insertRoom(self, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available):
+    def insertRoom(self, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities=None):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
@@ -410,8 +440,19 @@ class EHotels:
             self.execute('INSERT INTO ROOM VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
         except Exception as e:
             print('Error:', e)
-        else:
-            return hotel_name, room_num
+        
+        if amenities:
+            for amenity in amenities.split(','):
+                result_ra = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
+                if result_ra is not None:
+                    print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
+                    pass
+                try:
+                    self.execute('INSERT INTO ROOM_AMENITY VALUES (%s, %s, %s)', params=(hotel_name, room_num, amenity.strip(), ))
+                except Exception as e:
+                    print('Error:', e)
+        
+        return hotel_name, room_num
 
     def insertRoomAmenity(self, hotel_name, room_num, amenity):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
@@ -604,6 +645,18 @@ class EHotels:
         else:
             return True
 
+    def deleteEmployeePositions(self, employee_id):
+        result_e = self.getTable(table=employee_t, employee_id=employee_id)
+        if result_e is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        try:
+            self.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s', params=(employee_id, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+
     def deleteRoom(self, hotel_name, room_num):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
@@ -635,6 +688,22 @@ class EHotels:
             return
         try:
             self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s AND amenity = %s', params=(hotel_name, room_num, amenity, ))
+        except Exception as e:
+            print('Error:', e)
+        else:
+            return True
+    
+    def deleteRoomAmenities(self, hotel_name, room_num):
+        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        if result_h is None:
+            print(f'Hotel name {hotel_name} does not exist')
+            return
+        result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        if result_r is None:
+            print(f'Room number {room_num} does not exist in hotel {hotel_name}')
+            return
+        try:
+            self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s', params=(hotel_name, room_num, ))
         except Exception as e:
             print('Error:', e)
         else:
@@ -730,7 +799,7 @@ class EHotels:
         else:
             return True
 
-    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address):
+    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address, old_employee_id, positions=None):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
@@ -758,8 +827,20 @@ class EHotels:
                 """, params=(chain_name, hotel_name, fname, lname, sxn, address, employee_id, ))
         except Exception as e:
             print('Error:', e)
-        else:
-            return True
+        
+        if positions:
+            self.deleteEmployeePositions(old_employee_id)
+            for position in positions.split(','):
+                result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
+                if result_ep is not None:
+                    print(f'Employee {employee_id} already has position {position}')
+                    pass
+                try:
+                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s)', params=(employee_id, position.strip(), ))
+                except Exception as e:
+                    print('Error:', e)
+
+        return True
 
     def updateHotel(self, hotel_id, hotel_name, chain_name, manager_id, category, city, address, email, phone_number):
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
@@ -813,7 +894,7 @@ class EHotels:
         else:
             return True
 
-    def updateRoom(self, room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available):
+    def updateRoom(self, room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, old_hotel_name, old_room_num, amenities=None):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
@@ -834,8 +915,20 @@ class EHotels:
                 """, params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, room_id, ))
         except Exception as e:
             print('Error:', e)
-        else:
-            return True
+        
+        if amenities:
+            self.deleteRoomAmenities(old_hotel_name, old_room_num)
+            for amenity in amenities.split(','):
+                result_ra = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
+                if result_ra is not None:
+                    print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
+                    pass
+                try:
+                    self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
+                except Exception as e:
+                    print('Error:', e)
+
+        return True
 
     def updateRoomAmenity(self, room_amenity_id, hotel_name, room_num, amenity):
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
