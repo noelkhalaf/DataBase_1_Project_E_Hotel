@@ -222,6 +222,13 @@ def employeeRoomSearch():
     room_capacity = request.form.get('room_capacity', '')
     view_type = request.form.get('view_type', '')
 
+    print(employee_id)
+    print(check_out_date)
+    print(min_price)
+    print(max_price)
+    print(room_capacity)
+    print(view_type)
+
     eHotels.checkConnection()
     if request.method == 'GET':
         available_rooms = eHotels.getEmployeeRooms(employee_id, check_out_date, room_capacity, view_type, min_price, max_price)

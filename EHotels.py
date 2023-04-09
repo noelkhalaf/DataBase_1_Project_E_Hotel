@@ -152,9 +152,9 @@ class EHotels:
     def getEmployeeRooms(self, employee_id, end_date, room_capacity, view_type, min_price, max_price, start_date=str(date.today())):
         hotel_name = self.getTable('hotel_name', table=employee_t, employee_id=employee_id)
         dict_simple = {
-            'roo.hotel_name': hotel_name,
-            'roo.capacity': room_capacity,
-            'roo.view_type': view_type,
+            'hotel_name': hotel_name,
+            'capacity': room_capacity,
+            'view_type': view_type,
         }
 
         simple_conditions = self.getSimpleConditions(dict_simple, var='roo')
@@ -165,8 +165,8 @@ class EHotels:
                 WHERE {simple_conditions}
             )
         """
-        price_condition = self.getPriceCondition(min_price, max_price)
-        date_conditions = self.getDateConditions(start_date, end_date)
+        price_condition = self.getPriceCondition(min_price, max_price, 'vc', 'vc')
+        date_conditions = self.getDateConditions(start_date, end_date, 'vc', 'vc')
         conditions = self.joinConditions([wrapped_simple_conditions, price_condition, date_conditions])
         if conditions: conditions = f'WHERE {conditions}'
 
