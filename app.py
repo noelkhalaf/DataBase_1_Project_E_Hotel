@@ -98,7 +98,6 @@ def customerRoomSearch():
     if request.method == 'GET':     
         list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True, distinct=True)
         max_room_price = eHotels.getTable('MAX(price)', table=room_t)
-        print(max_room_price)
         available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
         return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms, max_room_price=max_room_price )
 
@@ -216,7 +215,19 @@ def employeeCustomerSearch():
 
 @app.route('/employeeRoomSearch', methods=['GET'])
 def employeeRoomSearch():
-    return render_template('employeeRoomSearch.html')
+    employee_id = session.get('employee_id')
+    check_out_date = request.form.get('check_out_date', '')
+    min_price = request.form.get('min_price', '')
+    max_price = request.form.get('max_price', '')
+    room_capacity = request.form.get('room_capacity', '')
+    view_type = request.form.get('view_type', '')
+
+    eHotels.checkConnection()
+    if request.method == 'GET':
+        available_rooms = eHotels.getEmployeeRooms(employee_id, check_out_date, room_capacity, view_type, min_price, max_price)
+        print(available_rooms)
+        max_room_price = eHotels.getTable('MAX(price)', table=room_t)
+        return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

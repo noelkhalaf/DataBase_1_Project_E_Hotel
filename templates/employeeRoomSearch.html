@@ -40,10 +40,26 @@
                 </div>
                 <div class="table-cell">
                     <div class="form-group">
-                        <label class="form-label" for="price">Price</label>
-                        <input class="form-control" type="number" id="price" name="price">
+                        <label class="form-label" for="min_price">Min Price</label>
+                        <input class="form-control" type="number" id="min_price" name="min_price" min="0" max="" onclick="this.select();">
                     </div>
                 </div>
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="max_price">Max Price</label>
+                        <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="{{ max_room_price['MAX(price)']|default(500) }}" oninput="updatePriceBound()" onclick="this.select();">
+                    </div>
+                </div>
+                <script>
+                    function updatePriceBound() {
+                        var maxPrice = document.getElementById("max_price").value;
+                        document.getElementById("min_price").setAttribute("max", maxPrice);
+                        var minPrice = document.getElementById("min_price").value;
+                        if (minPrice > maxPrice) {
+                            document.getElementById("min_price").value = maxPrice;
+                        }
+                    }
+                </script>
                 <div class="table-cell">
                     <div class="form-group">
                         <label class="form-label" for="view_type">View Type</label>
