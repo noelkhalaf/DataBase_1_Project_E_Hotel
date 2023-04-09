@@ -90,7 +90,7 @@
                 <div class="table-cell">
                     <div class="form-group">
                         <label class="form-label" for="max_price">Max Price</label>
-                        <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="500" oninput="updatePriceBound()" onclick="this.select();">
+                        <input class="form-control" type="number" id="max_price" name="max_price" min="0" max="{{ max_room_price['MAX(price)']|default(500) }}" oninput="updatePriceBound()" onclick="this.select();">
                     </div>
                 </div>
                 <script>
