@@ -2,6 +2,7 @@ import mysql.connector
 import random
 import string
 from include import *
+from datetime import date
 
 host = 'localhost'
 user = 'root'           # Modify this field
@@ -71,7 +72,7 @@ class EHotels:
         else:
             return self.fetchone()
 
-    def getSimpleConditions(self, dict):
+    def getSimpleConditions(self, dict, var=''):
         dict.pop('table', None)
         dict.pop('fetchall', None)
         dict.pop('distinct', None)
@@ -79,7 +80,10 @@ class EHotels:
         conditions_pairs = []
         for attribute, value in dict.items():
             if value:
-                conditions_pairs.append(f'{attribute} = \"{value}\"')
+                if var:
+                    conditions_pairs.append(f'{var}.{attribute} = \"{value}\"')
+                else:
+                    conditions_pairs.append(f'{attribute} = \"{value}\"')
         conditions = self.joinConditions(conditions_pairs)
         return conditions
 
@@ -96,10 +100,10 @@ class EHotels:
             'h.num_rooms': total_no_rooms,
             'h.hotel_name': hotel_name,
         }
+        
         simple_conditions = self.getSimpleConditions(dict_simple)
         price_condition = self.getPriceCondition(min_price, max_price)
         date_conditions = self.getDateConditions(start_date, end_date)
-
         conditions = self.joinConditions([simple_conditions, price_condition, date_conditions])
         if conditions: conditions = f'WHERE {conditions}'
 
@@ -145,21 +149,69 @@ class EHotels:
         results = self.fetchall()
         return results
 
-    def getPriceCondition(self, low, high):
+    def getEmployeeRooms(self, employee_id, end_date, room_capacity, view_type, min_price, max_price, start_date=str(date.today())):
+        hotel_name = self.getTable('hotel_name', table=employee_t, employee_id=employee_id)
+        dict_simple = {
+            'roo.hotel_name': hotel_name,
+            'roo.capacity': room_capacity,
+            'roo.view_type': view_type,
+        }
+
+        simple_conditions = self.getSimpleConditions(dict_simple, var='roo')
+        wrapped_simple_conditions = f"""
+            (vc.hotel_name, vc.room_num) IN (
+                SELECT roo.hotel_name, roo.room_num
+                FROM ROOM roo
+                WHERE {simple_conditions}
+            )
+        """
+        price_condition = self.getPriceCondition(min_price, max_price)
+        date_conditions = self.getDateConditions(start_date, end_date)
+        conditions = self.joinConditions([wrapped_simple_conditions, price_condition, date_conditions])
+        if conditions: conditions = f'WHERE {conditions}'
+
+        query = f"""
+            SELECT vc.*
+            FROM view_capacity vc
+            {conditions}
+        """
+        self.execute(query)
+        results = self.fetchall()
+        return results
+
+    def getPriceCondition(self, low, high, hvar='h', rvar='r'):
         condition = ''
         if low and high:
-            condition = f'r.price BETWEEN {low} AND {high}'
+            condition = f"""
+                ({hvar}.hotel_name, {rvar}.room_num) IN (
+                    SELECT ro.hotel_name, ro.room_num
+                    FROM ROOM ro
+                    WHERE ro.price BETWEEN {low} AND {high}
+                )
+            """
         elif low and not high:
-            condition = f'r.price >= {low}'
+            condition = f"""
+                ({hvar}.hotel_name, {rvar}.room_num) IN (
+                    SELECT ro.hotel_name, ro.room_num
+                    FROM ROOM ro
+                    WHERE ro.price >= {low}
+                )
+            """
         elif not low and high:
-            condition = f'r.price <= {high}'
+            condition = f"""
+                ({hvar}.hotel_name, {rvar}.room_num) IN (
+                    SELECT ro.hotel_name, ro.room_num
+                    FROM ROOM ro
+                    WHERE ro.price <= {high}
+                )
+            """
         return condition
 
-    def getDateConditions(self, start_date, end_date):
+    def getDateConditions(self, start_date, end_date, hvar='h', rvar='r'):
         condition = ''
         if start_date and end_date:
             condition = f"""
-                (h.hotel_name, r.room_num) NOT IN (
+                ({hvar}.hotel_name, {rvar}.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{start_date}" < re.check_out_date
@@ -174,7 +226,7 @@ class EHotels:
             """
         elif start_date and not end_date:
             condition = f"""
-                (h.hotel_name, r.room_num) NOT IN (
+                ({hvar}.hotel_name, {rvar}.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{start_date}" < re.check_out_date
@@ -186,7 +238,7 @@ class EHotels:
             """
         elif not start_date and end_date:
             condition = f"""
-                (h.hotel_name, r.room_num) NOT IN (
+                ({hvar}.hotel_name, {rvar}.room_num) NOT IN (
                     SELECT re.hotel_name, re.room_num
                     FROM RENTAL re
                     WHERE "{end_date}" <= re.check_out_date
