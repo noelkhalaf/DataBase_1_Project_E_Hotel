@@ -121,6 +121,10 @@
             </script>
             <script>
                 function cancelBooking(booking_id) {
+                    if (!confirm('Are you sure you want to cancel this booking?')) {
+                        return;
+                    }
+                    
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = () => {
                         if (xhr.readyState === 4 && xhr.status === 200) {
@@ -133,8 +137,8 @@
                         }
                     }
 
-                    xhr.open("GET", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id), true)
-                    console.log("GET", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id))
+                    xhr.open("DELETE", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id), true)
+                    console.log("DELETE", "/cancelBooking?booking_id=" + encodeURIComponent(booking_id))
                     xhr.send()
                 }
             </script>

@@ -193,6 +193,22 @@ def myBookingDetails():
     except Exception as e:
         print(e)
         return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+    
+@app.route('/cancelBooking', methods=['DELETE'])
+def cancelBooking():
+    booking_id = request.args.get('booking_id')
+
+    if not booking_id:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteBooking(booking_id):
+            return Response(response=json.dumps({'message': 'Booking cancellation successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
 
 @app.route('/employeeCustomerSearch', methods=['GET'])
 def employeeCustomerSearch():
