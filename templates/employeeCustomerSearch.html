@@ -57,6 +57,17 @@
                     </div>
                 </div>
             </div>
+            <div class="table">
+                <div class="table-cell">
+                    <div class="form-group">
+                        <label class="form-label" for="show">Select</label>
+                        <select class="form-control" id="show" name="show">
+                            <option value="Bookings">Bookings</option>
+                            <option value="Rentals">Rentals</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="buttonHolder">
                 <button type="submit" class="btn btn-primary btn-block">Search</button>
             </div>
@@ -94,7 +105,7 @@
                 </div>
             </div>
         </div>
-        {% if bookings %}
+        {% if customerRooms %}
             <table class="table table-striped" id="customer-bookings-table">
                 <thead class="table-dark">
                     <tr class="table-col">
@@ -106,7 +117,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for row in available_rooms %}
+                {% for row in customerRooms %}
                 <tr>
                     <td>{{ row['room_num'] }}</td>
                     <td>{{ row['placed_date'] }}</td>
@@ -117,7 +128,13 @@
                             <i class="fa fa-circle-info"></i>
                         </button>
                     </td>
-                    <td><button class="btn btn-primary btn-block" onclick="transformBooking(`{{ row['booking_id'] }}`)">CAD {{ row['price'] }}/night</button></td>
+                    <td>
+                        {% if showRentals %}
+                            <button class="btn btn-primary btn-block" onclick="checkOut()">Check Out</button>
+                        {% else %}
+                            <button class="btn btn-primary btn-block" onclick="transformBooking()">Check In</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
