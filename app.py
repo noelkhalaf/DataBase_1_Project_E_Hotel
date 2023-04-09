@@ -25,11 +25,23 @@ def adminSignIn():
 
         eHotels.checkConnection()
         if username == 'admin' and password == 'admin':
-            return render_template('admin_Home.html')
+            return redirect(url_for('adminHome'))
         else:
             flash('Incorrect username or password')
     
     return render_template('index.html')
+
+@app.route('/adminHome', methods=['GET'])
+def adminHome():
+    if request.method == 'GET':
+        eHotels.checkConnection()
+        employee_list = eHotels.getTable(table=employee_t, fetchall=True)
+        customer_list = eHotels.getTable(table=customer_t, fetchall=True)
+        room_list = eHotels.getTable(table=room_t, fetchall=True)
+        hotel_list = eHotels.getTable(table=hotel_t, fetchall=True)
+        chain_list = eHotels.getTable(table=hotel_chain_t, fetchall=True)
+
+        return render_template('admin_Home.html', employee_list=employee_list, customer_list=customer_list, room_list=room_list, hotel_list=hotel_list, chain_list=chain_list)
 
 @app.route('/customerSignIn', methods=['GET', 'POST'])
 def customerSignIn():
@@ -70,6 +82,13 @@ def customerSignUp():
         lname = request.form['lname']
         address = request.form['address']
         password = request.form['password']
+
+        print(username)
+        print(sxn)
+        print(fname)
+        print(lname)
+        print(address)
+        print(password)
 
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username):

@@ -84,7 +84,7 @@
         <div class="tab-content">
 
             <!-- Employee -->
-            <div id="employee_list" class="modal" tabindex="-1" role="dialog">
+            <div id="employee_modal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -100,23 +100,52 @@
                             </div>
                         </div>
                         <div class="modal-body">
+                            <form id="employee-form" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_hotel_name">Hotel Name</label>
+                                    <input class="form-control" type="text" placeholder="Hotel Name" id="hotel_name" name="hotel_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_chain_name">Chain Name</label>
+                                    <input class="form-control" type="text" placeholder="Chain Name" id="chain_name" name="chain_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_fname">First Name</label>
+                                    <input class="form-control" type="text" placeholder="First Name" id="fname" name="fname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_lname">Last Name</label>
+                                    <input class="form-control" type="text" placeholder="Last Name" id="lname" name="lname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_sxn">SXN</label>
+                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="sxn" name="sxn" maxlength="9" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_address">Address</label>
+                                    <input class="form-control" type="text" placeholder="Address" id="address" name="address" maxlength="30" required>
+                                </div>
+                                <div class="buttonHolder">
+                                    <button type="submit" class="btn btn-primary btn-block">Create</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div> 
             <div class="tab-pane fade in active" id="employee" role="tabpanel" aria-labelledby="tab-employee">
                 <div class="buttonHolder">
-                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                    <button class="btn btn-primary btn-block mb-4" data-toggle="modal" data-target="#employee_modal" data-action="insert">Insert</button>
                 </div>
                 {% if employee_list %}
                     <table class="table table-striped" id="employee-table">
                         <thead class="table-dark">
                             <tr class="table-col">
                                 <th scope="col">Employee ID</th>
-                                <th scope="col">Employee First Name</th>
-                                <th scope="col">Employee Position</th>
-                                <th scope="col">Edit</th>
-                                <th scope="col">Delete</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Position</th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -124,19 +153,25 @@
                         {% for row in employee_list %}
                         <tr>
                             <td>{{ row['employee_id'] }}</td>
-                            <td>{{ row['employee_f_name'] }}</td>
+                            <td>{{ row['first_name'] }}</td>
+                            <td>{{ row['last_name'] }}</td>
                             <td>{{ row['employee_position'] }}</td>
-                            <td><button class="btn btn-primary btn-block">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block">Delete</button></td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#employee_modal" data-action="edit">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="deleteEmployee(`{{ row['employee_id'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    <script>
+                        function deleteEmployee(employee_id) {
+
+                        }
+                    </script>
                 {% endif %}
             </div>
             
             <!-- Customer Tab-->
-            <div id="customer_list" class="modal" tabindex="-1" role="dialog">
+            <div id="customer_modal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -152,43 +187,78 @@
                             </div>
                         </div>
                         <div class="modal-body">
+                            <form id="customer-form" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_username">Username</label>
+                                    <input class="form-control" type="text" placeholder="Username" id="hotel_name" name="hotel_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_password">Password</label>
+                                    <input class="form-control" type="text" placeholder="Password" id="password" name="password" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_fname">First Name</label>
+                                    <input class="form-control" type="text" placeholder="First Name" id="fname" name="fname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_lname">Last Name</label>
+                                    <input class="form-control" type="text" placeholder="Last Name" id="lname" name="lname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_sxn">SXN</label>
+                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="sxn" name="sxn" maxlength="9" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="customer_address">Address</label>
+                                    <input class="form-control" type="text" placeholder="Address" id="address" name="address" maxlength="30" required>
+                                </div>
+                                <div class="buttonHolder">
+                                    <button type="submit" class="btn btn-primary btn-block">Create</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div> 
             <div class="tab-pane fade" id="customer" role="tabpanel" aria-labelledby="tab-customer">
                 <div class="buttonHolder">
-                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                    <button class="btn btn-primary btn-block mb-4" data-toggle="modal" data-target="#customer_modal" data-action="insert">Insert</button>
                 </div>
                 {% if customer_list %}
                     <table class="table table-striped" id="customer-table">
                         <thead class="table-dark">
                             <tr class="table-col">
-                                <th scope="col">Customer ID</th>
-                                <th scope="col">Customer First Name</th>
-                                <th scope="col">Customer Position</th>
-                                <th scope="col">Edit</th>
-                                <th scope="col">Delete</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Address</th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for row in customer_list %}
                         <tr>
-                            <td>{{ row['customer_id'] }}</td>
-                            <td>{{ row['customer_f_name'] }}</td>
-                            <td>{{ row['customer_position'] }}</td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td>{{ row['username'] }}</td>
+                            <td>{{ row['first_name'] }}</td>
+                            <td>{{ row['last_name'] }}</td>
+                            <td>{{ row['address'] }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#customer_modal" data-action="edit">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="deleteCustomer(`{{ row['username'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    <script>
+                        function deleteCustomer(username) {
+
+                        }
+                    </script>
                 {% endif %}
             </div>
 
             <!-- Room Tab-->
-            <div id="room_list" class="modal" tabindex="-1" role="dialog">
+            <div id="room_modal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -204,43 +274,102 @@
                             </div>
                         </div>
                         <div class="modal-body">
+                            <form id="room-form" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="room_hotel_name">Hotel Name</label>
+                                    <input class="form-control" type="text" placeholder="Hotel Name" id="hotel_name" name="hotel_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_number">Room Number</label>
+                                    <input class="form-control" type="number" placeholder="chain Name" id="room_number" name="room_number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_price">Price</label>
+                                    <input class="form-control" type="number" placeholder="Price" id="price" name="price" step="0.01" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_capacity">Capacity</label>
+                                    <input class="form-control" type="number" placeholder="Capacity" id="capacity" name="capacity" min="1" max="6" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_view_type">View Type</label>
+                                    <select class="form-control" id="view_type" name="view_type" required>
+                                        <option value="">-</option>
+                                        <option value="sea view">Sea View</option>
+                                        <option value="mountain view">Mountain View</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_extend">Can Extend</label>
+                                    <select class="form-control" id="room_extend" name="room_extend" required>
+                                        <option value="">-</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_problems">Has Problems</label>
+                                    <select class="form-control" id="room_problems" name="room_problems" required>
+                                        <option value="">-</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="room_available">Available</label>
+                                    <select class="form-control" id="room_available" name="room_available" required>
+                                        <option value="">-</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <div class="buttonHolder">
+                                    <button type="submit" class="btn btn-primary btn-block">Create</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div> 
             <div class="tab-pane fade" id="room" role="tabpanel" aria-labelledby="tab-room">
                 <div class="buttonHolder">
-                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                    <button class="btn btn-primary btn-block mb-4" data-toggle="modal" data-target="#room_modal" data-action="insert">Insert</button>
                 </div>
                 {% if room_list %}
                     <table class="table table-striped" id="rooms-table">
                         <thead class="table-dark">
                             <tr class="table-col">
-                                <th scope="col">Room ID</th>
-                                <th scope="col">Room First Name</th>
-                                <th scope="col">Room Position</th>
-                                <th scope="col">Edit</th>
-                                <th scope="col">Delete</th>
+                                <th scope="col">Hotel Name</th>
+                                <th scope="col">Room Number</th>
+                                <th scope="col">Capacity</th>
+                                <th scope="col">View Type</th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for row in room_list %}
                         <tr>
-                            <td>{{ row['room_id'] }}</td>
-                            <td>{{ row['room_f_name'] }}</td>
-                            <td>{{ row['room_position'] }}</td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td>{{ row['hotel_name'] }}</td>
+                            <td>{{ row['room_num'] }}</td>
+                            <td>{{ row['capacity'] }}</td>
+                            <td>{{ row['view_type'] }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#room_modal" data-action="edit">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="deleteRoom(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    <script>
+                        function deleteRoom(hotel_name, room_num) {
+
+                        }
+                    </script>
                 {% endif %}
             </div>
 
             <!-- Hotel Tab-->
-            <div id="hotel_list" class="modal" tabindex="-1" role="dialog">
+            <div id="hotel_modal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -256,23 +385,79 @@
                             </div>
                         </div>
                         <div class="modal-body">
+                            <form id="hotel-form" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_name">Hotel Name</label>
+                                    <input class="form-control" type="text" placeholder="Hotel Name" id="hotel_name" name="hotel_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_chain_name">Chain Name</label>
+                                    <input class="form-control" type="text" placeholder="chain Name" id="hotel_chain_name" name="hotel_chain_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_category">Category</label>
+                                    <select class="form-control" id="hotel_category" name="hotel_category">
+                                        <option value="">-</option>
+                                        <option value="1-star">1-star</option>
+                                        <option value="2-star">2-star</option>
+                                        <option value="3-star">3-star</option>
+                                        <option value="4-star">4-star</option>
+                                        <option value="5-star">5-star</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_city">City</label>
+                                    <input class="form-control" type="text" placeholder="City" id="hotel_city" name="hotel_city" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_address">Address</label>
+                                    <input class="form-control" type="text" placeholder="Address" id="hotel_address" name="hotel_address" maxlength="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="manager_fname">Manager First Name</label>
+                                    <input class="form-control" type="text" placeholder="First Name" id="manager_fname" name="manager_fname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="manager_lname">Manager Last Name</label>
+                                    <input class="form-control" type="text" placeholder="Last Name" id="manager_lname" name="manager_lname" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="manager_sxn">Manager SXN</label>
+                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="manager_sxn" name="manager_sxn" maxlength="9">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="manager_address">Manager Address</label>
+                                    <input class="form-control" type="text" placeholder="Address" id="manager_address" name="manager_address" maxlength="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_eaddress">Email Address</label>
+                                    <input class="form-control" type="email" placeholder="name@example.com" id="hotel_eaddress" name="hotel_eaddress" maxlength="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_phone_number">Phone Number</label>
+                                    <input class="form-control" type="number" placeholder="xxxxxxxxxx" id="hotel_phone_number" name="hotel_phone_number" maxlength="20" required>
+                                </div>
+                                <div class="buttonHolder">
+                                    <button type="submit" class="btn btn-primary btn-block">Create</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div> 
             <div class="tab-pane fade" id="hotel" role="tabpanel" aria-labelledby="tab-hotel">
                 <div class="buttonHolder">
-                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                    <button class="btn btn-primary btn-block mb-4" data-toggle="modal" data-target="#hotel_modal" data-action="insert">Insert</button>
                 </div>
                 {% if hotel_list %}
                     <table class="table table-striped" id="hotel-table">
                         <thead class="table-dark">
                             <tr class="table-col">
                                 <th scope="col">Hotel ID</th>
-                                <th scope="col">Hotel First Name</th>
-                                <th scope="col">Hotel Position</th>
-                                <th scope="col">Edit</th>
-                                <th scope="col">Delete</th>
+                                <th scope="col">Hotel Name</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">City</th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -280,19 +465,25 @@
                         {% for row in hotel_list %}
                         <tr>
                             <td>{{ row['hotel_id'] }}</td>
-                            <td>{{ row['hotel_f_name'] }}</td>
-                            <td>{{ row['hotel_position'] }}</td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td>{{ row['hotel_name'] }}</td>
+                            <td>{{ row['category'] }}</td>
+                            <td>{{ row['city'] }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#hotel_modal" data-action="edit">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="deleteHotel(`{{ row['hotel_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    <script>
+                        function deleteHotel(hotel_name) {
+
+                        }
+                    </script>
                 {% endif %}
             </div>
 
             <!-- Chain Tab-->
-            <div id="chain_list" class="modal" tabindex="-1" role="dialog">
+            <div id="chain_modal" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -308,23 +499,40 @@
                             </div>
                         </div>
                         <div class="modal-body">
+                            <form id="hotel-chain-form" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_chain_name">Chain Name</label>
+                                    <input class="form-control" type="text" placeholder="Chain Name" id="hotel_chain_name" name="hotel_chain_name" maxlength="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_chain_eaddress">Email Address</label>
+                                    <input class="form-control" type="email" placeholder="name@example.com" id="hotel_chain_eaddress" name="hotel_chain_eaddress" maxlength="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_chain_phone_number">Phone Number</label>
+                                    <input class="form-control" type="number" placeholder="xxxxxxxxxx" id="hotel_chain_phone_number" name="hotel_chain_phone_number" maxlength="20">
+                                </div>
+                                <div class="buttonHolder">
+                                    <button type="submit" class="btn btn-primary btn-block">Create</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div> 
             <div class="tab-pane fade" id="chain" role="tabpanel" aria-labelledby="tab-chain">
                 <div class="buttonHolder">
-                    <button class="btn btn-primary btn-block mb-4">Insert</button>
+                    <button class="btn btn-primary btn-block mb-4" data-toggle="modal" data-target="#chain_modal" data-action="insert">Insert</button>
                 </div>
                 {% if chain_list %}
                     <table class="table table-striped" id="chain-table">
                         <thead class="table-dark">
                             <tr class="table-col">
                                 <th scope="col">Chain ID</th>
-                                <th scope="col">Chain First Name</th>
-                                <th scope="col">Chain Position</th>
-                                <th scope="col">Edit</th>
-                                <th scope="col">Delete</th>
+                                <th scope="col">Chain Name</th>
+                                <th scope="col">Number of Hotels</th>
+                                <th scope="col">Email</th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -332,16 +540,41 @@
                         {% for row in chain_list %}
                         <tr>
                             <td>{{ row['chain_id'] }}</td>
-                            <td>{{ row['chain_f_name'] }}</td>
-                            <td>{{ row['chain_position'] }}</td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block" onclick="getAvailableRoomDetails('', '', '', '', '', '', '', '', '', `{{ row['hotel_name'] }}`)">Delete</button></td>
+                            <td>{{ row['chain_name'] }}</td>
+                            <td>{{ row['num_hotels'] }}</td>
+                            <td>{{ row['email'] }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#chain_modal" data-action="edit">Edit</button></td>
+                            <td><button class="btn btn-primary btn-block" onclick="deleteHotelChain(`{{ row['chain_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    <script>
+                        function deleteHotelChain(chain_name){
+
+                        }
+                    </script>
                 {% endif %}
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('Hello World')
+                    var modals = document.querySelectorAll('.modal')
+                    modals.forEach(function(modal) {
+                        var modalBtn = modal.querySelector('button[type="submit"]');
+                        modal.addEventListener('show.bs.modal', function(event) {
+                            var btn = event.relatedTarget;
+                            var action = btn.getAttribute('data-action');
+                            if (action === 'insert') {
+                                modalBtn.textContent = 'Create';
+                            } else if (action === 'edit') {
+                                modalBtn.textContent = 'Update';
+                            }
+                        });
+                    });
+
+                });
+            </script>
         </div> 
     </div>
 </body>
