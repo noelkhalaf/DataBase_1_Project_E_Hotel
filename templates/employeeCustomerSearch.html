@@ -105,6 +105,124 @@
                 </div>
             </div>
         </div>
+        <div id="customerPaymentModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h3 class="modal-title">Payment</h3>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <form id="payment-form" method="POST">
+                            <div class="table-name">
+                                <div class="table-left">
+                                    <div class="form-group">
+                                        <label class="form-label" for="fname">First Name</label>
+                                        <input class="form-control" type="text" placeholder="First name" id="fname" name="fname" maxlength="30" autocomplete="off" required>
+                                    </div>
+                                </div>
+                                <div class="table-right">
+                                    <div class="form-group">
+                                        <label class="form-label" for="lname">Last Name</label>
+                                        <input class="form-control" type="text" placeholder="Last name" id="lname" name="lname" maxlength="30" autocomplete="off" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="eaddress">Email Address</label>
+                                <input class="form-control" type="email" placeholder="name@example.com" id="eaddress" name="eaddress" required>
+                            </div>
+                            <div class="table-name">
+                                <div class="table-left">
+                                    <div class="form-group">
+                                        <label class="form-label" for="creditcard">Credit Card Number</label>
+                                        <input class="form-control" type="text" placeholder="xxxx-xxxx-xxxx-xxxx" id="creditcard" name="creditcard" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}" maxlength="19"
+                                            oninvalid="setCustomValidity('Please Follow this format: xxxx-xxxx-xxxx-xxxx')"
+                                            onchange="try{setCustomValidity('')}catch(e){}"
+                                            onkeyup="formatCreditCard(this)" required>
+                                    </div>
+                                </div>
+                                <script>
+                                    function formatCreditCard(f) {
+                                        var fval = f.value.replace(/\D/g, '');;
+                                        var flen = fval.length;
+                                        var newfval = "";
+                                        for (var i = 0; i < flen; i++) {
+                                            if ((i == 4) || (i == 8) || (i == 12)) {
+                                            newfval += "-" + fval[i];
+                                            }
+                                            else {
+                                            newfval += fval[i];
+                                            }
+                                        }
+                                        f.value = newfval;
+                                    }
+                                </script>
+                                <div class="table-right">
+                                    <div class="form-group">
+                                        <label class="form-label" for="cvv">CVV</label>
+                                        <input class="form-control" type="text" placeholder="Last name" id="cvv" name="cvv" maxlength="3" autocomplete="off" 
+                                            oninvalid="setCustomValidity('Please Follow this format: xxx')"
+                                            onchange="try{setCustomValidity('')}catch(e){}"
+                                            onkeyup="formatCVV(this)"required>
+                                    </div>
+                                </div>
+                                <script>
+                                    function formatCVV(f) {
+                                        f.value = f.value.replace(/\D/g, '');;
+                                    }
+                                </script>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="creditcardexpiry">Category</label>
+                                <div class="table-name">
+                                    <div class="table-left">
+                                        <select class="form-control creditcard-expiry-month" name='expireMM' id='expireMM' required>
+                                            <option value=''>Month</option>
+                                            <option value='01'>January</option>
+                                            <option value='02'>February</option>
+                                            <option value='03'>March</option>
+                                            <option value='04'>April</option>
+                                            <option value='05'>May</option>
+                                            <option value='06'>June</option>
+                                            <option value='07'>July</option>
+                                            <option value='08'>August</option>
+                                            <option value='09'>September</option>
+                                            <option value='10'>October</option>
+                                            <option value='11'>November</option>
+                                            <option value='12'>December</option>
+                                        </select>
+                                    </div>
+                                    <div class="table-right">
+                                        <select class="form-control creditcard-expiry-year" name='expireYY' id='expireYY' required>
+                                                <option value=''>Year</option>
+                                                <option value='23'>2023</option>
+                                                <option value='24'>2024</option>
+                                                <option value='25'>2025</option>
+                                                <option value='26'>2026</option>
+                                                <option value='27'>2027</option>
+                                                <option value='28'>2028</option>
+                                                <option value='29'>2029</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="buttonHolder">
+                                <button type="submit" class="btn btn-primary btn-block">Complete Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% if customerRooms %}
             <table class="table table-striped" id="customer-bookings-table">
                 <thead class="table-dark">
@@ -132,7 +250,7 @@
                         {% if showRentals %}
                             <button class="btn btn-primary btn-block" onclick="checkOut()">Check Out</button>
                         {% else %}
-                            <button class="btn btn-primary btn-block" onclick="transformBooking()">Check In</button>
+                            <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#customerPaymentModal" onclick="transformBooking()">Check In</button>
                         {% endif %}
                     </td>
                 </tr>
