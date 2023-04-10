@@ -343,6 +343,72 @@ class EHotels:
             employee_a['positions'] = positions
         return employees
 
+### TABLE TRANSFERS ###
+
+    def checkInBooking(self, employee_id, booking_id):
+        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
+        if sxn is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        result_b = self.getTable(table=booking_t, booking_id=booking_id)
+        if result_b is None:
+            print(f'Booking with id {booking_id} does not exist')
+            return
+        r_username = result_b[1]
+        r_chain_name = result_b[2]
+        r_hotel_name = result_b[3]
+        r_room_num = result_b[4]
+        r_capacity = result_b[5]
+        r_rental_rate = self.getTable('price', table=room_t, hotel_name=r_hotel_name, room_num=r_room_num)
+        r_additional_charges = '0'
+        r_check_in_date = str(date.today())
+        r_check_out_date = result_b[8]
+        r_check_in_e_sxn = sxn
+        
+        if not self.insertRental(r_username, r_chain_name, r_hotel_name, r_room_num, r_capacity, r_rental_rate, r_check_in_date, r_check_out_date, r_check_in_e_sxn, additional_charges=r_additional_charges): return
+        if not self.archiveBooking(booking_id): return
+        return True
+
+    def checkInNoBooking(self, employee_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_out_date, additional_charges='0'):
+        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
+        if sxn is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        
+        if not self.insertRental(username, chain_name, hotel_name, room_num, capacity, rental_rate, str(date.today()), check_out_date, sxn, additional_charges=additional_charges): return
+        return True
+
+    def checkOut(self, employee_id, rental_id):
+        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
+        if sxn is None:
+            print(f'Employee with id {employee_id} does not exist')
+            return
+        result_r = self.getTable(table=rental_t, rental_id=rental_id)
+        if result_r is None:
+            print(f'Rental with id {rental_id} does not exist')
+            return
+
+        try:
+            self.execute("""
+                UPDATE RENTAL
+                SET check_out_date = %s, check_out_e_sxn = %s
+                WHERE rental_id = %s
+                """, params=(str(date.today()), employee_id, rental_id, ))
+        except Exception as e:
+            print('Error:', e)
+        if not self.archiveRental(rental_id): return
+        return True
+
+    def archiveBooking(self, booking_id):
+        if not self.insertBookingArchive(booking_id): return
+        if not self.deleteBooking(booking_id): return
+        return True
+
+    def archiveRental(self, rental_id):
+        if not self.insertRentalArchive(rental_id): return
+        if not self.deleteRental(rental_id): return
+        return True
+
 ### INSERTS ###
 
     def insertHotelChain(self, chain_name, email='', phone_number=''):
@@ -825,7 +891,7 @@ class EHotels:
         else:
             return True
 
-    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address, old_employee_id, positions=None):
+    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, old_employee_id, address='', positions=None):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
