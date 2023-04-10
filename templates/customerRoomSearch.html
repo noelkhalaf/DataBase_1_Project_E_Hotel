@@ -288,7 +288,7 @@
                         if (xhr.readyState === 4 && xhr.status === 200) { 
                             var response = JSON.parse(xhr.responseText);
                             alert(response.message);
-                            location.reload();
+                            window.location.href = '/customerRoomSearch';
                         } else {
                             console.log('Error ' + xhr.status);
                         }
