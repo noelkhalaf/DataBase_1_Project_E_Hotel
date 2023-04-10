@@ -83,13 +83,6 @@ def customerSignUp():
         address = request.form['address']
         password = request.form['password']
 
-        print(username)
-        print(sxn)
-        print(fname)
-        print(lname)
-        print(address)
-        print(password)
-
         eHotels.checkConnection()
         if eHotels.getTable(table=customer_t, username=username):
             flash(f'Customer with username {username} already exists')
