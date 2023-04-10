@@ -270,7 +270,29 @@ def submitEmployee():
     except Exception as e:
         print(e)
     return redirect(url_for('adminHome'))
-    
+
+@app.route('/submitCustomer', methods=['POST'])
+def submitCustomer():
+    modal_action = request.form.get('modal_action')
+
+    username = request.form.get('customer_username')
+    password = request.form.get('customer_password')
+    fname = request.form.get('customer_fname')
+    lname = request.form.get('customer_lname')
+    sxn = request.form.get('customer_sxn')
+    address = request.form.get('customer_address')
+
+    try:
+        if modal_action == 'create':
+            eHotels.checkConnection()
+            msg, passed = eHotels.insertCustomer(username, password, fname, lname, sxn, address)
+        elif modal_action == 'update':
+            customer_id = request.form.get('customer-id-hidden')
+            msg, passed = eHotels.updateCustomer(customer_id, username, password, fname, lname, sxn, address)
+        flash(msg)
+    except Exception as e:
+        print(e)
+    return redirect(url_for('adminHome'))
 
 @app.route('/deleteEmployee', methods=['DELETE'])
 def deleteEmployee():

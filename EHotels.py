@@ -434,9 +434,13 @@ class EHotels:
 
     def insertCustomer(self, username, password, fname, lname, sxn, address):
         msg = 'Successfully inserted!'
-        result_c = self.getTable(table=customer_t, username=username)
-        if result_c is not None:
+        result_c_id = self.getTable(table=customer_t, username=username)
+        if result_c_id is not None:
             msg = f'The username {username} is already taken'
+            return msg, False
+        result_c_sxn = self.getTable(table=customer_t, sxn=sxn)
+        if result_c_sxn is not None:
+            msg = f'Customer with sxn {sxn} already exists'
             return msg, False
         try:
             self.execute('INSERT INTO CUSTOMER VALUES (0, %s, %s, %s, %s, %s, %s, CURDATE())', params=(username, password, fname, lname, sxn, address, ))
@@ -951,13 +955,19 @@ class EHotels:
 
     def updateCustomer(self, customer_id, username, password, fname, lname, sxn, address):
         msg = 'Successfully Updated!'
-        result_c_id,  = self.getTable(table=customer_t, customer_id=customer_id)
+        result_c_id = self.getTable(table=customer_t, customer_id=customer_id)
         if result_c_id is None:
             msg = f'Customer with id {customer_id} does not exist'
             return msg, False
-        result_c_u = self.getTable(table=customer_t, username=username)
+        self.execute(f'SELECT * FROM CUSTOMER WHERE customer_id != "{customer_id}" AND username = "{username}"')
+        result_c_u = self.fetchone()
         if result_c_u is not None:
             msg = f'The username {username} is already taken'
+            return msg, False
+        self.execute(f'SELECT * FROM CUSTOMER WHERE customer_id != "{customer_id}" AND sxn = "{sxn}"')
+        result_c_sxn = self.fetchone()
+        if result_c_sxn is not None:
+            msg = f'Customer with sxn {sxn} already exists'
             return msg, False
         try:
             self.execute("""
