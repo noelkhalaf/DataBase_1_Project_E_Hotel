@@ -161,10 +161,10 @@ class EHotels:
     def getEmployeeRooms(self, employee_id, end_date, room_capacity, view_type, min_price, max_price, start_date=str(date.today())):
         hotel_name = self.getTable('hotel_name', table=employee_t, employee_id=employee_id)
         dict_simple = {
-            'hotel_name': hotel_name,
             'capacity': room_capacity,
             'view_type': view_type,
         }
+        dict_simple.update(hotel_name)
 
         simple_conditions = self.getSimpleConditions(dict_simple, var='roo')
         wrapped_simple_conditions = f"""
@@ -191,10 +191,10 @@ class EHotels:
     def getEmployeeCustomers(self, employee_id, username, date_placed, start_date, end_date, rentals=False):
         hotel_name = self.getTable('hotel_name', table=employee_t, employee_id=employee_id)
         dict_simple = {
-            'hotel_name': hotel_name,
             'username': username,
             'place_date': date_placed,
         }
+        dict_simple.update(hotel_name)
 
         if rentals:
             simple_conditions = self.getSimpleConditions(dict_simple, var='r')
@@ -352,7 +352,7 @@ class EHotels:
 ### TABLE TRANSFERS ###
 
     def checkInBooking(self, employee_id, booking_id):
-        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
+        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)['sxn']
         if sxn is None:
             print(f'Employee with id {employee_id} does not exist')
             return
@@ -365,7 +365,7 @@ class EHotels:
         r_hotel_name = result_b[3]
         r_room_num = result_b[4]
         r_capacity = result_b[5]
-        r_rental_rate = self.getTable('price', table=room_t, hotel_name=r_hotel_name, room_num=r_room_num)
+        r_rental_rate = self.getTable('price', table=room_t, hotel_name=r_hotel_name, room_num=r_room_num)['price']
         r_additional_charges = '0'
         r_check_in_date = str(date.today())
         r_check_out_date = result_b[8]
@@ -376,19 +376,23 @@ class EHotels:
         return True
 
     def checkInNoBooking(self, employee_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_out_date, additional_charges='0'):
-        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
-        if sxn is None:
+        result_e = self.getTable('sxn', table=employee_t, employee_id=employee_id)
+        if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
             return
+        else:
+            sxn = result_e['sxn']
         
         if not self.insertRental(username, chain_name, hotel_name, room_num, capacity, rental_rate, str(date.today()), check_out_date, sxn, additional_charges=additional_charges): return
         return True
 
     def checkOut(self, employee_id, rental_id):
-        sxn = self.getTable('sxn', table=employee_t, employee_id=employee_id)
-        if sxn is None:
+        result_e = self.getTable('sxn', table=employee_t, employee_id=employee_id)['price']
+        if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
             return
+        else:
+            sxn = result_e['price']
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
         if result_r is None:
             print(f'Rental with id {rental_id} does not exist')
@@ -399,7 +403,7 @@ class EHotels:
                 UPDATE RENTAL
                 SET check_out_date = %s, check_out_e_sxn = %s
                 WHERE rental_id = %s
-                """, params=(str(date.today()), employee_id, rental_id, ))
+                """, params=(str(date.today()), employee_id, sxn, rental_id, ))
         except Exception as e:
             print('Error:', e)
         if not self.archiveRental(rental_id): return
@@ -462,10 +466,12 @@ class EHotels:
         if result_hc is None:
             print(f'Hotel chain {chain_name} does not exist')
             return
-        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        else:
+            chain_name_h = result_h['chain_name']
         if chain_name != chain_name_h:
             print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
@@ -581,9 +587,14 @@ class EHotels:
         if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
             return
-        result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
+            return
+        else:
+            chain_name_h = result_h['chain_name']
+        if chain_name != chain_name_h:
+            print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
@@ -622,10 +633,12 @@ class EHotels:
         if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
             return
-        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        else:
+            chain_name_h = result_h['chain_name']
         if chain_name != chain_name_h:
             print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
@@ -906,10 +919,12 @@ class EHotels:
         if result_hc is None:
             print(f'Hotel chain {chain_name} does not exist')
             return
-        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        else:
+            chain_name_h = result_h['chain_name']
         if chain_name != chain_name_h:
             print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
@@ -1069,10 +1084,12 @@ class EHotels:
         if result_hc is None:
             print(f'Hotel chain {chain_name} does not exist')
             return
-        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        else:
+            chain_name_h = result_h['chain_name']
         if chain_name != chain_name_h:
             print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
@@ -1104,10 +1121,12 @@ class EHotels:
         if result_hc is None:
             print(f'Chain name {chain_name} does not exist')
             return
-        chain_name_h, result_h = self.getTable('chain_name', 'hotel_name', table=hotel_t, hotel_name=hotel_name)
+        result_h = self.getTable('chain_name', table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             print(f'Hotel name {hotel_name} does not exist')
             return
+        else:
+            chain_name_h = result_h['chain_name']
         if chain_name != chain_name_h:
             print(f'Hotel {hotel_name} belongs to chain {chain_name_h} not {chain_name}')
             return
