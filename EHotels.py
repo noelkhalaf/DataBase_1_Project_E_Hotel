@@ -910,7 +910,7 @@ class EHotels:
         else:
             return True
 
-    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, old_employee_id, address='', positions=None):
+    def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address='', positions=None):
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
@@ -942,14 +942,14 @@ class EHotels:
             print('Error:', e)
         
         if positions:
-            self.deleteEmployeePositions(old_employee_id)
+            self.deleteEmployeePositions(employee_id)
             for position in positions.split(','):
                 result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
                 if result_ep is not None:
                     print(f'Employee {employee_id} already has position {position}')
                     pass
                 try:
-                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s)', params=(employee_id, position.strip(), ))
+                    self.insertEmployeePosition(employee_id, position.strip())
                 except Exception as e:
                     print('Error:', e)
 
