@@ -221,6 +221,7 @@ def cancelBooking():
     try:
         eHotels.checkConnection()
         if eHotels.deleteBooking(booking_id):
+            eHotels.archiveBooking(booking_id)
             return Response(response=json.dumps({'message': 'Booking cancellation successful'}), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
