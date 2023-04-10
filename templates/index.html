@@ -20,17 +20,17 @@
     </head>
 
 <body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-                <strong class="mr-auto">{{ message }}</strong>
-                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    <strong class="mr-auto">{{ message }}</strong>
+                    <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <h2>E-Hotels</h2>
         <hr>
         <ul class="nav nav-tabs">

@@ -27,7 +27,7 @@ def adminSignIn():
         if username == 'admin' and password == 'admin':
             return redirect(url_for('adminHome'))
         else:
-            flash('Incorrect username or password')
+            flash('Incorrect admin credentials')
     
     return render_template('index.html')
 
@@ -280,18 +280,10 @@ def rentRoomNoBooking():
     capacity = request.form.get('capacity_hidden')
     rental_rate = request.form.get('price_hidden')
 
-    print(employee_id)
-    print(username)
-    print(check_out_date)
-    print(chain_name)
-    print(hotel_name)
-    print(room_num)
-    print(capacity)
-    print(rental_rate)
-
     try:
         eHotels.checkConnection()
         if eHotels.checkInNoBooking(employee_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_out_date):
+            flash(f'Rental of room number: {room_num} at {hotel_name} is successful')
             return redirect(url_for('employeeRoomSearch'))
     except Exception as e:
         print(e)
