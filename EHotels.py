@@ -94,7 +94,13 @@ class EHotels:
         conditions = ' AND '.join(list(filter(None, conditions_lst)))
         return conditions
 
-    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=False):
+    def getAvailableRooms(self, start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, individually=False, default=False):
+        if default:
+            query_default = f'SELECT * FROM view_available_rooms'
+            self.execute(query_default)
+            results_default = self.fetchall()
+            return results_default
+
         dict_simple = {
             'r.capacity': room_capacity,
             'h.city': city,

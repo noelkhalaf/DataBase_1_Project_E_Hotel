@@ -110,8 +110,11 @@ def customerRoomSearch():
     if request.method == 'GET':     
         list_of_cities = eHotels.getTable('city', table=hotel_t, fetchall=True, distinct=True)
         max_room_price = eHotels.getTable('MAX(price)', table=room_t)
-        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
-        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms, max_room_price=max_room_price )
+        if not(start_date or end_date or room_capacity or city or hotel_chain or category or total_no_rooms or min_price or max_price or hotel_name):
+            available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, default=True)
+        else:
+            available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+        return render_template('customerRoomSearch.html', list_of_cities=sorted(list_of_cities, key=lambda x: x['city']), available_rooms=available_rooms, max_room_price=max_room_price)
 
 @app.route('/searchRooms', methods=['GET'])
 def searchRooms():
@@ -128,7 +131,10 @@ def searchRooms():
 
     try: 
         eHotels.checkConnection()
-        available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
+        if not(start_date or end_date or room_capacity or city or hotel_chain or category or total_no_rooms or min_price or max_price or hotel_name):
+            available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name, default=True)
+        else:
+            available_rooms = eHotels.getAvailableRooms(start_date, end_date, room_capacity, city, hotel_chain, category, total_no_rooms, min_price, max_price, hotel_name)
         response = json.dumps(available_rooms)
         return Response(response=response, status=200, mimetype='application/json')
     except Exception as e:
