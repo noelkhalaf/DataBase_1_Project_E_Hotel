@@ -103,19 +103,19 @@
                             tableBody.innerHTML = '';
 
                             var row = document.createElement('tr');
-                            row.innerHTML = '<td>' + response.room_num + '</td>' +
-                                            '<td>' + response.capacity + '</td>' +
-                                            '<td>' + response.view_type + '</td>' +
-                                            '<td>Amenity</td>' +
-                                            '<td>' + response.price + '</td>';
+                            row.innerHTML = '<td>' + response[0].room_num + '</td>' +
+                                            '<td>' + response[0].capacity + '</td>' +
+                                            '<td>' + response[0].view_type + '</td>' +
+                                            '<td>' + response[0].amenities.join(', ') + '</td>' +
+                                            '<td>' + response[0].price  + '</td>';
                             tableBody.appendChild(row)                
                         } else {
                             console.log('Error: ' + xhr.status);
                         }
                     }
 
-                    xhr.open("GET", "/myBookingDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
-                    console.log("GET", "/myBookingDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
+                    xhr.open("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
+                    console.log("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
                     xhr.send()
                 }
             </script>

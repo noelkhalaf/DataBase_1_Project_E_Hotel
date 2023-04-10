@@ -89,6 +89,116 @@
             </div>
         </form>
         <hr>
+        <div id="customerPaymentModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h3 class="modal-title">Payment</h3>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <form id="payment-form" action="/rentRoomNoBooking" method="POST">
+                            <input type="hidden" id="check_out_date_hidden" name="check_out_date_hidden" value="">
+                            <input type="hidden" id="chain_name_hidden" name="chain_name_hidden" value="">
+                            <input type="hidden" id="hotel_name_hidden" name="hotel_name_hidden" value="">
+                            <input type="hidden" id="room_num_hidden" name="room_num_hidden" value="">
+                            <input type="hidden" id="capacity_hidden" name="capacity_hidden" value="">
+                            <input type="hidden" id="price_hidden" name="price_hidden" value="">
+                            <div class="form-group">
+                                <label class="form-label" for="fname">Customer Username</label>
+                                <input class="form-control" type="text" placeholder="username" id="customer_username" name="customer_username" maxlength="30" autocomplete="off" required>
+                            </div>
+                            <div class="table-name">
+                                <div class="table-left">
+                                    <div class="form-group">
+                                        <label class="form-label" for="creditcard">Credit Card Number</label>
+                                        <input class="form-control" type="text" placeholder="xxxx-xxxx-xxxx-xxxx" id="creditcard" name="creditcard" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}" maxlength="19"
+                                            oninvalid="setCustomValidity('Please Follow this format: xxxx-xxxx-xxxx-xxxx')"
+                                            onchange="try{setCustomValidity('')}catch(e){}"
+                                            onkeyup="formatCreditCard(this)" required>
+                                    </div>
+                                </div>
+                                <script>
+                                    function formatCreditCard(f) {
+                                        var fval = f.value.replace(/\D/g, '');;
+                                        var flen = fval.length;
+                                        var newfval = "";
+                                        for (var i = 0; i < flen; i++) {
+                                            if ((i == 4) || (i == 8) || (i == 12)) {
+                                            newfval += "-" + fval[i];
+                                            }
+                                            else {
+                                            newfval += fval[i];
+                                            }
+                                        }
+                                        f.value = newfval;
+                                    }
+                                </script>
+                                <div class="table-right">
+                                    <div class="form-group">
+                                        <label class="form-label" for="cvv">CVV</label>
+                                        <input class="form-control" type="text" placeholder="xxx" id="cvv" name="cvv" maxlength="3" autocomplete="off" 
+                                            oninvalid="setCustomValidity('Please Follow this format: xxx')"
+                                            onchange="try{setCustomValidity('')}catch(e){}"
+                                            onkeyup="formatCVV(this)"required>
+                                    </div>
+                                </div>
+                                <script>
+                                    function formatCVV(f) {
+                                        f.value = f.value.replace(/\D/g, '');;
+                                    }
+                                </script>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="creditcardexpiry">Expiry date</label>
+                                <div class="table-name">
+                                    <div class="table-left">
+                                        <select class="form-control creditcard-expiry-month" name='expireMM' id='expireMM' required>
+                                            <option value=''>Month</option>
+                                            <option value='01'>January</option>
+                                            <option value='02'>February</option>
+                                            <option value='03'>March</option>
+                                            <option value='04'>April</option>
+                                            <option value='05'>May</option>
+                                            <option value='06'>June</option>
+                                            <option value='07'>July</option>
+                                            <option value='08'>August</option>
+                                            <option value='09'>September</option>
+                                            <option value='10'>October</option>
+                                            <option value='11'>November</option>
+                                            <option value='12'>December</option>
+                                        </select>
+                                    </div>
+                                    <div class="table-right">
+                                        <select class="form-control creditcard-expiry-year" name='expireYY' id='expireYY' required>
+                                                <option value=''>Year</option>
+                                                <option value='23'>2023</option>
+                                                <option value='24'>2024</option>
+                                                <option value='25'>2025</option>
+                                                <option value='26'>2026</option>
+                                                <option value='27'>2027</option>
+                                                <option value='28'>2028</option>
+                                                <option value='29'>2029</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="buttonHolder">
+                                <button type="submit" class="btn btn-primary btn-block">Complete Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="rentRoomModal" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -142,19 +252,109 @@
                             <i class="fa fa-circle-info"></i>
                         </button>
                     </td>
-                    <td><button class="btn btn-primary btn-block" onclick="rentRoom(`{{ row['booking_id'] }}`)">CAD {{ row['price'] }}/night</button></td>
+                    <td><button class="btn btn-primary btn-block" onclick="rentRoom(`{{ row['chain_name'] }}`, `{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`, `{{ row['capacity'] }}`, `{{ row['price'] }}`)">CAD {{ row['price'] }}/night</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <script>
-                function getRoomDetails() {
+                var form = document.getElementById("employee-room-search-form");
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
 
+                    var check_out_date = document.getElementById("check_out_date").value;
+                    var min_price = document.getElementById("min_price").value
+                    var max_price = document.getElementById("max_price").value
+                    var room_capacity = document.getElementById("room_capacity").value
+                    var view_type = document.getElementById("view_type").value
+
+                    var formDataObject = {
+                        'check_out_date': check_out_date,
+                        'min_price': min_price,
+                        'max_price': max_price,
+                        'room_capacity': room_capacity,
+                        'view_type': view_type
+                    };
+                    console.log(formDataObject)
+
+                    // set hidden input
+                    document.getElementById('check_out_date_hidden').value = check_out_date;
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                            var tableBody = document.querySelector('#rooms-table tbody')
+                            
+                            tableBody.innerHTML = '';
+
+                            for (var i=0; i < response.length; i++) {
+                                var rooms = response[i];
+                                var row = document.createElement('tr');
+                                row.innerHTML = '<td>' + rooms.hotel_name + '</td>' +
+                                                '<td>' + rooms.room_num+ '</td>' +
+                                                '<td>' + rooms.capacity + '</td>' +
+                                                `<button data-toggle="modal" data-target="#rentRoomModal" onclick="getRoomDetails('${rooms.hotel_name}', '${rooms.room_num}')"><i class="fa fa-circle-info"></i></button>` +
+                                                `<td>
+                                                    <button class="btn btn-primary btn-block" onclick="rentRoom('${rooms.chain_name}', '${rooms.hotel_name}', '${rooms.room_num}', '${rooms.capacity}', '${rooms.price}')">CAD ${rooms.price}/night</button>
+                                                </td>`
+                                tableBody.appendChild(row)                
+                            }
+                        } else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price, true)
+                    console.log("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price)
+                    xhr.send()
+                })
+            </script>
+            <script>
+                function rentRoom(chain_name, hotel_name, room_num, capacity, price) {
+                    var check_out_date = document.getElementById("check_out_date")
+                    if (check_out_date.value === '') {
+                        check_out_date.focus();
+                        alert('Please enter a check out date and then click Search');
+                        return;
+                    }
+
+                    // set hidden input
+                    document.getElementById('chain_name_hidden').value = chain_name;
+                    document.getElementById('hotel_name_hidden').value = hotel_name;
+                    document.getElementById('room_num_hidden').value = room_num;
+                    document.getElementById('capacity_hidden').value = capacity;
+                    document.getElementById('price_hidden').value = price;
+
+                    // open modal
+                    $('#customerPaymentModal').modal('show');
                 }
             </script>
             <script>
-                function rentRoom() {
-                    
+                function getRoomDetails(hotel_name, room_num) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                            var tableBody = document.querySelector('#rent-rooms-table tbody')
+                            
+                            tableBody.innerHTML = '';
+
+                            var row = document.createElement('tr');
+                            row.innerHTML = '<td>' + response[0].room_num + '</td>' +
+                                            '<td>' + response[0].view_type + '</td>' +
+                                            '<td>' + response[0].amenities.join(', ') + '</td>';
+                            tableBody.appendChild(row)                
+                        } else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
+                    console.log("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
+                    xhr.send()
                 }
             </script>
         {% endif %}

@@ -193,9 +193,8 @@ def myBookings():
         bookings = eHotels.getTable(table=booking_t, username=username,fetchall=True)
         return render_template('myBookings.html', bookings=bookings)
 
-# change to roomDetails
-@app.route('/myBookingDetails', methods=['GET'])
-def myBookingDetails():
+@app.route('/roomDetails', methods=['GET'])
+def roomDetails():
     hotel_name = request.args.get('hotel_name')
     room_num = request.args.get('room_num')
     
@@ -204,7 +203,7 @@ def myBookingDetails():
     
     try:
         eHotels.checkConnection()
-        details = eHotels.getTable(table=room_t, room_num=room_num, hotel_name=hotel_name)
+        details = eHotels.getRoomDetails(hotel_name, room_num)
         response = json.dumps(details, default=lambda x: str(x) if isinstance(x, Decimal) else x)
         return Response(response=response, status=200, mimetype='application/json')
     except Exception as e:
@@ -231,7 +230,7 @@ def cancelBooking():
 def employeeCustomerSearch():
     return render_template('employeeCustomerSearch.html')
 
-@app.route('/employeeRoomSearch', methods=['GET'])
+@app.route('/employeeRoomSearch', methods=['GET', 'POST'])
 def employeeRoomSearch():
     employee_id = session.get('employee_id')
     check_out_date = request.form.get('check_out_date', '')
@@ -241,11 +240,61 @@ def employeeRoomSearch():
     view_type = request.form.get('view_type', '')
 
     eHotels.checkConnection()
-    if request.method == 'GET':
+    available_rooms = eHotels.getEmployeeRooms(employee_id, check_out_date, room_capacity, view_type, min_price, max_price)
+    max_room_price = eHotels.getTable('MAX(price)', table=room_t)
+    return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
+    
+
+# employee rooms based on criteria /searchEmployeeRooms
+@app.route('/searchEmployeeRooms', methods=['GET'])
+def searchEmployeeRooms():
+    employee_id = session.get('employee_id')
+    check_out_date = request.args.get('check_out_date')
+    room_capacity = request.args.get('room_capacity')
+    view_type = request.args.get('view_type')
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
+
+    
+    if not(employee_id or check_out_date or room_capacity or view_type or min_price or max_price):
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
         available_rooms = eHotels.getEmployeeRooms(employee_id, check_out_date, room_capacity, view_type, min_price, max_price)
-        print(available_rooms)
-        max_room_price = eHotels.getTable('MAX(price)', table=room_t)
-        return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
+        response = json.dumps(available_rooms, default=lambda x: str(x) if isinstance(x, Decimal) else x)
+        return Response(response=response, status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
+
+@app.route('/rentRoomNoBooking', methods=['POST'])
+def rentRoomNoBooking():
+    employee_id = session.get('employee_id')
+    username = request.form.get('customer_username')
+    check_out_date = request.form.get('check_out_date_hidden')
+    chain_name = request.form.get('chain_name_hidden')
+    hotel_name = request.form.get('hotel_name_hidden')
+    room_num = request.form.get('room_num_hidden')
+    capacity = request.form.get('capacity_hidden')
+    rental_rate = request.form.get('price_hidden')
+
+    print(employee_id)
+    print(username)
+    print(check_out_date)
+    print(chain_name)
+    print(hotel_name)
+    print(room_num)
+    print(capacity)
+    print(rental_rate)
+
+    try:
+        eHotels.checkConnection()
+        if eHotels.checkInNoBooking(employee_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_out_date):
+            return redirect(url_for('employeeRoomSearch'))
+    except Exception as e:
+        print(e)
     
 @app.route('/submitEmployee', methods=['POST'])
 def submitEmployee():
