@@ -162,6 +162,9 @@ CREATE TABLE IF NOT EXISTS BOOKING (
     PRIMARY KEY (booking_id),
     FOREIGN KEY (username) REFERENCES CUSTOMER (username)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (hotel_name, room_num) REFERENCES ROOM (hotel_name, room_num)
+		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -194,6 +197,9 @@ CREATE TABLE IF NOT EXISTS RENTAL (
     PRIMARY KEY (rental_id),
     FOREIGN KEY (username) REFERENCES CUSTOMER (username)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (hotel_name, room_num) REFERENCES ROOM (hotel_name, room_num)
+		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
