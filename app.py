@@ -35,7 +35,7 @@ def adminSignIn():
 def adminHome():
     if request.method == 'GET':
         eHotels.checkConnection()
-        employee_list = eHotels.getTable(table=employee_t, fetchall=True)
+        employee_list = eHotels.getEmployees()
         customer_list = eHotels.getTable(table=customer_t, fetchall=True)
         room_list = eHotels.getTable(table=room_t, fetchall=True)
         hotel_list = eHotels.getTable(table=hotel_t, fetchall=True)
@@ -193,6 +193,7 @@ def myBookings():
         bookings = eHotels.getTable(table=booking_t, username=username,fetchall=True)
         return render_template('myBookings.html', bookings=bookings)
 
+# change to roomDetails
 @app.route('/myBookingDetails', methods=['GET'])
 def myBookingDetails():
     hotel_name = request.args.get('hotel_name')
@@ -246,6 +247,41 @@ def employeeRoomSearch():
         max_room_price = eHotels.getTable('MAX(price)', table=room_t)
         return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
     
+@app.route('/submitEmployee', methods=['POST'])
+def submitEmployee():
+    modal_action = request.form.get('modal_action')
+
+    chain_name = request.form.get('employee_chain_name')
+    hotel_name = request.form.get('employee_hotel_name')
+    fname = request.form.get('employee_fname')
+    lname = request.form.get('employee_lname')
+    sxn = request.form.get('employee_sxn')
+    address = request.form.get('employee_address', '')
+    positions = request.form.get('employee_positions', None)
+
+    print(chain_name)
+    print(hotel_name)
+    print(fname)
+    print(lname)
+    print(sxn)
+    print(address)
+    print(positions)
+
+    try:
+        if modal_action == 'create':
+            eHotels.checkConnection()
+            msg, passed = eHotels.insertEmployee(chain_name, hotel_name, fname, lname, sxn, address, positions)
+        elif modal_action == 'update':
+            print('update employee')
+            employee_id = request.form.get('employee-id-hidden')
+            msg, passed = eHotels.updateEmployee(employee_id, chain_name, hotel_name, fname, lname, sxn, address=address, positions=positions)
+        flash(msg)
+        if passed:
+            return redirect(url_for('adminHome'))
+    except Exception as e:
+        print(e)
+    
+
 @app.route('/deleteEmployee', methods=['DELETE'])
 def deleteEmployee():
     employee_id = request.args.get('employee_id')
@@ -287,7 +323,7 @@ def deleteRoom():
     try:
         eHotels.checkConnection()
         if eHotels.deleteRoom(hotel_name, room_num):
-            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+            return Response(response=json.dumps({'message': 'Room deletion successful'}), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
         return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
@@ -302,7 +338,7 @@ def deleteHotel():
     try:
         eHotels.checkConnection()
         if eHotels.deleteHotel(hotel_name):
-            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+            return Response(response=json.dumps({'message': 'Hotel deletion successful'}), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
         return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
@@ -317,7 +353,7 @@ def deleteHotelChain():
     try:
         eHotels.checkConnection()
         if eHotels.deleteHotelChain(chain_name):
-            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+            return Response(response=json.dumps({'message': 'Hotel Chain deletion successful'}), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
         return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')

@@ -19,7 +19,16 @@
 </head>
 
 <body>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                <strong class="mr-auto">{{ message }}</strong>
+                <button type="button" class="m1-2 mb-1 close" data-dismiss="alert">&times;</button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="container">
         <h2>Admin Home</h2>
         <hr>
@@ -100,7 +109,8 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="employee-form" method="POST">
+                            <form id="employee-form" action="/submitEmployee" method="POST">
+                                <input type="hidden" id="employee-id-hidden" name="employee-id-hidden" value="">
                                 <div class="form-group">
                                     <label class="form-label" for="employee_hotel_name">Hotel Name</label>
                                     <input class="form-control" type="text" placeholder="Hotel Name" id="employee_hotel_name" name="employee_hotel_name" maxlength="30" required>
@@ -123,7 +133,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="employee_address">Address</label>
-                                    <input class="form-control" type="text" placeholder="Address" id="employee_address" name="employee_address" maxlength="30" required>
+                                    <input class="form-control" type="text" placeholder="Address" id="employee_address" name="employee_address" maxlength="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="employee_positions">Position(s)</label>
+                                    <input class="form-control" type="text" placeholder="Format: Position_1, Position_2, Position_3, etc." id="employee_positions" name="employee_positions">
                                 </div>
                                 <input type="hidden" id="modal-action" name="modal_action" value="">
                                 <div class="buttonHolder">
@@ -162,15 +176,15 @@
                             <td>{{ row['employee_id'] }}</td>
                             <td>{{ row['first_name'] }}</td>
                             <td>{{ row['last_name'] }}</td>
-                            <td>{{ row['employee_position'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#employee_modal" data-action="edit" onclick="editEmployeeForm(`{{ row['chain_name'] }}`, `{{ row['hotel_name'] }}`, `{{ row['first_name'] }}`, `{{ row['last_name'] }}`,  `{{ row['sxn'] }}`, `{{ row['address'] }}`)">Edit</button></td>
+                            <td>{{ row['positions']|join(', ') }}</td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#employee_modal" data-action="edit" onclick="editEmployeeForm(`{{ row['chain_name'] }}`, `{{ row['hotel_name'] }}`, `{{ row['first_name'] }}`, `{{ row['last_name'] }}`,  `{{ row['sxn'] }}`, `{{ row['address'] }}`, `{{ row['positions']|join(', ') }}`, `{{ row['employee_id'] }}`)">Edit</button></td>
                             <td><button class="btn btn-primary btn-block" onclick="deleteEmployee(`{{ row['employee_id'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                     <script>
-                        function editEmployeeForm(chain_name, hotel_name, first_name, last_name, sxn, address) {
+                        function editEmployeeForm(chain_name, hotel_name, first_name, last_name, sxn, address, positions, employee_id) {
                             // reset form
                             const form = document.getElementById('employee-form');
                             form.reset();
@@ -182,6 +196,10 @@
                             document.getElementById('employee_lname').value = last_name;
                             document.getElementById('employee_sxn').value = sxn;
                             document.getElementById('employee_address').value = address;
+                            document.getElementById('employee_positions').value = positions;
+
+                            // set hidden input
+                            document.getElementById('employee-id-hidden').value = employee_id;
                         }
                     </script>
                     <script>
@@ -223,7 +241,7 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="customer-form" method="POST">
+                            <form id="customer-form" action="/submitCustomer" method="POST">
                                 <div class="form-group">
                                     <label class="form-label" for="customer_username">Username</label>
                                     <input class="form-control" type="text" placeholder="Username" id="customer_username" name="customer_username" maxlength="30" required>
@@ -346,7 +364,9 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="room-form" method="POST">
+                            <form id="room-form" action="/submitRoom" method="POST">
+                                <input type="hidden" id="old-room-hotel-name" name="old-room-hotel-name" value="">
+                                <input type="hidden" id="old-room-num" name="old-room-num" value="">
                                 <div class="form-group">
                                     <label class="form-label" for="room_hotel_name">Hotel Name</label>
                                     <input class="form-control" type="text" placeholder="Hotel Name" id="room_hotel_name" name="room_hotel_name" maxlength="30" required>
@@ -454,6 +474,10 @@
                             document.getElementById('room_extend').value = can_extend;
                             document.getElementById('room_problems').value = has_problems;
                             document.getElementById('room_available').value = available;
+
+                            // set hidden input
+                            document.getElementById('old-room-hotel-name').value = hotel_name;
+                            document.getElementById('old-room-num').value = room_num;
                         }
                     </script>
                     <script>
@@ -495,7 +519,7 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="hotel-form" method="POST">
+                            <form id="hotel-form" action="/createHotel" method="POST">
                                 <div class="form-group">
                                     <label class="form-label" for="hotel_name">Hotel Name</label>
                                     <input class="form-control" type="text" placeholder="Hotel Name" id="hotel_name" name="hotel_name" maxlength="30" required>
@@ -571,7 +595,7 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="hotel-form" method="POST">
+                            <form id="hotel-form" action="/updateHotel" method="POST">
                                 <div class="form-group">
                                     <label class="form-label" for="hotel_update_name">Hotel Name</label>
                                     <input class="form-control" type="text" placeholder="Hotel Name" id="hotel_update_name" name="hotel_update_name" maxlength="30" required>
@@ -710,7 +734,7 @@
                             </div>
                         </div>
                         <div class="modal-body">
-                            <form id="hotel-chain-form" method="POST">
+                            <form id="hotel-chain-form" action="/submitHotelChain" method="POST">
                                 <div class="form-group">
                                     <label class="form-label" for="chain_name">Chain Name</label>
                                     <input class="form-control" type="text" placeholder="Chain Name" id="chain_name_input" name="chain_name_input" maxlength="30" required>
