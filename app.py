@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, flash, Res
 from decimal import Decimal
 import secrets
 import json
+import datetime
 from EHotels import eHotels
 from include import *
 
@@ -226,9 +227,82 @@ def cancelBooking():
         return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
 
 
-@app.route('/employeeCustomerSearch', methods=['GET'])
+@app.route('/employeeCustomerSearch', methods=['GET', 'POST'])
 def employeeCustomerSearch():
-    return render_template('employeeCustomerSearch.html')
+    show_rental = request.args.get('show-rentals-bookings', 'Bookings')
+
+    employee_id = session.get('employee_id')
+    username = request.form.get('customer_username', '')
+    date_placed = request.form.get('placed_date', '')
+    start_date = request.form.get('check_in_date', '')
+    end_date = request.form.get('check_out_date', '')
+
+    eHotels.checkConnection()
+    if show_rental == 'Bookings':
+        customerRooms = eHotels.getEmployeeCustomers(employee_id, username, date_placed, start_date, end_date)
+    
+    return render_template('employeeCustomerSearch.html', customerRooms=customerRooms, show_rental=show_rental)
+
+@app.route('/searchEmployeeCustomers', methods=['GET'])
+def searchEmployeeCustomers():
+    employee_id = session.get('employee_id')
+    username = request.args.get('username')
+    date_placed = request.args.get('date_placed')
+    check_in_date = request.args.get('check_in_date')
+    check_out_date = request.args.get('check_out_date')
+    show_rentals_bookings = request.args.get('show_rentals_bookings')
+    
+    try:
+        eHotels.checkConnection()
+        if show_rentals_bookings == 'Rentals':
+            customerRooms = eHotels.getEmployeeCustomers(employee_id, username, date_placed, check_in_date, check_out_date, rentals=True)
+        elif show_rentals_bookings == 'Bookings':
+            customerRooms = eHotels.getEmployeeCustomers(employee_id, username, date_placed, check_in_date, check_out_date)
+        response = json.dumps(customerRooms, default=lambda x: str(x) if isinstance(x, Decimal) else x.strftime('%Y-%m-%d') if isinstance(x, datetime.date) else str(x))
+        return Response(response=response, status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
+@app.route('/checkIn', methods=['POST'])
+def checkIn():
+    employee_id = session.get('employee_id')
+    booking_id = request.form.get('booking-id-hidden')
+    print(employee_id)
+    print(booking_id)
+
+    if not(employee_id or booking_id):
+        flash('Invalid input parameters')
+
+    try:
+        eHotels.checkConnection()
+        if eHotels.checkInBooking(employee_id, booking_id):
+            flash('Check In Succesful!')
+            return redirect(url_for('employeeCustomerSearch'))
+    except Exception as e:
+        print(e)
+        flash('Internal server error')
+
+@app.route('/checkOut', methods=['POST'])
+def checkOut():
+    employee_id = session.get('employee_id')
+    rental_id = request.args.get('rental_id')
+
+    print(employee_id)
+    print(rental_id)
+
+    if not(employee_id or rental_id):
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.checkOut(employee_id, rental_id): 
+            return Response(response=json.dumps({'message': 'Check Out Successful!'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
+
 
 @app.route('/employeeRoomSearch', methods=['GET', 'POST'])
 def employeeRoomSearch():
@@ -244,8 +318,6 @@ def employeeRoomSearch():
     max_room_price = eHotels.getTable('MAX(price)', table=room_t)
     return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
     
-
-# employee rooms based on criteria /searchEmployeeRooms
 @app.route('/searchEmployeeRooms', methods=['GET'])
 def searchEmployeeRooms():
     employee_id = session.get('employee_id')
@@ -254,10 +326,6 @@ def searchEmployeeRooms():
     view_type = request.args.get('view_type')
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
-
-    
-    if not(employee_id or check_out_date or room_capacity or view_type or min_price or max_price):
-        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
     
     try:
         eHotels.checkConnection()

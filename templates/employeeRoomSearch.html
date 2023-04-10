@@ -303,7 +303,7 @@
                                 var rooms = response[i];
                                 var row = document.createElement('tr');
                                 row.innerHTML = '<td>' + rooms.hotel_name + '</td>' +
-                                                '<td>' + rooms.room_num+ '</td>' +
+                                                '<td>' + rooms.room_num + '</td>' +
                                                 '<td>' + rooms.capacity + '</td>' +
                                                 `<button data-toggle="modal" data-target="#rentRoomModal" onclick="getRoomDetails('${rooms.hotel_name}', '${rooms.room_num}')"><i class="fa fa-circle-info"></i></button>` +
                                                 `<td>
@@ -316,9 +316,9 @@
                         }
                     }
 
-                    xhr.open("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price, true)
-                    console.log("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price)
-                    xhr.send()
+                    xhr.open("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price, true);
+                    console.log("GET", "/searchEmployeeRooms?check_out_date=" + check_out_date + "&room_capacity=" + room_capacity  + "&view_type=" + view_type + "&min_price=" + min_price + "&max_price=" + max_price);
+                    xhr.send();
                 })
             </script>
             <script>

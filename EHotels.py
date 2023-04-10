@@ -203,7 +203,7 @@ class EHotels:
             if conditions: conditions = f'WHERE {conditions}'
 
             query_rentals = f"""
-                SELECT r.username, r.room_num, r.check_in_date, r.check_out_date, r.additional_charges
+                SELECT r.username, r.rental_id, r.hotel_name, r.room_num, r.check_in_date, r.check_out_date, r.additional_charges
                 FROM RENTAL r
                 {conditions}
             """
@@ -215,7 +215,7 @@ class EHotels:
             if conditions: conditions = f'WHERE {conditions}'
 
             query_bookings = f"""
-                SELECT b.username, b.room_num, b.placed_date, b.exp_check_in_date, b.exp_check_out_date
+                SELECT b.username, b.booking_id, b.hotel_name, b.room_num, b.placed_date, b.exp_check_in_date, b.exp_check_out_date
                 FROM BOOKING b
                 {conditions}
             """
@@ -336,15 +336,15 @@ class EHotels:
         if result_b is None:
             print(f'Booking with id {booking_id} does not exist')
             return
-        r_username = result_b[1]
-        r_chain_name = result_b[2]
-        r_hotel_name = result_b[3]
-        r_room_num = result_b[4]
-        r_capacity = result_b[5]
+        r_username = result_b['username']
+        r_chain_name = result_b['chain_name']
+        r_hotel_name = result_b['hotel_name']
+        r_room_num = result_b['room_num']
+        r_capacity = result_b['capacity']
         r_rental_rate = self.getTable('price', table=room_t, hotel_name=r_hotel_name, room_num=r_room_num)['price']
         r_additional_charges = '0'
         r_check_in_date = str(date.today())
-        r_check_out_date = result_b[8]
+        r_check_out_date = result_b['exp_check_out_date']
         r_check_in_e_sxn = sxn
         
         if not self.insertRental(r_username, r_chain_name, r_hotel_name, r_room_num, r_capacity, r_rental_rate, r_check_in_date, r_check_out_date, r_check_in_e_sxn, additional_charges=r_additional_charges): return
@@ -363,12 +363,12 @@ class EHotels:
         return True
 
     def checkOut(self, employee_id, rental_id):
-        result_e = self.getTable('sxn', table=employee_t, employee_id=employee_id)['price']
+        result_e = self.getTable('sxn', table=employee_t, employee_id=employee_id)
         if result_e is None:
             print(f'Employee with id {employee_id} does not exist')
             return
         else:
-            sxn = result_e['price']
+            sxn = result_e['sxn']
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
         if result_r is None:
             print(f'Rental with id {rental_id} does not exist')
@@ -379,7 +379,7 @@ class EHotels:
                 UPDATE RENTAL
                 SET check_out_date = %s, check_out_e_sxn = %s
                 WHERE rental_id = %s
-                """, params=(str(date.today()), employee_id, sxn, rental_id, ))
+                """, params=(str(date.today()), sxn, rental_id, ))
         except Exception as e:
             print('Error:', e)
             return False
@@ -716,11 +716,11 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
-            msg = 'Hotel chain {chain_name} does not exist'
+            msg = f'Hotel chain {chain_name} does not exist'
             return msg, False
         result_co = self.getTable(table=central_office_t, chain_name=chain_name, address=address)
         if result_co is None:
-            msg = 'Central office for chain {chain_name} at {address} does not exist'
+            msg = f'Central office for chain {chain_name} at {address} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM CENTRAL_OFFICE WHERE chain_name = %s AND address = %s', params=(chain_name, address, ))
@@ -735,7 +735,7 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_c = self.getTable(table=customer_t, username=username)
         if result_c is None:
-            msg = 'Customer with username {username} does not exist'
+            msg = f'Customer with username {username} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM CUSTOMER WHERE username = %s', params=(username, ))
@@ -750,7 +750,7 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
-            msg = 'Employee with id {employee_id} does not exist'
+            msg = f'Employee with id {employee_id} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM EMPLOYEE WHERE employee_id = %s', params=(employee_id, ))
@@ -765,7 +765,7 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
-            msg = 'Hotel name {hotel_name} does not exist'
+            msg = f'Hotel name {hotel_name} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM HOTEL WHERE hotel_name = %s', params=(hotel_name, ))
@@ -780,11 +780,11 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
-            msg = 'Employee with id {employee_id} does not exist'
+            msg = f'Employee with id {employee_id} does not exist'
             return msg, False
         result_ep = self.getTable(table=employee_pos_t, employee_id=employee_id, position=position)
         if result_ep is None:
-            msg = 'Employee with id {employee_id} does not work as {position}'
+            msg = f'Employee with id {employee_id} does not work as {position}'
             return msg, False
         try:
             self.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s AND position = %s', params=(employee_id, position, ))
@@ -799,7 +799,7 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
-            msg = 'Employee with id {employee_id} does not exist'
+            msg = f'Employee with id {employee_id} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s', params=(employee_id, ))
@@ -814,11 +814,11 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
-            msg = 'Hotel name {hotel_name} does not exist'
+            msg = f'Hotel name {hotel_name} does not exist'
             return msg, False
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
-            msg = 'Room number {room_num} does not exist in hotel {hotel_name}'
+            msg = f'Room number {room_num} does not exist in hotel {hotel_name}'
             return msg, False
         try:
             self.execute('DELETE FROM ROOM WHERE hotel_name = %s AND room_num = %s', params=(hotel_name, room_num, ))
@@ -833,15 +833,15 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
-            msg = 'Hotel name {hotel_name} does not exist'
+            msg = f'Hotel name {hotel_name} does not exist'
             return msg, False
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
-            msg = 'Room number {room_num} does not exist in hotel {hotel_name}'
+            msg = f'Room number {room_num} does not exist in hotel {hotel_name}'
             return msg, False
         result_ra = self.getTable(table=room_amenity_t, hotel_name=hotel_name, room_num=room_num, amenity=amenity)
         if result_ra is None:
-            msg = 'Room {room_num} at {hotel_name} does not have {amenity}'
+            msg = f'Room {room_num} at {hotel_name} does not have {amenity}'
             return msg, False
         try:
             self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s AND amenity = %s', params=(hotel_name, room_num, amenity, ))
@@ -856,11 +856,11 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
-            msg = 'Hotel name {hotel_name} does not exist'
+            msg = f'Hotel name {hotel_name} does not exist'
             return msg, False
         result_r = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
         if result_r is None:
-            msg = 'Room number {room_num} does not exist in hotel {hotel_name}'
+            msg = f'Room number {room_num} does not exist in hotel {hotel_name}'
             return msg, False
         try:
             self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s', params=(hotel_name, room_num, ))
@@ -875,7 +875,7 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_b = self.getTable(table=booking_t, booking_id=booking_id)
         if result_b is None:
-            msg = 'Booking with id {booking_id} does not exist'
+            msg = f'Booking with id {booking_id} does not exist'
             return msg, False
         try:
             self.execute('DELETE FROM BOOKING WHERE booking_id = %s', params=(booking_id, ))
@@ -890,10 +890,10 @@ class EHotels:
         msg = 'Successfully Deleted!'
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
         if result_r is None:
-            msg = 'Rental with id {result_r} does not exist'
+            msg = f'Rental with id {rental_id} does not exist'
             return msg, False
         try:
-            self.execute('DELETE FROM RENTAL WHERE result_r = %s', params=(rental_id, ))
+            self.execute('DELETE FROM RENTAL WHERE rental_id = %s', params=(rental_id, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Deletion failed.'

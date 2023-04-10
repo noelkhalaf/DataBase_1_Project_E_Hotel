@@ -60,8 +60,8 @@
             <div class="table">
                 <div class="table-cell">
                     <div class="form-group">
-                        <label class="form-label" for="show">Select</label>
-                        <select class="form-control" id="show" name="show">
+                        <label class="form-label" for="show-rentals-bookings">Select</label>
+                        <select class="form-control" id="show-rentals-bookings" name="show-rentals-bookings">
                             <option value="Bookings">Bookings</option>
                             <option value="Rentals">Rentals</option>
                         </select>
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-striped" id="customer-bookings-table">
+                        <table class="table table-striped" id="customer-bookings-details-table">
                             <thead>
                                 <tr class="table-col">
                                     <th scope="col">Room Number</th>
@@ -121,25 +121,8 @@
                         </div>
                     </div>
                     <div class="modal-body">
-                        <form id="payment-form" method="POST">
-                            <div class="table-name">
-                                <div class="table-left">
-                                    <div class="form-group">
-                                        <label class="form-label" for="fname">First Name</label>
-                                        <input class="form-control" type="text" placeholder="First name" id="fname" name="fname" maxlength="30" autocomplete="off" required>
-                                    </div>
-                                </div>
-                                <div class="table-right">
-                                    <div class="form-group">
-                                        <label class="form-label" for="lname">Last Name</label>
-                                        <input class="form-control" type="text" placeholder="Last name" id="lname" name="lname" maxlength="30" autocomplete="off" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="eaddress">Email Address</label>
-                                <input class="form-control" type="email" placeholder="name@example.com" id="eaddress" name="eaddress" required>
-                            </div>
+                        <form id="payment-form" action="/checkIn" method="POST">
+                            <input type="hidden" id="booking-id-hidden" name="booking-id-hidden" value="">
                             <div class="table-name">
                                 <div class="table-left">
                                     <div class="form-group">
@@ -169,7 +152,7 @@
                                 <div class="table-right">
                                     <div class="form-group">
                                         <label class="form-label" for="cvv">CVV</label>
-                                        <input class="form-control" type="text" placeholder="Last name" id="cvv" name="cvv" maxlength="3" autocomplete="off" 
+                                        <input class="form-control" type="text" placeholder="xxx" id="cvv" name="cvv" maxlength="3" autocomplete="off" 
                                             oninvalid="setCustomValidity('Please Follow this format: xxx')"
                                             onchange="try{setCustomValidity('')}catch(e){}"
                                             onkeyup="formatCVV(this)"required>
@@ -228,9 +211,9 @@
                 <thead class="table-dark">
                     <tr class="table-col">
                         <th scope="col">Room Number</th>
-                        <th scope="col">Date Placed</th>
                         <th scope="col">Check-in Date</th>
                         <th scope="col">Check-out Date</th>
+                        <th scope="col"></th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
@@ -238,33 +221,159 @@
                 {% for row in customerRooms %}
                 <tr>
                     <td>{{ row['room_num'] }}</td>
-                    <td>{{ row['placed_date'] }}</td>
                     <td>{{ row['exp_check_in_date'] }}</td>
                     <td>{{ row['exp_check_out_date'] }}</td>
                     <td>
-                        <button data-toggle="modal" data-target="#rentRoomModal" onclick="getRoomDetails(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">
+                        <button data-toggle="modal" data-target="#customerBookingsModal" onclick="getRoomDetails(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">
                             <i class="fa fa-circle-info"></i>
                         </button>
                     </td>
                     <td>
-                        {% if showRentals %}
-                            <button class="btn btn-primary btn-block" onclick="checkOut()">Check Out</button>
-                        {% else %}
-                            <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#customerPaymentModal" onclick="transformBooking()">Check In</button>
-                        {% endif %}
+                        <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#customerPaymentModal" onclick="transformBooking(`{{ row['booking_id'] }}`)">Check In</button>
                     </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <script>
-                function getRoomDetails() {
-
+                function generateTableHeaders(show_rentals_bookings) {
+                    var headers = '';
+                    if (show_rentals_bookings === 'Rentals') {
+                        headers += '<th>Room Number</th>';
+                        headers += '<th>Check-in Date</th>';
+                        headers += '<th>Check-out Date</th>';
+                        headers += '<th>Additional Charges</th>';
+                        headers += '<th></th>';
+                        headers += '<th></th>';
+                    } else if (show_rentals_bookings === 'Bookings') {
+                        headers += '<th>Room Number</th>';
+                        headers += '<th>Date Placed</th>';
+                        headers += '<th>Check-in Date</th>';
+                        headers += '<th>Check-out Datet</th>';
+                        headers += '<th></th>';
+                        headers += '<th></th>';
+                    }
+                    return headers;
                 }
             </script>
             <script>
-                function transformBooking() {
+                var form = document.getElementById("employee-customer-search-form");
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
 
+                    username = document.getElementById('customer_username').value;
+                    date_placed = document.getElementById('placed_date').value;
+                    check_in_date = document.getElementById('check_in_date').value;
+                    check_out_date = document.getElementById('check_out_date').value;
+                    show_rentals_bookings = document.getElementById('show-rentals-bookings').value;
+
+                    var formDataObject = {
+                        'username': username,
+                        'date_placed': date_placed,
+                        'check_in_date': check_in_date,
+                        'check_out_date': check_out_date,
+                        'show_rentals_bookings': show_rentals_bookings
+                    }
+                    console.log(formDataObject)
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+
+                            // Get the table headers based on the show_rentals_bookings parameter
+                            var tableHeaders = generateTableHeaders(show_rentals_bookings);
+                            var tableHead = document.querySelector('#customer-bookings-table thead');
+                            tableHead.innerHTML = tableHeaders;
+                            
+                            var tableBody = document.querySelector('#customer-bookings-table tbody');
+                            tableBody.innerHTML = '';
+
+                            for (var i=0; i < response.length; i++) {
+                                var rooms = response[i];
+                                console.log(rooms);
+                                var row = document.createElement('tr');
+                                if (show_rentals_bookings === 'Rentals') {
+                                    row.innerHTML = '<td>' + rooms.room_num + '</td>' +
+                                                    '<td>' + rooms.check_in_date + '</td>' +
+                                                    '<td>' + rooms.check_out_date + '</td>' +
+                                                    '<td>' + rooms.additional_charges + '</td>' +
+                                                    `<button data-toggle="modal" data-target="#customerBookingsModal" onclick="getRoomDetails('${rooms.hotel_name}', '${rooms.room_num}')"><i class="fa fa-circle-info"></i></button>` +
+                                                    `<td><button class="btn btn-primary btn-block" onclick="checkOut('${rooms.rental_id}')">Check Out</button></td>`;
+                                } else if (show_rentals_bookings === 'Bookings') {
+                                    row.innerHTML = '<td>' + rooms.room_num + '</td>' +
+                                                    '<td>' + rooms.placed_date + '</td>' +
+                                                    '<td>' + rooms.exp_check_in_date + '</td>' +
+                                                    '<td>' + rooms.exp_check_out_date + '</td>' +
+                                                    `<button data-toggle="modal" data-target="#customerBookingsModal" onclick="getRoomDetails('${rooms.hotel_name}', '${rooms.room_num}')"><i class="fa fa-circle-info"></i></button>` +
+                                                    `<td><button class="btn btn-primary btn-block" data-toggle="modal" data-target="#customerPaymentModal" onclick="transformBooking('${rooms.booking_id}')">Check In</button></td>`;
+                                }
+                                tableBody.appendChild(row);                  
+                            }
+                        } else {
+                            console.log('Error: ' + xhr.status)
+                        }
+                    }
+
+                    xhr.open("GET", "/searchEmployeeCustomers?username=" + encodeURIComponent(username) + "&date_placed=" + date_placed  + "&check_in_date=" + check_in_date + "&check_out_date=" + check_out_date + "&show_rentals_bookings=" + show_rentals_bookings, true);
+                    console.log("GET", "/searchEmployeeCustomers?username=" + username + "&date_placed=" + date_placed  + "&check_in_date=" + check_in_date + "&check_out_date=" + check_out_date + "&show_rentals_bookings=" + show_rentals_bookings);
+                    xhr.send();
+                })
+
+            </script>
+            <script>
+                function getRoomDetails(hotel_name, room_num) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                            var tableBody = document.querySelector('#customer-bookings-details-table tbody')
+                            
+                            tableBody.innerHTML = '';
+
+                            var row = document.createElement('tr');
+                            row.innerHTML = '<td>' + response[0].room_num + '</td>' +
+                                            '<td>' + response[0].capacity + '</td>' +
+                                            '<td>' + response[0].view_type + '</td>' +
+                                            '<td>' + response[0].amenities.join(', ') + '</td>';
+                            tableBody.appendChild(row)                
+                        } else {
+                            console.log('Error: ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
+                    console.log("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
+                    xhr.send()
+                }
+            </script>
+            <script>
+                function transformBooking(booking_id) {
+                    // reset form
+                    const form = document.getElementById('payment-form');
+                    form.reset();
+
+                    // set hidden input
+                    document.getElementById('booking-id-hidden').value = booking_id;
+                }
+            </script>
+            <script>
+                function checkOut(rental_id) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4 && xhr.status === 200) { 
+                            var response = JSON.parse(xhr.responseText);
+                            alert(response.message);
+                        } else {
+                            console.log('Error ' + xhr.status);
+                        }
+                    }
+
+                    xhr.open("POST", "/checkOut?rental_id=" + encodeURIComponent(rental_id), true);
+                    console.log("POST", "/checkOut?rental_id=" + encodeURIComponent(rental_id));
+                    xhr.send();
                 }
             </script>
         {% endif %}
