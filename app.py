@@ -191,8 +191,7 @@ def myBookings():
     username = session.get('username')
     if username:
         eHotels.checkConnection()
-        bookings = eHotels.getTable(table=booking_t, fetchall=True)
-        print(bookings)
+        bookings = eHotels.getTable(table=booking_t, username=username,fetchall=True)
         return render_template('myBookings.html', bookings=bookings)
 
 @app.route('/myBookingDetails', methods=['GET'])
@@ -241,19 +240,88 @@ def employeeRoomSearch():
     room_capacity = request.form.get('room_capacity', '')
     view_type = request.form.get('view_type', '')
 
-    print(employee_id)
-    print(check_out_date)
-    print(min_price)
-    print(max_price)
-    print(room_capacity)
-    print(view_type)
-
     eHotels.checkConnection()
     if request.method == 'GET':
         available_rooms = eHotels.getEmployeeRooms(employee_id, check_out_date, room_capacity, view_type, min_price, max_price)
         print(available_rooms)
         max_room_price = eHotels.getTable('MAX(price)', table=room_t)
         return render_template('employeeRoomSearch.html', available_rooms=available_rooms, max_room_price=max_room_price)
+    
+@app.route('/deleteEmployee', methods=['DELETE'])
+def deleteEmployee():
+    employee_id = request.args.get('employee_id')
+
+    if not employee_id:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteEmployee(employee_id):
+            return Response(response=json.dumps({'message': 'Employee deletion successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+    
+@app.route('/deleteCustomer', methods=['DELETE'])
+def deleteCustomer():
+    username = request.args.get('username')
+
+    if not username:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteCustomer(username):
+            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+    
+@app.route('/deleteRoom', methods=['DELETE'])
+def deleteRoom():
+    hotel_name = request.args.get('hotel_name')
+    room_num = request.args.get('room_num')
+
+    if not hotel_name or not room_num:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteRoom(hotel_name, room_num):
+            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+    
+@app.route('/deleteHotel', methods=['DELETE'])
+def deleteHotel():
+    hotel_name = request.args.get('hotel_name')
+
+    if not hotel_name:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteHotel(hotel_name):
+            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
+
+@app.route('/deleteHotelChain', methods=['DELETE'])
+def deleteHotelChain():
+    chain_name = request.args.get('chain_name')
+
+    if not chain_name:
+        return  Response(response=json.dumps({'error': 'Invalid input parameters'}), status=400, mimetype='application/json')
+    
+    try:
+        eHotels.checkConnection()
+        if eHotels.deleteHotelChain(chain_name):
+            return Response(response=json.dumps({'message': 'Customer deletion successful'}), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response(response=json.dumps({'error': 'Internal server error'}), status=500, mimetype='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True, port=7777)

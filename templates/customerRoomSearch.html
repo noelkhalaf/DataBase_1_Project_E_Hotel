@@ -282,12 +282,13 @@
                 })
             </script>
             <script>
-                function bookRoom(chain_name, hotel_name, room_num, capacity, start_date, end_date) {
+                function bookRoom(chain_name, hotel_name, room_num, capacity, start_date, end_date) { 
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = () => {
                         if (xhr.readyState === 4 && xhr.status === 200) { 
                             var response = JSON.parse(xhr.responseText);
                             alert(response.message);
+                            location.reload();
                         } else {
                             console.log('Error ' + xhr.status);
                         }
@@ -338,8 +339,8 @@
                                                 '<td>' + details.view_type + '</td>' +
                                                 '<td>' + details.amenities.join(', ') + '</td>' +
                                                 '<td>' + details.price + '</td>' +
-                                                '<td><button class="btn btn-primary btn-block" onclick="bookRoom(\'' + hotel_chain + '\', \'' + hotel_name + '\', \'' + details.room_num + '\', \'' + details.capacity + '\', \'' + start_date + '\', \'' + end_date + '\')">Book</button></td>';
-                                tableBody.appendChild(row)                
+                                                '<td><button id="bookRoomBtn" class="btn btn-primary btn-block" onclick="bookRoom(\'' + hotel_chain + '\', \'' + hotel_name + '\', \'' + details.room_num + '\', \'' + details.capacity + '\', \'' + start_date + '\', \'' + end_date + '\'); this.disabled=true;">Book</button></td>';
+                                tableBody.appendChild(row);
                             }
                         } else {
                             console.log('Error: ' + xhr.status);
