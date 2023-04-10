@@ -124,9 +124,9 @@
             <table class="table table-striped" id="rooms-table">
                 <thead class="table-dark">
                     <tr class="table-col">
+                        <th scope="col">Hotel Name</th>
                         <th scope="col">Room Number</th>
                         <th scope="col">Capacity</th>
-                        <th scope="col">Latest Check Out</th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                     </tr>
@@ -134,10 +134,9 @@
                 <tbody>
                 {% for row in available_rooms %}
                 <tr>
+                    <td>{{ row['hotel_name'] }}</td>
                     <td>{{ row['room_num'] }}</td>
                     <td>{{ row['capacity'] }}</td>
-                    <td>{{ row['checkout_date'] }}</td>
-                    <td>{{ row['city'] }}</td>
                     <td>
                         <button data-toggle="modal" data-target="#rentRoomModal" onclick="getRoomDetails(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">
                             <i class="fa fa-circle-info"></i>
