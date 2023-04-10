@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS CUSTOMER (
     sxn CHAR(9) NOT NULL,
     address VARCHAR(30) NOT NULL,
     registration_date DATE NOT NULL,
-    PRIMARY KEY (customer_id)
+    PRIMARY KEY (customer_id),
+    INDEX idx_username (username)
 );
 
 CREATE TABLE IF NOT EXISTS EMPLOYEE (
@@ -72,9 +73,9 @@ CREATE TABLE IF NOT EXISTS HOTEL (
 		ON UPDATE CASCADE,
     FOREIGN KEY (manager_id) REFERENCES EMPLOYEE (employee_id)
         ON DELETE SET NULL
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    INDEX idx_hotel_name (hotel_name)
 );
--- CREATE INDEX index_hotel_id ON HOTEL (hotel_id);
 
 CREATE TRIGGER increment_num_hotels
 AFTER INSERT ON HOTEL
