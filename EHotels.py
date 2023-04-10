@@ -405,7 +405,7 @@ class EHotels:
             msg = f'Hotel chain {chain_name} already exists'
             return msg, False
         try:
-            self.execute('INSERT INTO HOTEL_CHAIN VALUES (%s, 0, %s, %s)', params=(chain_name, email, phone_number, ))
+            self.execute('INSERT INTO HOTEL_CHAIN VALUES (NULL, %s, 0, %s, %s)', params=(chain_name, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -424,7 +424,7 @@ class EHotels:
             msg = f'Central office of hotel chain {chain_name} at {address} already exists'
             return msg, False
         try:
-            self.execute('INSERT INTO CENTRAL_OFFICE VALUES (%s, %s)', params=(chain_name, address, ))
+            self.execute('INSERT INTO CENTRAL_OFFICE VALUES (NULL, %s, %s)', params=(chain_name, address, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -443,7 +443,7 @@ class EHotels:
             msg = f'Customer with sxn {sxn} already exists'
             return msg, False
         try:
-            self.execute('INSERT INTO CUSTOMER VALUES (0, %s, %s, %s, %s, %s, %s, CURDATE())', params=(username, password, fname, lname, sxn, address, ))
+            self.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, %s, %s, CURDATE())', params=(username, password, fname, lname, sxn, address, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -485,7 +485,7 @@ class EHotels:
                     print(f'Employee {employee_id} already has position {position}')
                     pass
                 try:
-                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (%s, %s)', params=(employee_id, position.strip(), ))
+                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (NULL, %s, %s)', params=(employee_id, position.strip(), ))
                 except Exception as e:
                     print('Error:', e)
                     msg = 'Insert failed.'
@@ -505,7 +505,7 @@ class EHotels:
             return msg, False
         manager_id = self.insertEmployee(hotel_name, mgr_fname, mgr_lname, mgr_sxn, mgr_address)
         try:
-            self.execute('INSERT INTO HOTEL VALUES (%s, %s, %s, %s, 0, %s, %s, %s, %s)', params=(hotel_name, chain_name, manager_id, category, city, hotel_address, email, phone_number, ))
+            self.execute('INSERT INTO HOTEL VALUES (NULL, %s, %s, %s, %s, 0, %s, %s, %s, %s)', params=(hotel_name, chain_name, manager_id, category, city, hotel_address, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -543,7 +543,7 @@ class EHotels:
             msg = f'Hotel {hotel_name} already has room number {room_num}'
             return msg, False
         try:
-            self.execute('INSERT INTO ROOM VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
+            self.execute('INSERT INTO ROOM VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)', params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -560,7 +560,7 @@ class EHotels:
                 except Exception as e:
                     print('Error:', e)
                     msg = 'Insert failed.'
-            return msg, False
+                    return msg, False
         
         return msg, True
 
@@ -579,7 +579,7 @@ class EHotels:
             msg = f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity'
             return msg, False
         try:
-            self.execute('INSERT INTO ROOM_AMENITY VALUES (%s, %s, %s)', params=(hotel_name, room_num, amenity, ))
+            self.execute('INSERT INTO ROOM_AMENITY VALUES (NULL, %s, %s, %s)', params=(hotel_name, room_num, amenity, ))
         except Exception as e:
             print('Error:', e)
             msg = 'Insert failed.'
@@ -1029,7 +1029,7 @@ class EHotels:
                 except Exception as e:
                     print('Error:', e)
                     msg = 'Update failed.'
-            return msg, False
+                    return msg, False
 
         return msg, True
 
@@ -1101,9 +1101,10 @@ class EHotels:
         if result_r_id is None:
             msg = f'Room with id {room_id} does not exist'
             return msg, False
-        result_r_n = self.getTable(table=room_t, hotel_name=hotel_name, room_num=room_num)
+        self.execute(f'SELECT * FROM ROOM WHERE room_id != "{room_id}" AND hotel_name = "{hotel_name}" AND room_num = "{room_num}"')
+        result_r_n = self.fetchone()
         if result_r_n is not None:
-            msg = f'Hotel {hotel_name} already has room number {room_num}'
+            msg = f'Hotel {hotel_name} already has a room number {room_num}'
             return msg, False
         try:
             self.execute("""
@@ -1128,7 +1129,7 @@ class EHotels:
                 except Exception as e:
                     print('Error:', e)
                     msg = 'Update failed.'
-            return msg, False
+                    return msg, False
 
         return msg, True
 
