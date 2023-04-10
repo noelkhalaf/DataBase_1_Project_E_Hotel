@@ -227,7 +227,7 @@ JOIN ROOM r ON h.hotel_name = r.hotel_name
 GROUP BY h.city, hc.chain_name, h.hotel_name, h.hotel_name, h.category;
 
 CREATE VIEW view_capacity AS
-SELECT h.hotel_name, r.room_num, r.capacity
+SELECT h.hotel_name, r.room_num, r.capacity, r.price
 FROM HOTEL h
 JOIN ROOM r ON h.hotel_name = r.hotel_name;
 
