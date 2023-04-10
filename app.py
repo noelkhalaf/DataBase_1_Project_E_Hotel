@@ -298,7 +298,7 @@ def submitEmployee():
     lname = request.form.get('employee_lname')
     sxn = request.form.get('employee_sxn')
     address = request.form.get('employee_address', '')
-    positions = request.form.get('employee_positions', None)
+    positions = request.form.get('employee_positions')
 
     try:
         if modal_action == 'create':
@@ -330,6 +330,34 @@ def submitCustomer():
         elif modal_action == 'update':
             customer_id = request.form.get('customer-id-hidden')
             msg, passed = eHotels.updateCustomer(customer_id, username, password, fname, lname, sxn, address)
+        flash(msg)
+    except Exception as e:
+        print(e)
+    return redirect(url_for('adminHome'))
+
+@app.route('/submitRoom', methods=['POST'])
+def submitRoom():
+    modal_action = request.form.get('modal_action')
+
+    hotel_name = request.form.get('room_hotel_name')
+    room_num = request.form.get('room_number')
+    price = request.form.get('room_price')
+    capacity = request.form.get('room_capacity')
+    view_type = request.form.get('room_view_type')
+    can_extend = request.form.get('room_extend', '0')
+    has_problems = request.form.get('room_problems', '0')
+    available =  request.form.get('room_available', '0')
+    amenities = request.form.get('room_amenities')
+
+    try:
+        if modal_action == 'create':
+            eHotels.checkConnection()
+            msg, passed = eHotels.insertRoom(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities)
+        elif modal_action == 'update':
+            room_id = request.form.get('room-id-hidden')
+            old_hotel_name = request.form.get('old-hotel-name')
+            old_room_num = request.form.get('old-room-num')
+            msg, passed = eHotels.updateRoom(room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, old_hotel_name, old_room_num, amenities)
         flash(msg)
     except Exception as e:
         print(e)

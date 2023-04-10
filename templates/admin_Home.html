@@ -165,7 +165,7 @@
                                 <th scope="col">Employee ID</th>
                                 <th scope="col">First Name</th>
                                 <th scope="col">Last Name</th>
-                                <th scope="col">Position</th>
+                                <th scope="col">Positions</th>
                                 <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
@@ -368,7 +368,8 @@
                         </div>
                         <div class="modal-body">
                             <form id="room-form" action="/submitRoom" method="POST">
-                                <input type="hidden" id="old-room-hotel-name" name="old-room-hotel-name" value="">
+                                <input type="hidden" id="room-id-hidden" name="room-id-hidden" value="">
+                                <input type="hidden" id="old-hotel-name" name="old-hotel-name" value="">
                                 <input type="hidden" id="old-room-num" name="old-room-num" value="">
                                 <div class="form-group">
                                     <label class="form-label" for="room_hotel_name">Hotel Name</label>
@@ -376,11 +377,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="room_number">Room Number</label>
-                                    <input class="form-control" type="number" placeholder="chain Name" id="room_number" name="room_number" required>
+                                    <input class="form-control" type="number" placeholder="Room Number" id="room_number" name="room_number" min="1" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="room_price">Price</label>
-                                    <input class="form-control" type="number" placeholder="Price" id="room_price" name="room_price" step="1" min="0" max="1000000" required>
+                                    <input class="form-control" type="number" placeholder="Price" id="room_price" name="room_price" step="0.01" min="0" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="room_capacity">Capacity</label>
@@ -395,28 +396,50 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="room_extend">Can Extend</label>
-                                    <select class="form-control" id="room_extend" name="room_extend" required>
-                                        <option value="">-</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
+                                    <div class="grid-container">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="room_extend" name="room_extend">
+                                            <label class="form-label" for="room_extend">Can Extend</la>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="room_problems" name="room_problems">
+                                            <label class="form-label" for="room_problems">Has Problems</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="room_available" name="room_available">
+                                            <label class="form-label" for="room_available">Available</label>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        const room_extend = document.getElementById('room_extend');
+                                        room_extend.addEventListener('change', function() {
+                                          if (this.checked) {
+                                            room_extend.value = "1";
+                                          } else {
+                                            room_extend.value = "0";
+                                          }
+                                        });
+                                        const room_problems = document.getElementById('room_problems');
+                                        room_problems.addEventListener('change', function() {
+                                          if (this.checked) {
+                                            room_problems.value = "1";
+                                          } else {
+                                            room_problems.value = "0";
+                                          }
+                                        });
+                                        const room_available = document.getElementById('room_available');
+                                        room_available.addEventListener('change', function() {
+                                          if (this.checked) {
+                                            room_available.value = "1";
+                                          } else {
+                                            room_available.value = "0";
+                                          }
+                                        });
+                                    </script>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="room_problems">Has Problems</label>
-                                    <select class="form-control" id="room_problems" name="room_problems" required>
-                                        <option value="">-</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="room_available">Available</label>
-                                    <select class="form-control" id="room_available" name="room_available" required>
-                                        <option value="">-</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
+                                    <label class="form-label" for="room_amenities">Amenities</label>
+                                    <input class="form-control" type="text" placeholder="Format: Amenity_1, Amenity_2, Amenity_3, etc." id="room_amenities" name="room_amenities">
                                 </div>
                                 <input type="hidden" id="modal-action" name="modal_action" value="">
                                 <div class="buttonHolder">
@@ -456,17 +479,32 @@
                             <td>{{ row['room_num'] }}</td>
                             <td>{{ row['capacity'] }}</td>
                             <td>{{ row['view_type'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#room_modal" data-action="edit" onclick="editRoomForm(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`, `{{ row['price'] }}`, `{{ row['capacity'] }}`, `{{ row['view_type'] }}`, `{{ row['can_extend'] }}`, `{{ row['has_problems'] }}`, `{{ row['available'] }}`)">Edit</button></td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#room_modal" data-action="edit" onclick="editRoomForm(`{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`, `{{ row['price'] }}`, `{{ row['capacity'] }}`, `{{ row['view_type'] }}`, `{{ row['can_extend'] }}`, `{{ row['has_problems'] }}`, `{{ row['available'] }}`, `{{ row['amenities']|join(', ') }}`, `{{ row['room_id'] }}`)">Edit</button></td>
                             <td><button class="btn btn-primary btn-block" onclick="deleteRoom(`{{ row['room_id'] }}`, `{{ row['hotel_name'] }}`, `{{ row['room_num'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                     <script>
-                        function editRoomForm(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available) {
+                        function editRoomForm(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities, room_id) {
                             // reset form
                             const form = document.getElementById('customer-form');
                             form.reset();
+                            
+                            var xhr = new XMLHttpRequest();
+                            xhr.onreadystatechange = () => {
+                                if (xhr.readyState === 4 && xhr.status === 200) {
+                                    var response = JSON.parse(xhr.responseText);
+                                    console.log(response)
+                                    document.getElementById('room_amenities').value = response[0].amenities.join(', ');
+                                } else {
+                                    console.log('Error: ' + xhr.status);
+                                }
+                            }
+
+                            xhr.open("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num), true)
+                            console.log("GET", "/roomDetails?hotel_name=" + encodeURIComponent(hotel_name) + "&room_num=" + encodeURIComponent(room_num))
+                            xhr.send()
 
                             // populate form
                             document.getElementById('room_hotel_name').value = hotel_name;
@@ -478,9 +516,20 @@
                             document.getElementById('room_problems').value = has_problems;
                             document.getElementById('room_available').value = available;
 
+                            if (can_extend === '1') {
+                                document.getElementById('room_extend').checked = true;
+                            }
+                            if (has_problems === '1') {
+                                document.getElementById('room_problems').checked = true;
+                            }
+                            if (available === '1') {
+                                document.getElementById('room_available').checked = true;
+                            }
+
                             // set hidden input
-                            document.getElementById('old-room-hotel-name').value = hotel_name;
+                            document.getElementById('old-hotel-name').value = hotel_name;
                             document.getElementById('old-room-num').value = room_num;
+                            document.getElementById('room-id-hidden').value = room_id;
                         }
                     </script>
                     <script>

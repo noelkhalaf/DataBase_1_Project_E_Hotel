@@ -86,3 +86,13 @@ td, th {
 .btn.btn-lg {
     margin-top: 19px !important;
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.checkbox-container {
+    margin-right: 10px;
+}
