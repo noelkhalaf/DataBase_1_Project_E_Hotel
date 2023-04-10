@@ -259,27 +259,17 @@ def submitEmployee():
     address = request.form.get('employee_address', '')
     positions = request.form.get('employee_positions', None)
 
-    print(chain_name)
-    print(hotel_name)
-    print(fname)
-    print(lname)
-    print(sxn)
-    print(address)
-    print(positions)
-
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
             msg, passed = eHotels.insertEmployee(chain_name, hotel_name, fname, lname, sxn, address, positions)
         elif modal_action == 'update':
-            print('update employee')
             employee_id = request.form.get('employee-id-hidden')
             msg, passed = eHotels.updateEmployee(employee_id, chain_name, hotel_name, fname, lname, sxn, address=address, positions=positions)
         flash(msg)
-        if passed:
-            return redirect(url_for('adminHome'))
     except Exception as e:
         print(e)
+    return redirect(url_for('adminHome'))
     
 
 @app.route('/deleteEmployee', methods=['DELETE'])
@@ -291,7 +281,9 @@ def deleteEmployee():
     
     try:
         eHotels.checkConnection()
-        if eHotels.deleteEmployee(employee_id):
+        msg, passed = eHotels.deleteEmployee(employee_id)
+        flash(msg) # Doesn't work
+        if passed:
             return Response(response=json.dumps({'message': 'Employee deletion successful'}), status=200, mimetype='application/json')
     except Exception as e:
         print(e)

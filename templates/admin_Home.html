@@ -129,7 +129,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="employee_sxn">SXN</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="employee_sxn" name="employee_sxn" maxlength="9" required>
+                                    <input class="form-control" type="text" placeholder="xxxxxxxxx" id="employee_sxn" name="employee_sxn" pattern="[0-9]{9}" maxlength="9" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="employee_address">Address</label>
@@ -260,7 +260,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="customer_sxn">SXN</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="customer_sxn" name="customer_sxn" maxlength="9" required>
+                                    <input class="form-control" type="text" placeholder="xxxxxxxxx" id="customer_sxn" name="customer_sxn" pattern="[0-9]{9}" maxlength="9" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="customer_address">Address</label>
@@ -377,7 +377,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="room_price">Price</label>
-                                    <input class="form-control" type="number" placeholder="Price" id="room_price" name="room_price" step="0.01" min="0" required>
+                                    <input class="form-control" type="number" placeholder="Price" id="room_price" name="room_price" step="1" min="0" max="1000000" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="room_capacity">Capacity</label>
@@ -557,7 +557,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="manager_sxn">Manager SXN</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxx" id="manager_sxn" name="manager_sxn" maxlength="9">
+                                    <input class="form-control" type="text" placeholder="xxxxxxxxx" id="manager_sxn" name="manager_sxn" pattern="[0-9]{9}" maxlength="9">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="manager_address">Manager Address</label>
@@ -569,7 +569,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="hotel_phone_number">Phone Number</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxxx" id="hotel_phone_number" name="hotel_phone_number" maxlength="20" required>
+                                    <input class="form-control" type="text" placeholder="(xxx) xxx-xxxx" id="hotel_phone_number" name="hotel_phone_number" maxlength="20" required>
                                 </div>
                                 <div class="buttonHolder">
                                     <button type="submit" class="btn btn-primary btn-block">Create</button>
@@ -633,7 +633,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="hotel_update_phone_number">Phone Number</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxxx" id="hotel_update_phone_number" name="hotel_update_phone_number" maxlength="20" required>
+                                    <input class="form-control" type="text" placeholder="(xxx) xxx-xxxx" id="hotel_update_phone_number" name="hotel_update_phone_number" maxlength="20" required>
                                 </div>
                                 <div class="buttonHolder">
                                     <button type="submit" class="btn btn-primary btn-block">Update</button>
@@ -745,7 +745,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="hotel_chain_phone_number">Phone Number</label>
-                                    <input class="form-control" type="number" placeholder="xxxxxxxxxx" id="hotel_chain_phone_number" name="hotel_chain_phone_number" maxlength="20">
+                                    <input class="form-control" type="text" placeholder="(xxx) xxx-xxxx" id="hotel_chain_phone_number" name="hotel_chain_phone_number" maxlength="20">
                                 </div>
                                 <input type="hidden" id="modal-action" name="modal_action" value="">
                                 <div class="buttonHolder">
