@@ -88,8 +88,8 @@ def customerSignUp():
         if eHotels.getTable(table=customer_t, username=username):
             flash(f'Customer with username {username} already exists')
         else:
-            eHotels.insertCustomer(username, password, fname, lname, sxn, address)
-            flash(f'Customer with username {username} created successfully!')
+            msg, _ = eHotels.insertCustomer(username, password, fname, lname, sxn, address)
+            flash(msg)
             return redirect(url_for('customerSignIn'))
 
     return render_template('customerSignUp.html')
@@ -278,7 +278,7 @@ def checkIn():
     try:
         eHotels.checkConnection()
         if eHotels.checkInBooking(employee_id, booking_id):
-            flash('Check In Succesful!')
+            flash('Check In Successful!')
             return redirect(url_for('employeeCustomerSearch'))
     except Exception as e:
         print(e)
