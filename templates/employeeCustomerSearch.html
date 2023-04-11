@@ -211,6 +211,7 @@
                 <thead class="table-dark">
                     <tr class="table-col">
                         <th scope="col">Room Number</th>
+                        <th scope="col">Date Placed</th>
                         <th scope="col">Check-in Date</th>
                         <th scope="col">Check-out Date</th>
                         <th scope="col"></th>
@@ -221,6 +222,7 @@
                 {% for row in customerRooms %}
                 <tr>
                     <td>{{ row['room_num'] }}</td>
+                    <td>{{ row['placed_date'] }}</td>
                     <td>{{ row['exp_check_in_date'] }}</td>
                     <td>{{ row['exp_check_out_date'] }}</td>
                     <td>
@@ -249,7 +251,7 @@
                         headers += '<th>Room Number</th>';
                         headers += '<th>Date Placed</th>';
                         headers += '<th>Check-in Date</th>';
-                        headers += '<th>Check-out Datet</th>';
+                        headers += '<th>Check-out Date</th>';
                         headers += '<th></th>';
                         headers += '<th></th>';
                     }
