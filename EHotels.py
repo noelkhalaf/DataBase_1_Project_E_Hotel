@@ -521,7 +521,7 @@ class EHotels:
             msg = 'Hotel insert failed.'
             return msg, False
         try:
-            msg, _ = self.updateEmployee(manager_id, chain_name, hotel_name, mgr_fname, mgr_lname, mgr_sxn, address=mgr_address, positions='Manager')
+            self.updateEmployee(manager_id, chain_name, hotel_name, mgr_fname, mgr_lname, mgr_sxn, address=mgr_address, positions='Manager')
         except Exception as e:
             print('Error:', e)
             return msg, False
@@ -923,7 +923,8 @@ class EHotels:
         if result_hc_id is None:
             msg = f'Hotel chain with id {chain_id} does not exist'
             return msg, False
-        result_hc_n = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        self.execute(f'SELECT * FROM HOTEL_CHAIN WHERE chain_id != "{chain_id}" AND chain_name = "{chain_name}"')
+        result_hc_n = self.fetchone()
         if result_hc_n is not None:
             msg = f'Hotel chain {chain_name} already exists'
             return msg, False

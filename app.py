@@ -475,6 +475,26 @@ def updateHotel():
         print(e)
     return redirect(url_for('adminHome'))
 
+@app.route('/submitHotelChain', methods=['POST'])
+def submitHotelChain():
+    modal_action = request.form.get('modal_action')
+
+    chain_name = request.form.get('chain_name_input')
+    email = request.form.get('hotel_chain_eaddress', '')
+    phone_number = request.form.get('hotel_chain_phone_number', '')
+
+    try:
+        if modal_action == 'create':
+            eHotels.checkConnection()
+            msg, _, = eHotels.insertHotelChain(chain_name, email, phone_number)
+        elif modal_action == 'update':
+            chain_id = request.form.get('chain-id-hidden')
+            msg, _ = eHotels.updateHotelChain(chain_id, chain_name, email, phone_number)
+        flash(msg)
+    except Exception as e:
+        print(e)
+    return redirect(url_for('adminHome'))
+
 @app.route('/deleteEmployee', methods=['DELETE'])
 def deleteEmployee():
     employee_id = request.args.get('employee_id')
