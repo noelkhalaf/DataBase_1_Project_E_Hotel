@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, Response, session, jsonify, make_response
+from flask import Flask, request, render_template, redirect, url_for, flash, Response, session
 from decimal import Decimal
 import secrets
 import json
@@ -372,10 +372,10 @@ def submitEmployee():
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
-            msg, passed = eHotels.insertEmployee(chain_name, hotel_name, fname, lname, sxn, address, positions)
+            msg, _, = eHotels.insertEmployee(chain_name, hotel_name, fname, lname, sxn, address, positions)
         elif modal_action == 'update':
             employee_id = request.form.get('employee-id-hidden')
-            msg, passed = eHotels.updateEmployee(employee_id, chain_name, hotel_name, fname, lname, sxn, address=address, positions=positions)
+            msg, _ = eHotels.updateEmployee(employee_id, chain_name, hotel_name, fname, lname, sxn, address=address, positions=positions)
         flash(msg)
     except Exception as e:
         print(e)
@@ -395,10 +395,10 @@ def submitCustomer():
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
-            msg, passed = eHotels.insertCustomer(username, password, fname, lname, sxn, address)
+            msg, _ = eHotels.insertCustomer(username, password, fname, lname, sxn, address)
         elif modal_action == 'update':
             customer_id = request.form.get('customer-id-hidden')
-            msg, passed = eHotels.updateCustomer(customer_id, username, password, fname, lname, sxn, address)
+            msg, _ = eHotels.updateCustomer(customer_id, username, password, fname, lname, sxn, address)
         flash(msg)
     except Exception as e:
         print(e)
@@ -421,12 +421,55 @@ def submitRoom():
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
-            msg, passed = eHotels.insertRoom(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities)
+            msg, _ = eHotels.insertRoom(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities)
         elif modal_action == 'update':
             room_id = request.form.get('room-id-hidden')
             old_hotel_name = request.form.get('old-hotel-name')
             old_room_num = request.form.get('old-room-num')
-            msg, passed = eHotels.updateRoom(room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, old_hotel_name, old_room_num, amenities)
+            msg, _ = eHotels.updateRoom(room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, old_hotel_name, old_room_num, amenities)
+        flash(msg)
+    except Exception as e:
+        print(e)
+    return redirect(url_for('adminHome'))
+
+@app.route('/createHotel', methods=['POST'])
+def createHotel():
+    hotel_name = request.form.get('hotel_name')
+    chain_name = request.form.get('hotel_chain_name')
+    category = request.form.get('hotel_category')
+    city = request.form.get('hotel_city')
+    hotel_address = request.form.get('hotel_address', '')
+    email = request.form.get('hotel_eaddress', '')
+    phone_number = request.form.get('hotel_phone_number')
+
+    mgr_fname = request.form.get('manager_fname')
+    mgr_lname = request.form.get('manager_lname')
+    mgr_sxn = request.form.get('manager_sxn')
+    mgr_address = request.form.get('manager_address')
+
+    try:
+        eHotels.checkConnection()
+        msg, _ = eHotels.insertHotel(hotel_name, chain_name, city, mgr_fname, mgr_lname, category, hotel_address, email, phone_number, mgr_sxn, mgr_address)
+        flash(msg)
+    except Exception as e:
+        print(e)
+    return redirect(url_for('adminHome'))
+
+@app.route('/updateHotel', methods=['POST'])
+def updateHotel():
+    hotel_name = request.form.get('hotel_update_name')
+    chain_name = request.form.get('hotel_update_chain_name')
+    category = request.form.get('hotel_update_category')
+    city = request.form.get('hotel_update_city')
+    hotel_address = request.form.get('hotel_update_address', '')
+    email = request.form.get('hotel_update_eaddress', '')
+    phone_number = request.form.get('hotel_update_phone_number')
+    mgr_id = request.form.get('hotel_update_manager_id')
+
+    hotel_id = request.form.get('hotel-id-hidden')
+
+    try:
+        msg, _ = eHotels.updateHotel(hotel_id, hotel_name, chain_name, mgr_id, category, city, hotel_address, email, phone_number)
         flash(msg)
     except Exception as e:
         print(e)

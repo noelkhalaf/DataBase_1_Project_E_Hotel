@@ -399,7 +399,7 @@ class EHotels:
 ### INSERTS ###
 
     def insertHotelChain(self, chain_name, email='', phone_number=''):
-        msg = 'Successfully inserted!'
+        msg = 'Hotel chain successfully inserted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is not None:
             msg = f'Hotel chain {chain_name} already exists'
@@ -408,13 +408,13 @@ class EHotels:
             self.execute('INSERT INTO HOTEL_CHAIN VALUES (NULL, %s, 0, %s, %s)', params=(chain_name, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Hotel chain insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertCentralOffice(self, chain_name, address):
-        msg = 'Successfully inserted!'
+        msg = 'Central office successfully inserted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Chain name {chain_name} does not exist'
@@ -427,13 +427,13 @@ class EHotels:
             self.execute('INSERT INTO CENTRAL_OFFICE VALUES (NULL, %s, %s)', params=(chain_name, address, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Central office insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertCustomer(self, username, password, fname, lname, sxn, address):
-        msg = 'Successfully inserted!'
+        msg = 'Customer successfully inserted!'
         result_c_id = self.getTable(table=customer_t, username=username)
         if result_c_id is not None:
             msg = f'The username {username} is already taken'
@@ -446,13 +446,13 @@ class EHotels:
             self.execute('INSERT INTO CUSTOMER VALUES (NULL, %s, %s, %s, %s, %s, %s, CURDATE())', params=(username, password, fname, lname, sxn, address, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Customer insert failed.'
             return msg, False
         else:
             return msg, True
 
-    def insertEmployee(self, chain_name, hotel_name, fname, lname, sxn, address='', positions=None):
-        msg = 'Successfully inserted!'
+    def insertEmployee(self, chain_name, hotel_name, fname, lname, sxn, address='', positions=None, hotel=False):
+        msg = 'Employee successfully inserted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Hotel chain {chain_name} does not exist'
@@ -472,10 +472,14 @@ class EHotels:
             return msg, False
         employee_id = self.genEmployeeKey()
         try:
-            self.execute('INSERT INTO EMPLOYEE VALUES (%s, %s, %s, %s, %s, %s, %s)', params=(employee_id, chain_name, fname, lname, sxn, address, hotel_name, ))
+            if hotel:
+                self.execute('INSERT INTO EMPLOYEE (employee_id, chain_name, first_name, last_name, sxn, address)\
+                            VALUES (%s, %s, %s, %s, %s, %s)', params=(employee_id, chain_name, fname, lname, sxn, address, ))
+            else:
+                self.execute('INSERT INTO EMPLOYEE VALUES (%s, %s, %s, %s, %s, %s, %s)', params=(employee_id, chain_name, fname, lname, sxn, address, hotel_name, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Employee insert failed.'
             return msg, False
 
         if positions:
@@ -485,16 +489,18 @@ class EHotels:
                     print(f'Employee {employee_id} already has position {position}')
                     pass
                 try:
-                    self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (NULL, %s, %s)', params=(employee_id, position.strip(), ))
+                    msg, _ = self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (NULL, %s, %s)', params=(employee_id, position.strip(), ))
                 except Exception as e:
                     print('Error:', e)
-                    msg = 'Insert failed.'
             return msg, False
-                
-        return msg, True
+        
+        if hotel:
+            return msg, employee_id
+        else:
+            return msg, True
 
     def insertHotel(self, hotel_name, chain_name, city, mgr_fname, mgr_lname, category='', hotel_address='', email='', phone_number='', mgr_sxn='', mgr_address=''):
-        msg = 'Successfully inserted!'
+        msg = 'Hotel successfully inserted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Chain name {chain_name} does not exist'
@@ -503,18 +509,27 @@ class EHotels:
         if result_h is not None:
             msg = f'Hotel {hotel_name} under hotel chain {chain_name} already exists'
             return msg, False
-        manager_id = self.insertEmployee(hotel_name, mgr_fname, mgr_lname, mgr_sxn, mgr_address)
+        try:
+            msg, manager_id = self.insertEmployee(chain_name, '', mgr_fname, mgr_lname, mgr_sxn, address=mgr_address, hotel=True)
+        except Exception as e:
+            print('Error:', e)
+            return msg, False
         try:
             self.execute('INSERT INTO HOTEL VALUES (NULL, %s, %s, %s, %s, 0, %s, %s, %s, %s)', params=(hotel_name, chain_name, manager_id, category, city, hotel_address, email, phone_number, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Hotel insert failed.'
+            return msg, False
+        try:
+            msg, _ = self.updateEmployee(manager_id, chain_name, hotel_name, mgr_fname, mgr_lname, mgr_sxn, address=mgr_address, positions='Manager')
+        except Exception as e:
+            print('Error:', e)
             return msg, False
         else:
             return msg, True
 
     def insertEmployeePosition(self, employee_id, position):
-        msg = 'Successfully inserted!'
+        msg = 'Employee position successfully inserted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -527,13 +542,13 @@ class EHotels:
             self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (NULL, %s, %s)', params=(employee_id, position, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Employee position insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertRoom(self, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, amenities=None):
-        msg = 'Successfully inserted!'
+        msg = 'Room successfully inserted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -546,7 +561,7 @@ class EHotels:
             self.execute('INSERT INTO ROOM VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)', params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Room insert failed.'
             return msg, False
         
         if amenities:
@@ -556,16 +571,15 @@ class EHotels:
                     print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
                     pass
                 try:
-                    self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
+                    msg, _ = self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
                 except Exception as e:
                     print('Error:', e)
-                    msg = 'Insert failed.'
                     return msg, False
         
         return msg, True
 
     def insertRoomAmenity(self, hotel_name, room_num, amenity):
-        msg = 'Successfully inserted!'
+        msg = 'Room amenity successfully inserted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -582,13 +596,13 @@ class EHotels:
             self.execute('INSERT INTO ROOM_AMENITY VALUES (NULL, %s, %s, %s)', params=(hotel_name, room_num, amenity, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Room amenity insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertBooking(self, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date):
-        msg = 'Successfully inserted!'
+        msg = 'Booking successfully inserted!'
         result_c = self.getTable(table=customer_t, username=username)
         if result_c is None:
             msg = f'The username {username} does not exist'
@@ -615,13 +629,13 @@ class EHotels:
             self.execute('INSERT INTO BOOKING VALUES (%s, %s, %s, %s, %s, %s, CURDATE(), %s, %s)', params=(booking_id, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Booking insert failed.'
             return msg, False
         else:
             return msg, True
         
     def insertBookingArchive(self, booking_id):
-        msg = 'Successfully inserted!'
+        msg = 'Booking archive successfully inserted!'
         result_b = self.getTable(table=booking_t, booking_id=booking_id)
         if result_b is None:
             msg = f'Booking with id {booking_id} does not exist'
@@ -634,13 +648,13 @@ class EHotels:
             self.execute('INSERT INTO BOOKING_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', params=(booking_id, result_b[1], result_b[2], result_b[3], result_b[4], result_b[5], result_b[6], result_b[7], ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Booking archive insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertRental(self, username, chain_name, hotel_name, room_num, capacity, rental_rate, check_in_date, check_out_date, check_in_e_sxn, additional_charges='0'):
-        msg = 'Successfully inserted!'
+        msg = 'Rental successfully inserted!'
         result_c = self.getTable(table=customer_t, username=username)
         if result_c is None:
             msg = f'The username {username} does not exist'
@@ -671,13 +685,13 @@ class EHotels:
             self.execute('INSERT INTO RENTAL VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)', params=(rental_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Rental insert failed.'
             return msg, False
         else:
             return msg, True
 
     def insertRentalArchive(self, rental_id):
-        msg = 'Successfully inserted!'
+        msg = 'Rental archive successfully inserted!'
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
         if result_r is None:
             msg = f'Rental with id {rental_id} does not exist'
@@ -690,7 +704,7 @@ class EHotels:
             self.execute('INSERT INTO RENTAL_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', params=(rental_id, result_r[1], result_r[2], result_r[3], result_r[4], result_r[5], result_r[6], result_r[7], result_r[8], result_r[9], result_r[10], ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Insert failed.'
+            msg = 'Rental archive insert failed.'
             return msg, False
         else:
             return msg, True
@@ -698,7 +712,7 @@ class EHotels:
 ### DELETES ###
 
     def deleteHotelChain(self, chain_name):
-        msg = 'Successfully Deleted!'
+        msg = 'Hotel chain successfully Deleted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Hotel chain {chain_name} does not exist'
@@ -707,13 +721,13 @@ class EHotels:
             self.execute('DELETE FROM HOTEL_CHAIN WHERE chain_name = %s', params=(chain_name, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Hotel chain deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteCentralOffice(self, chain_name, address):
-        msg = 'Successfully Deleted!'
+        msg = 'Central office successfully Deleted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Hotel chain {chain_name} does not exist'
@@ -726,13 +740,13 @@ class EHotels:
             self.execute('DELETE FROM CENTRAL_OFFICE WHERE chain_name = %s AND address = %s', params=(chain_name, address, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Central office deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteCustomer(self, username):
-        msg = 'Successfully Deleted!'
+        msg = 'Customer successfully Deleted!'
         result_c = self.getTable(table=customer_t, username=username)
         if result_c is None:
             msg = f'Customer with username {username} does not exist'
@@ -741,13 +755,13 @@ class EHotels:
             self.execute('DELETE FROM CUSTOMER WHERE username = %s', params=(username, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Customer deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteEmployee(self, employee_id):
-        msg = 'Successfully Deleted!'
+        msg = 'Employee successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -756,13 +770,13 @@ class EHotels:
             self.execute('DELETE FROM EMPLOYEE WHERE employee_id = %s', params=(employee_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Employee deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteHotel(self, hotel_name):
-        msg = 'Successfully Deleted!'
+        msg = 'Hotel successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -771,13 +785,13 @@ class EHotels:
             self.execute('DELETE FROM HOTEL WHERE hotel_name = %s', params=(hotel_name, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Hotel deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteEmployeePosition(self, employee_id, position):
-        msg = 'Successfully Deleted!'
+        msg = 'Employee position successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -790,13 +804,13 @@ class EHotels:
             self.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s AND position = %s', params=(employee_id, position, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Employee position deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteEmployeePositions(self, employee_id):
-        msg = 'Successfully Deleted!'
+        msg = 'Employee positions successfully Deleted!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -805,13 +819,13 @@ class EHotels:
             self.execute('DELETE FROM EMPLOYEE_POSITION WHERE employee_id = %s', params=(employee_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Employee positions deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteRoom(self, hotel_name, room_num):
-        msg = 'Successfully Deleted!'
+        msg = 'Room successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -824,13 +838,13 @@ class EHotels:
             self.execute('DELETE FROM ROOM WHERE hotel_name = %s AND room_num = %s', params=(hotel_name, room_num, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Room deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteRoomAmenity(self, hotel_name, room_num, amenity):
-        msg = 'Successfully Deleted!'
+        msg = 'Room amenity successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -847,13 +861,13 @@ class EHotels:
             self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s AND amenity = %s', params=(hotel_name, room_num, amenity, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Room amenity deletion failed.'
             return msg, False
         else:
             return msg, True
     
     def deleteRoomAmenities(self, hotel_name, room_num):
-        msg = 'Successfully Deleted!'
+        msg = 'Room amenities successfully Deleted!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -866,13 +880,13 @@ class EHotels:
             self.execute('DELETE FROM ROOM_AMENITY WHERE hotel_name = %s AND room_num = %s', params=(hotel_name, room_num, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Room amenity deletion failed.'
             return msg, False
         else:
             return msg, True
 
     def deleteBooking(self, booking_id):
-        msg = 'Successfully Deleted!'
+        msg = 'Booking successfully Deleted!'
         result_b = self.getTable(table=booking_t, booking_id=booking_id)
         if result_b is None:
             msg = f'Booking with id {booking_id} does not exist'
@@ -881,13 +895,13 @@ class EHotels:
             self.execute('DELETE FROM BOOKING WHERE booking_id = %s', params=(booking_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Booking deletion failed.'
             return msg, False
         else:
             return msg, True
     
     def deleteRental(self, rental_id):
-        msg = 'Successfully Deleted!'
+        msg = 'Rental successfully Deleted!'
         result_r = self.getTable(table=rental_t, rental_id=rental_id)
         if result_r is None:
             msg = f'Rental with id {rental_id} does not exist'
@@ -896,7 +910,7 @@ class EHotels:
             self.execute('DELETE FROM RENTAL WHERE rental_id = %s', params=(rental_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Deletion failed.'
+            msg = 'Rental deletion failed.'
             return msg, False
         else:
             return msg, True
@@ -904,7 +918,7 @@ class EHotels:
 ### UPDATES ###
 
     def updateHotelChain(self, chain_id, chain_name, email, phone_number):
-        msg = 'Successfully Updated!'
+        msg = 'Hotel chain successfully Updated!'
         result_hc_id = self.getTable(table=hotel_chain_t, chain_id=chain_id)
         if result_hc_id is None:
             msg = f'Hotel chain with id {chain_id} does not exist'
@@ -921,13 +935,13 @@ class EHotels:
                 """, params=(chain_name, email, phone_number, chain_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Hotel chain update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateCentralOffice(self, central_office_id, chain_name, address):
-        msg = 'Successfully Updated!'
+        msg = 'Central office successfully Updated!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Hotel chain {chain_name} does not exist'
@@ -948,13 +962,13 @@ class EHotels:
                 """, params=(chain_name, address, central_office_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Central office update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateCustomer(self, customer_id, username, password, fname, lname, sxn, address):
-        msg = 'Successfully Updated!'
+        msg = 'Customer successfully Updated!'
         result_c_id = self.getTable(table=customer_t, customer_id=customer_id)
         if result_c_id is None:
             msg = f'Customer with id {customer_id} does not exist'
@@ -977,13 +991,13 @@ class EHotels:
                 """, params=(username, password, fname, lname, sxn, address, customer_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Customer update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateEmployee(self, employee_id, chain_name, hotel_name, fname, lname, sxn, address='', positions=None):
-        msg = 'Successfully Updated!'
+        msg = 'Employee successfully Updated!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -1014,7 +1028,7 @@ class EHotels:
                 """, params=(chain_name, hotel_name, fname, lname, sxn, address, employee_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Employee update failed.'
             return msg, False
       
         if positions:
@@ -1025,16 +1039,15 @@ class EHotels:
                     print(f'Employee {employee_id} already has position {position}')
                     pass
                 try:
-                    self.insertEmployeePosition(employee_id, position.strip())
+                    msg, _ = self.insertEmployeePosition(employee_id, position.strip())
                 except Exception as e:
                     print('Error:', e)
-                    msg = 'Update failed.'
                     return msg, False
 
         return msg, True
 
     def updateHotel(self, hotel_id, hotel_name, chain_name, manager_id, category, city, address, email, phone_number):
-        msg = 'Successfully Updated!'
+        msg = 'Hotel successfully Updated!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is None:
             msg = f'Chain name {chain_name} does not exist'
@@ -1045,9 +1058,10 @@ class EHotels:
             return msg, False
         result_h_id = self.getTable(table=hotel_t, hotel_id=hotel_id)
         if result_h_id is None:
-            msg = f'Hotel with id {hotel_name} does not exist'
+            msg = f'Hotel with id {hotel_id} does not exist'
             return msg, False
-        result_h_n = self.getTable(table=hotel_t, hotel_name=hotel_name)
+        self.execute(f'SELECT * FROM HOTEL WHERE hotel_id != "{hotel_id}" AND hotel_name = "{hotel_name}"')
+        result_h_n = self.fetchone()
         if result_h_n is not None:
             msg = f'Hotel {hotel_name} under hotel chain {chain_name} already exists'
             return msg, False
@@ -1059,13 +1073,28 @@ class EHotels:
                 """, params=(hotel_name, chain_name, manager_id, category, city, address, email, phone_number, hotel_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Hotel update failed.'
+            return msg, False
+        try:
+            self.insertEmployeePosition(manager_id, 'Manager')
+        except Exception as e:
+            print('Error:', e)
+            return msg, False
+        try:
+            employees = self.getTable('employee_id', table=employee_t, fetchall=True)
+            hotels = self.getTable('manager_id', table=hotel_t, fetchall=True)
+            for employee in employees:
+                if not any(employee['employee_id'] == hotel.get('manager_id') for hotel in hotels):
+                    self.deleteEmployeePosition(employee['employee_id'], 'Manager')
+                    self.deleteEmployeePosition(employee['employee_id'], 'manager')
+        except Exception as e:
+            print('Error:', e)
             return msg, False
         else:
             return msg, True
 
     def updateEmployeePosition(self, employee_position_id, employee_id, position):
-        msg = 'Successfully Updated!'
+        msg = 'Employee position successfully Updated!'
         result_e = self.getTable(table=employee_t, employee_id=employee_id)
         if result_e is None:
             msg = f'Employee with id {employee_id} does not exist'
@@ -1086,13 +1115,13 @@ class EHotels:
                 """, params=(employee_id, position, employee_position_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Employee position update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateRoom(self, room_id, hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, old_hotel_name, old_room_num, amenities=None):
-        msg = 'Successfully Updated!'
+        msg = 'Room successfully Updated!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -1114,7 +1143,7 @@ class EHotels:
                 """, params=(hotel_name, room_num, price, capacity, view_type, can_extend, has_problems, available, room_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Room update failed.'
             return msg, False
         
         if amenities:
@@ -1125,16 +1154,15 @@ class EHotels:
                     print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
                     pass
                 try:
-                    self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
+                    msg, _ =self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
                 except Exception as e:
                     print('Error:', e)
-                    msg = 'Update failed.'
                     return msg, False
 
         return msg, True
 
     def updateRoomAmenity(self, room_amenity_id, hotel_name, room_num, amenity):
-        msg = 'Successfully Updated!'
+        msg = 'Room amenity successfully Updated!'
         result_h = self.getTable(table=hotel_t, hotel_name=hotel_name)
         if result_h is None:
             msg = f'Hotel name {hotel_name} does not exist'
@@ -1159,13 +1187,13 @@ class EHotels:
                 """, params=(hotel_name, room_num, amenity, room_amenity_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Room amenity update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateBooking(self, booking_id, username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date):
-        msg = 'Successfully Updated!'
+        msg = 'Booking successfully Updated!'
         result_b = self.getTable(table=booking_t, hotel_name=hotel_name, room_num=room_num)
         if result_b is None:
             msg = f'Booking with id {booking_id} does not exist'
@@ -1199,13 +1227,13 @@ class EHotels:
                 """, params=(username, chain_name, hotel_name, room_num, capacity, exp_check_in_date, exp_check_out_date, booking_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Booking update failed.'
             return msg, False
         else:
             return msg, True
 
     def updateRental(self, rental_id, username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, check_out_e_sxn):
-        msg = 'Successfully Updated!'
+        msg = 'Rental successfully Updated!'
         result_re = self.getTable(table=rental_t, rental_id=rental_id)
         if result_re is None:
             msg = f'Rental with id {rental_id} does not exist'
@@ -1248,7 +1276,7 @@ class EHotels:
                 """, params=(username, chain_name, hotel_name, room_num, capacity, rental_rate, additional_charges, check_in_date, check_out_date, check_in_e_sxn, check_out_e_sxn, rental_id, ))
         except Exception as e:
             print('Error:', e)
-            msg = 'Update failed.'
+            msg = 'Rental update failed.'
             return msg, False
         else:
             return msg, True
