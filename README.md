@@ -9,7 +9,7 @@
 ## Setup
 
 
-1. Ensure your terminal is currently within the `DataBase_1_Project_E_Hotel\` directory by navigating to it.
+1. Ensure your terminal is currently within the `DataBase_1_Project_E_Hotel/` directory by navigating to it.
 
 2. Run `pip3 install -r requirements.txt` in the terminal. This will install all the necessary dependencies for the project.
 
@@ -32,4 +32,4 @@ database = 'e_hotels'
 ## Notes
 
 - To log in as admin: Username: `admin`, Password: `admin`
-- If table information is not update, refresh the page
+- If table information is not updated, refresh the page
