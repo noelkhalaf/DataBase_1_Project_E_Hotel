@@ -803,6 +803,10 @@
                                     <input class="form-control" type="text" placeholder="(xxx) xxx-xxxx" id="hotel_chain_phone_number" name="hotel_chain_phone_number" pattern="[0-9]+" maxlength="20">
                                 </div>
                                 <input type="hidden" id="modal-action" name="modal_action" value="">
+                                <div class="form-group">
+                                    <label class="form-label" for="hotel_chain_central_offices">Central Offices</label>
+                                    <input class="form-control" type="text" placeholder="Format: Address_1, Address_2, Address_3, etc." id="hotel_chain_central_offices" name="hotel_chain_central_offices">
+                                </div>
                                 <div class="buttonHolder">
                                     <button type="submit" class="btn btn-primary btn-block">Create</button>
                                 </div>
@@ -841,14 +845,14 @@
                             <td>{{ row['num_hotels'] }}</td>
                             <td>{{ row['email'] }}</td>
                             <td>{{ row['phone_number'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#chain_modal" data-action="edit" onclick="editChainForm(`{{ row['chain_name'] }}`, `{{ row['email'] }}`, `{{ row['phone_number'] }}`, `{{ row['chain_id'] }}`)">Edit</button></td>
+                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#chain_modal" data-action="edit" onclick="editChainForm(`{{ row['chain_name'] }}`, `{{ row['email'] }}`, `{{ row['phone_number'] }}`, `{{ row['chain_id'] }}`, `{{ row['addresses']|join(', ') }}`)">Edit</button></td>
                             <td><button class="btn btn-primary btn-block" onclick="deleteHotelChain(`{{ row['chain_id'] }}`, `{{ row['chain_name'] }}`)">Delete</button></td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                     <script>
-                        function editChainForm(chain_name, email, phone_number, chain_id) {
+                        function editChainForm(chain_name, email, phone_number, chain_id, central_offices) {
                             // reset form
                             const form = document.getElementById('hotel-chain-form');
                             form.reset();
@@ -857,6 +861,7 @@
                             document.getElementById('chain_name_input').value = chain_name;
                             document.getElementById('hotel_chain_eaddress').value = email;
                             document.getElementById('hotel_chain_phone_number').value = phone_number.replace(/\D/g,'');
+                            document.getElementById('hotel_chain_central_offices').value = central_offices;
 
                             document.getElementById('chain-id-hidden').value = chain_id;
                         }

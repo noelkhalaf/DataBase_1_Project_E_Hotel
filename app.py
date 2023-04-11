@@ -40,7 +40,7 @@ def adminHome():
         customer_list = eHotels.getTable(table=customer_t, fetchall=True)
         room_list = eHotels.getTable(table=room_t, fetchall=True)
         hotel_list = eHotels.getTable(table=hotel_t, fetchall=True)
-        chain_list = eHotels.getTable(table=hotel_chain_t, fetchall=True)
+        chain_list = eHotels.getHotelChains()
 
         return render_template('admin_Home.html', employee_list=employee_list, customer_list=customer_list, room_list=room_list, hotel_list=hotel_list, chain_list=chain_list)
 
@@ -482,14 +482,15 @@ def submitHotelChain():
     chain_name = request.form.get('chain_name_input')
     email = request.form.get('hotel_chain_eaddress', '')
     phone_number = request.form.get('hotel_chain_phone_number', '')
+    central_offices = request.form.get('hotel_chain_central_offices')
 
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
-            msg, _, = eHotels.insertHotelChain(chain_name, email, phone_number)
+            msg, _, = eHotels.insertHotelChain(chain_name, email, phone_number, central_offices)
         elif modal_action == 'update':
             chain_id = request.form.get('chain-id-hidden')
-            msg, _ = eHotels.updateHotelChain(chain_id, chain_name, email, phone_number)
+            msg, _ = eHotels.updateHotelChain(chain_id, chain_name, email, phone_number, central_offices)
         flash(msg)
     except Exception as e:
         print(e)

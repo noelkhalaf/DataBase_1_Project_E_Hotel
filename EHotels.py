@@ -306,6 +306,12 @@ class EHotels:
         results_positions = self.getTable('employee_id', 'position', table=employee_pos_t, fetchall=True)
         results = self.appendEmployeePositions(results_employees, results_positions)
         return results
+    
+    def getHotelChains(self):
+        results_hotel_chains = self.getTable(table=hotel_chain_t, fetchall=True)
+        results_central_offices = self.getTable('chain_name', 'address', table=central_office_t, fetchall=True)
+        results = self.appendChainCentralOffices(results_hotel_chains, results_central_offices)
+        return results
 
     def appendRoomAmenities(self, rooms, room_amenities):
         for room_a in rooms:
@@ -324,6 +330,15 @@ class EHotels:
                     positions.append(employee_b['position'])
             employee_a['positions'] = positions
         return employees
+    
+    def appendChainCentralOffices(self, hotel_chains, central_offices):
+        for hotel_chain in hotel_chains:
+            addresses = []
+            for central_office in central_offices:
+                if hotel_chain['chain_name'] == central_office['chain_name']:
+                    addresses.append(central_office['address'])
+            hotel_chain['addresses'] = addresses
+        return hotel_chains
 
 ### TABLE TRANSFERS ###
 
@@ -398,7 +413,7 @@ class EHotels:
 
 ### INSERTS ###
 
-    def insertHotelChain(self, chain_name, email='', phone_number=''):
+    def insertHotelChain(self, chain_name, email='', phone_number='', central_offices=None):
         msg = 'Hotel chain successfully inserted!'
         result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
         if result_hc is not None:
@@ -410,8 +425,20 @@ class EHotels:
             print('Error:', e)
             msg = 'Hotel chain insert failed.'
             return msg, False
-        else:
-            return msg, True
+        
+        if central_offices:
+            for central_office in central_offices.split(','):
+                result_co = self.getTable(table=central_office_t, chain_name=chain_name, address=central_office)
+                if result_co is not None:
+                    print(f'Chain {chain_name} already has a central office at {central_office}')
+                    pass
+                try:
+                    msg, _ = self.insertCentralOffice(chain_name, central_office.strip())
+                except Exception as e:
+                    print('Error:', e)
+                    return msg, False
+        
+        return msg, True
 
     def insertCentralOffice(self, chain_name, address):
         msg = 'Central office successfully inserted!'
@@ -489,10 +516,10 @@ class EHotels:
                     print(f'Employee {employee_id} already has position {position}')
                     pass
                 try:
-                    msg, _ = self.execute('INSERT INTO EMPLOYEE_POSITION VALUES (NULL, %s, %s)', params=(employee_id, position.strip(), ))
+                    msg, _ = self.insertEmployeePosition(employee_id, position.strip())
                 except Exception as e:
                     print('Error:', e)
-            return msg, False
+                    return msg, False
         
         if hotel:
             return msg, employee_id
@@ -1157,7 +1184,7 @@ class EHotels:
                     print(f'Room {room_num} in hotel {hotel_name} already includes {amenity} amenity')
                     pass
                 try:
-                    msg, _ =self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
+                    msg, _ = self.insertRoomAmenity(hotel_name, room_num, amenity.strip())
                 except Exception as e:
                     print('Error:', e)
                     return msg, False
