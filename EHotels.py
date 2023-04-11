@@ -387,13 +387,13 @@ class EHotels:
         return True
 
     def archiveBooking(self, booking_id):
-        if not self.insertBookingArchive(booking_id): return
-        if not self.deleteBooking(booking_id): return
+        if not self.insertBookingArchive(booking_id)[1]: return
+        if not self.deleteBooking(booking_id)[1]: return
         return True
 
     def archiveRental(self, rental_id):
-        if not self.insertRentalArchive(rental_id): return
-        if not self.deleteRental(rental_id): return
+        if not self.insertRentalArchive(rental_id)[1]: return
+        if not self.deleteRental(rental_id)[1]: return
         return True
 
 ### INSERTS ###
@@ -645,7 +645,8 @@ class EHotels:
             msg = f'Booking archive with id {booking_id} already exists'
             return msg, False
         try:
-            self.execute('INSERT INTO BOOKING_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', params=(booking_id, result_b[1], result_b[2], result_b[3], result_b[4], result_b[5], result_b[6], result_b[7], ))
+            self.execute('INSERT INTO BOOKING_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                        params=(booking_id, result_b['username'], result_b['chain_name'], result_b['hotel_name'], result_b['room_num'], result_b['capacity'], result_b['placed_date'], result_b['exp_check_in_date'], result_b['exp_check_out_date'], ))
         except Exception as e:
             print('Error:', e)
             msg = 'Booking archive insert failed.'
@@ -701,7 +702,8 @@ class EHotels:
             msg = f'Rental archive with id {rental_id} already exists'
             return msg, False
         try:
-            self.execute('INSERT INTO RENTAL_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', params=(rental_id, result_r[1], result_r[2], result_r[3], result_r[4], result_r[5], result_r[6], result_r[7], result_r[8], result_r[9], result_r[10], ))
+            self.execute('INSERT INTO RENTAL_ARCHIVE VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                        params=(rental_id, result_r['username'], result_r['chain_name'], result_r['hotel_name'], result_r['room_num'], result_r['capacity'], result_r['rental_rate'], result_r['additional_charges'], result_r['check_in_date'], result_r['check_out_date'], result_r['check_in_e_sxn'], result_r['check_out_e_sxn'], ))
         except Exception as e:
             print('Error:', e)
             msg = 'Rental archive insert failed.'
