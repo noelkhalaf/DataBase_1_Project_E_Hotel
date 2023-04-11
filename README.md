@@ -3,7 +3,6 @@
 ### Group 25:
 - Noël Khalaf (300079144)
 - Youssef Elfaramawy (300051124)
-- Rageesan Pushparajah (8714073)
 
 ---
 
@@ -29,3 +28,8 @@ database = 'e_hotels'
 
 1. To start the site, simply run `python3 app.py` in the terminal.
 2. Copy the address next to **Running on** shown in the terminal into your browser. Or simply click this link: http://127.0.0.1:7777
+
+## Notes
+
+- To log in as admin: Username: `admin`, Password: `admin`
+- If table information is not update, refresh the page
