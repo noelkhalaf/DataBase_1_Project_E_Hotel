@@ -486,10 +486,11 @@ def submitHotelChain():
     try:
         if modal_action == 'create':
             eHotels.checkConnection()
-            msg, _, = eHotels.insertHotelChain(chain_name, email, phone_number, central_offices)
+            msg, _, = eHotels.insertHotelChain(chain_name, email, phone_number, central_offices=central_offices)
         elif modal_action == 'update':
             chain_id = request.form.get('chain-id-hidden')
-            msg, _ = eHotels.updateHotelChain(chain_id, chain_name, email, phone_number, central_offices)
+            old_chain_name = request.form.get('old-chain-name')
+            msg, _ = eHotels.updateHotelChain(chain_id, chain_name, email, phone_number, old_chain_name, central_offices=central_offices)
         flash(msg)
     except Exception as e:
         print(e)

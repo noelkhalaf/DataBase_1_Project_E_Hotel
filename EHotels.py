@@ -773,6 +773,21 @@ class EHotels:
             return msg, False
         else:
             return msg, True
+        
+    def deleteCentralOffices(self, chain_name):
+        msg = 'Central office successfully Deleted!'
+        result_hc = self.getTable(table=hotel_chain_t, chain_name=chain_name)
+        if result_hc is None:
+            msg = f'Hotel chain {chain_name} does not exist'
+            return msg, False
+        try:
+            self.execute('DELETE FROM CENTRAL_OFFICE WHERE chain_name = %s', params=(chain_name, ))
+        except Exception as e:
+            print('Error:', e)
+            msg = 'Central office deletion failed.'
+            return msg, False
+        else:
+            return msg, True
 
     def deleteCustomer(self, username):
         msg = 'Customer successfully Deleted!'
@@ -946,7 +961,7 @@ class EHotels:
 
 ### UPDATES ###
 
-    def updateHotelChain(self, chain_id, chain_name, email, phone_number):
+    def updateHotelChain(self, chain_id, chain_name, email, phone_number, old_chain_name, central_offices=None):
         msg = 'Hotel chain successfully Updated!'
         result_hc_id = self.getTable(table=hotel_chain_t, chain_id=chain_id)
         if result_hc_id is None:
@@ -967,8 +982,21 @@ class EHotels:
             print('Error:', e)
             msg = 'Hotel chain update failed.'
             return msg, False
-        else:
-            return msg, True
+        
+        if central_offices:
+            self.deleteCentralOffices(old_chain_name)
+            for central_office in central_offices.split(','):
+                result_co = self.getTable(table=central_office_t, chain_name=chain_name, address=central_office)
+                if result_co is not None:
+                    print(f'Chain {chain_name} already has a central office at {central_office}')
+                    pass
+                try:
+                    msg, _ = self.insertCentralOffice(chain_name, central_office.strip())
+                except Exception as e:
+                    print('Error:', e)
+                    return msg, False
+
+        return msg, True
 
     def updateCentralOffice(self, central_office_id, chain_name, address):
         msg = 'Central office successfully Updated!'
