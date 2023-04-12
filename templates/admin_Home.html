@@ -706,70 +706,68 @@
                         form.reset();
                     })
                 </script>
-                {% if hotel_list %}
-                    <table class="table table-striped" id="hotel-table">
-                        <thead class="table-dark">
-                            <tr class="table-col">
-                                <th scope="col">Hotel Name</th>
-                                <th scope="col">Category</th>
-                                <th scope="col">City</th>
-                                <th scope="col">Number of Rooms</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in hotel_list %}
-                        <tr id="{{ row['hotel_id'] }}">
-                            <td>{{ row['hotel_name'] }}</td>
-                            <td>{{ row['category'] }}</td>
-                            <td>{{ row['city'] }}</td>
-                            <td>{{ row['num_rooms'] }}</td>
-                            <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#hotel_update_modal" data-action="edit" onclick="editHotelForm(`{{ row['hotel_name'] }}`, `{{ row['chain_name'] }}`, `{{ row['manager_id'] }}`, `{{ row['category'] }}`, `{{ row['city'] }}`, `{{ row['address'] }}`, `{{ row['email'] }}`, `{{ row['phone_number'] }}`, `{{ row['hotel_id'] }}`)">Edit</button></td>
-                            <td><button class="btn btn-primary btn-block" onclick="deleteHotel(`{{ row['hotel_id'] }}`, `{{ row['hotel_name'] }}`)">Delete</button></td>
+                <table class="table table-striped" id="hotel-table">
+                    <thead class="table-dark">
+                        <tr class="table-col">
+                            <th scope="col">Hotel Name</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">City</th>
+                            <th scope="col">Number of Rooms</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
                         </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <script>
-                        function editHotelForm(hotel_name, chain_name, manager_id, category, city, address, email, phone_number, hotel_id) {
-                            // reset form
-                            const form = document.getElementById('customer-form');
-                            form.reset();
+                    </thead>
+                    <tbody>
+                    {% for row in hotel_list %}
+                    <tr id="{{ row['hotel_id'] }}">
+                        <td>{{ row['hotel_name'] }}</td>
+                        <td>{{ row['category'] }}</td>
+                        <td>{{ row['city'] }}</td>
+                        <td>{{ row['num_rooms'] }}</td>
+                        <td><button type="submit" class="btn btn-primary btn-block" data-toggle="modal" data-target="#hotel_update_modal" data-action="edit" onclick="editHotelForm(`{{ row['hotel_name'] }}`, `{{ row['chain_name'] }}`, `{{ row['manager_id'] }}`, `{{ row['category'] }}`, `{{ row['city'] }}`, `{{ row['address'] }}`, `{{ row['email'] }}`, `{{ row['phone_number'] }}`, `{{ row['hotel_id'] }}`)">Edit</button></td>
+                        <td><button class="btn btn-primary btn-block" onclick="deleteHotel(`{{ row['hotel_id'] }}`, `{{ row['hotel_name'] }}`)">Delete</button></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <script>
+                    function editHotelForm(hotel_name, chain_name, manager_id, category, city, address, email, phone_number, hotel_id) {
+                        // reset form
+                        const form = document.getElementById('customer-form');
+                        form.reset();
 
-                            // populate form
-                            document.getElementById('hotel_update_name').value = hotel_name;
-                            document.getElementById('hotel_update_chain_name').value = chain_name;
-                            document.getElementById('hotel_update_category').value = category;
-                            document.getElementById('hotel_update_city').value = city;
-                            document.getElementById('hotel_update_address').value = address;
-                            document.getElementById('hotel_update_manager_id').value = manager_id;
-                            document.getElementById('hotel_update_eaddress').value = email;
-                            document.getElementById('hotel_update_phone_number').value = phone_number.replace(/\D/g,'');
+                        // populate form
+                        document.getElementById('hotel_update_name').value = hotel_name;
+                        document.getElementById('hotel_update_chain_name').value = chain_name;
+                        document.getElementById('hotel_update_category').value = category;
+                        document.getElementById('hotel_update_city').value = city;
+                        document.getElementById('hotel_update_address').value = address;
+                        document.getElementById('hotel_update_manager_id').value = manager_id;
+                        document.getElementById('hotel_update_eaddress').value = email;
+                        document.getElementById('hotel_update_phone_number').value = phone_number.replace(/\D/g,'');
 
-                            document.getElementById('hotel-id-hidden').value = hotel_id;
-                        }
-                    </script>
-                    <script>
-                        function deleteHotel(hotel_id, hotel_name) {
-                            var xhr = new XMLHttpRequest();
-                            xhr.onreadystatechange = () => {
-                                if (xhr.readyState === 4 && xhr.status === 200) {
-                                    var row = document.getElementById(hotel_id);
-                                    if (row) {
-                                        row.parentNode.removeChild(row);
-                                    }
-                                } else {
-                                    console.log('Error: ' + xhr.status);
+                        document.getElementById('hotel-id-hidden').value = hotel_id;
+                    }
+                </script>
+                <script>
+                    function deleteHotel(hotel_id, hotel_name) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.onreadystatechange = () => {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                var row = document.getElementById(hotel_id);
+                                if (row) {
+                                    row.parentNode.removeChild(row);
                                 }
+                            } else {
+                                console.log('Error: ' + xhr.status);
                             }
-
-                            xhr.open("DELETE", "/deleteHotel?hotel_name=" + encodeURIComponent(hotel_name), true)
-                            console.log("DELETE", "/deleteHotel?hotel_name=" + encodeURIComponent(hotel_name))
-                            xhr.send()
                         }
-                    </script>
-                {% endif %}
+
+                        xhr.open("DELETE", "/deleteHotel?hotel_name=" + encodeURIComponent(hotel_name), true)
+                        console.log("DELETE", "/deleteHotel?hotel_name=" + encodeURIComponent(hotel_name))
+                        xhr.send()
+                    }
+                </script>
             </div>
 
             <!-- Chain Tab-->
